@@ -3,6 +3,7 @@ import { onMount } from "solid-js";
 import { mqttService } from "../service/mqttService.ts";
 import { createLocalStorageSignal } from "../hooks/createLocalStorageSignal.tsx";
 import { TeamScore } from "./TeamScore.tsx";
+import { playGoalSound } from "../service/soundService.ts";
 
 interface ScoreBoardProps {
   settings: ISettings;
@@ -22,8 +23,10 @@ export function ScoreBoard(props: ScoreBoardProps) {
         const data = JSON.parse(msg); // Parse JSON
         if (data.team === "black") {
           setScoreBlack((prev) => prev + data.value);
+          playGoalSound();
         } else if (data.team === "yellow") {
           setScoreYellow((prev) => prev + data.value);
+          playGoalSound();
         }
       } catch (error) {
         console.error("Failed to parse MQTT message:", msg, error);
