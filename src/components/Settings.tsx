@@ -21,7 +21,7 @@ export function Settings(props: SettingsProps) {
     <>
       <div class="card card-border bg-base-300">
         <div class="card-body">
-          <h2 class="card-title">Settings</h2>
+          <h2 class="card-title text-2xl">Settings</h2>
           <input
             class="input"
             type="text"
