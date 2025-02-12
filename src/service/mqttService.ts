@@ -6,6 +6,7 @@ type MqttEvents = {
 };
 
 const options: IClientOptions = {
+  clientId: import.meta.env.VITE_MQTT_CLIENT_ID,
   username: import.meta.env.VITE_MQTT_USERNAME,
   password: import.meta.env.VITE_MQTT_PASSWORD,
   rejectUnauthorized: false,
