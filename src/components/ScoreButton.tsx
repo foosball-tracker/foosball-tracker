@@ -1,18 +1,15 @@
-import { JSX, mergeProps, Setter } from "solid-js";
+import { JSX } from "solid-js";
 import { playGoalSound } from "../service/soundService.ts";
 
 interface ScoreButtonProps {
-  direction?: 1 | -1; // Default is 1 (increment)
-  onUpdate: Setter<number>;
+  direction: number;
+  updateScore: (inc: number) => void;
 }
 
-export function ScoreButton(passedProps: ScoreButtonProps): JSX.Element {
-  const props = mergeProps({ direction: 1 }, passedProps);
-
+export function ScoreButton(props: ScoreButtonProps): JSX.Element {
   const handleClick = () => {
-    const increment = props.direction;
     playGoalSound();
-    props.onUpdate((prev) => prev + increment);
+    props.updateScore(props.direction);
   };
 
   return (

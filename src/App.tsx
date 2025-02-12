@@ -26,7 +26,7 @@ function App() {
       <div class="flex flex-wrap gap-4">
         <div class="flex min-w-[250px] flex-1 flex-col gap-4">
           <ScoreBoard settings={settings} />
-          <GoalHistory />
+          <GoalHistory settings={settings} />
         </div>
         <div class="min-w-[250px] flex-1">
           <Settings settings={settings} setSettings={setSettings} />
