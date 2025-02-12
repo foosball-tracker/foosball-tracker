@@ -41,10 +41,21 @@ export function ScoreBoard(props: ScoreBoardProps) {
     };
   });
 
+  const resetScores = () => {
+    setScoreBlack(0);
+    setScoreYellow(0);
+  };
+
   return (
     <div class="card card-border bg-base-300 max-w-3xl">
       <div class="card-body">
-        <h2 class="card-title text-2xl">Score</h2>
+        <div class="flex justify-between">
+          <h2 class="card-title text-2xl">Score</h2>
+          <button class="btn btn-sm btn-error mt-4" onClick={resetScores}>
+            Reset Score
+          </button>
+        </div>
+
         <div class="flex items-center justify-center gap-8">
           <TeamScore
             teamName={props.settings.blackTeam}

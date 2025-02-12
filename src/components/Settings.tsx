@@ -1,4 +1,4 @@
-import { Part, SetStoreFunction } from "solid-js/store";
+import { SetStoreFunction } from "solid-js/store";
 import { ISettings } from "../types/Settings.ts";
 
 interface SettingsProps {
@@ -8,11 +8,8 @@ interface SettingsProps {
 
 export function Settings(props: SettingsProps) {
   const setTeamName = (
-    event: InputEvent & {
-      currentTarget: HTMLInputElement;
-      target: HTMLInputElement;
-    },
-    path: Part<ISettings, keyof ISettings>
+    path: keyof ISettings,
+    event: InputEvent & { currentTarget: HTMLInputElement; target: HTMLInputElement }
   ) => {
     props.setSettings(path, event.target.value);
   };
@@ -27,16 +24,14 @@ export function Settings(props: SettingsProps) {
             type="text"
             placeholder={"Name Schwarzes Team"}
             value={props.settings.blackTeam}
-            onInput={(event) => setTeamName(event, "blackTeam")}
+            onInput={[setTeamName, "blackTeam"]}
           />
           <input
             class="input"
             type="text"
             placeholder={"Name Gelbes Team"}
             value={props.settings.yellowTeam}
-            onInput={(e) => {
-              props.setSettings("yellowTeam", e.target.value);
-            }}
+            onInput={[setTeamName, "yellowTeam"]}
           />
         </div>
       </div>

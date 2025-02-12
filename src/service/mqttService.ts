@@ -9,6 +9,9 @@ const options: IClientOptions = {
   username: import.meta.env.VITE_MQTT_USERNAME,
   password: import.meta.env.VITE_MQTT_PASSWORD,
   rejectUnauthorized: false,
+  clean: false,
+  reconnectPeriod: 3000, // Try reconnecting every 2s
+  connectTimeout: 10000, // Give up connecting after 5s
 };
 
 class MQTTService {
