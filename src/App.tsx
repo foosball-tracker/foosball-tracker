@@ -5,6 +5,7 @@ import { GoalHistory } from "./components/GoalHistory.tsx";
 import { ISettings } from "./types/Settings.ts";
 import { ThemeSwitch } from "./components/ThemeSwitch.tsx";
 import { createLocalStorageStore } from "./hooks/createLocalStorageStore.tsx";
+import { MqttStatus } from "./components/MqttStatus.tsx";
 
 function App() {
   const [settings, setSettings] = createLocalStorageStore<ISettings>("settings", {
@@ -15,8 +16,11 @@ function App() {
   return (
     <div class="flex min-h-screen flex-col p-4">
       <div class="flex justify-between pb-2">
-        <div>Foosball Tracker</div>
-        <ThemeSwitch />
+        <div class="text-xl">Foosball Tracker</div>
+        <div class="flex gap-2">
+          <MqttStatus />
+          <ThemeSwitch />
+        </div>
       </div>
 
       <div class="flex flex-wrap gap-4">

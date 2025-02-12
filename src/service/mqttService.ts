@@ -24,6 +24,22 @@ class MQTTService {
 
     this.client.on("connect", () => {
       console.log("Connected to MQTT broker");
+      this.emitter.emit("mqtt_status", "connected");
+    });
+
+    this.client.on("reconnect", () => {
+      console.log("Reconnecting to MQTT broker");
+      this.emitter.emit("mqtt_status", "reconnecting");
+    });
+
+    this.client.on("close", () => {
+      console.log("MQTT connection closed");
+      this.emitter.emit("mqtt_status", "disconnected");
+    });
+
+    this.client.on("error", (err) => {
+      console.error("MQTT error", err);
+      this.emitter.emit("mqtt_status", "error");
     });
 
     this.client.on("message", (topic, payload) => {
