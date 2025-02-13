@@ -4,7 +4,7 @@ export default function checkAccess(request: Request) {
   const username = "admin";
   const password = "secret";
 
-  console.log("request", request);
+  console.log("request", request, "headers", auth);
 
   const encoded = "Basic " + btoa(`${username}:${password}`);
 
