@@ -5,6 +5,7 @@ import { ThemeSwitch } from "./ThemeSwitch.tsx";
 import { ScoreBoard } from "./ScoreBoard.tsx";
 import { GoalHistory } from "./GoalHistory.tsx";
 import { Settings } from "./Settings.tsx";
+import "../App.css";
 
 export default function ProtectedApp() {
   const [settings, setSettings] = createLocalStorageStore<ISettings>("settings", {
