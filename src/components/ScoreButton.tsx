@@ -1,5 +1,6 @@
 import { JSX } from "solid-js";
 import { playGoalSound } from "../service/soundService.ts";
+import { gameState } from "../store/gameStore.ts";
 
 interface ScoreButtonProps {
   direction: number;
@@ -15,6 +16,7 @@ export function ScoreButton(props: ScoreButtonProps): JSX.Element {
   return (
     <button
       class={`btn btn-circle ${props.direction === -1 ? "btn-error" : "btn-primary"}`}
+      disabled={!gameState.gameRunning}
       onClick={handleClick}
     >
       {props.direction === -1 ? "-" : "+"}

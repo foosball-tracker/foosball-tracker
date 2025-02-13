@@ -124,7 +124,7 @@ export function ScoreBoard(props: ScoreBoardProps) {
               </button>
             )}
             <button class="btn btn-sm btn-error" onClick={resetScores}>
-              Reset Score
+              Reset Game
             </button>
           </div>
         </div>
