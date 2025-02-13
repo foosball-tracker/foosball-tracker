@@ -121,9 +121,7 @@ export function ScoreBoard(props: ScoreBoardProps) {
     <div class="card card-border bg-base-300 max-w-3xl">
       <div class="card-body">
         <div class="flex items-center justify-between">
-          <div>
-            <h2 class="card-title text-2xl">Score</h2>
-          </div>
+          <h2 class="card-title text-2xl">Score</h2>
           <div class="flex gap-2">
             {!gameState.gameRunning && (
               <button class="btn btn-sm btn-primary" onClick={startGame}>
@@ -141,8 +139,10 @@ export function ScoreBoard(props: ScoreBoardProps) {
             <span class="text-center text-xl">Time: {formatTime(gameState.timer)}</span>
           </div>
 
-          <div class="mt-4 flex w-full items-center gap-8">
-            <div class="flex-1 text-right">
+          {/* Keep both TeamScore columns side by side */}
+          <div class="mt-4 flex w-full items-center justify-center gap-4">
+            {/* Left/Black team */}
+            <div class="flex flex-1 justify-end">
               <TeamScore
                 team="black"
                 teamName={props.settings.blackTeam}
@@ -151,7 +151,8 @@ export function ScoreBoard(props: ScoreBoardProps) {
               />
             </div>
             <div class="text-3xl font-bold">:</div>
-            <div class="flex-1 text-left">
+            {/* Right/Yellow team */}
+            <div class="flex flex-1 justify-start">
               <TeamScore
                 team="yellow"
                 teamName={props.settings.yellowTeam}

@@ -9,8 +9,14 @@ interface TeamScoreProps {
 
 export function TeamScore(props: TeamScoreProps) {
   return (
-    <div class="flex max-w-[12rem] flex-col items-center text-center break-words whitespace-normal">
-      <h3 class="text-xl font-bold">{props.teamName}</h3>
+    <div class="flex w-full max-w-[10rem] flex-col items-center text-center">
+      <h3
+        class="line-clamp-2 min-h-[2rem] overflow-hidden text-sm leading-tight font-bold md:text-xl"
+        style={{ display: "-webkit-box", "-webkit-box-orient": "vertical" }}
+      >
+        {props.teamName}
+      </h3>
+
       <div class="my-2 text-3xl font-bold">{props.score}</div>
       <div class="mt-1 flex gap-2">
         <ScoreButton direction={1} updateScore={() => props.updateScore(1)} />
