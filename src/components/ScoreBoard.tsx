@@ -33,16 +33,26 @@ export function ScoreBoard(props: ScoreBoardProps) {
   const updateScore = (team: "black" | "yellow", increment: number) => {
     if (increment > 0 && gameState.gameRunning) {
       recordGoal(team);
+    } else if (increment < 0) {
+      // Remove the last recorded goal of this team from the history
+      setGameState("goalHistory", (prev) => {
+        const lastIndex = prev.map((g) => g.team).lastIndexOf(team);
+        if (lastIndex !== -1) {
+          return prev.filter((_, i) => i !== lastIndex);
+        }
+        return prev;
+      });
     }
+
     if (team === "black") {
       setScoreBlack((prev) => {
-        const newScore = prev + increment;
+        const newScore = Math.max(0, prev + increment);
         if (newScore >= 10) setGameState("gameRunning", false);
         return newScore;
       });
     } else if (team === "yellow") {
       setScoreYellow((prev) => {
-        const newScore = prev + increment;
+        const newScore = Math.max(0, prev + increment);
         if (newScore >= 10) setGameState("gameRunning", false);
         return newScore;
       });
@@ -113,9 +123,6 @@ export function ScoreBoard(props: ScoreBoardProps) {
         <div class="flex items-center justify-between">
           <div>
             <h2 class="card-title text-2xl">Score</h2>
-            {gameState.gameRunning && (
-              <span class="text-sm">Time: {formatTime(gameState.timer)}</span>
-            )}
           </div>
           <div class="flex gap-2">
             {!gameState.gameRunning && (
@@ -129,20 +136,30 @@ export function ScoreBoard(props: ScoreBoardProps) {
           </div>
         </div>
 
-        <div class="mt-4 flex items-center justify-center gap-8">
-          <TeamScore
-            team="black"
-            teamName={props.settings.blackTeam}
-            score={scoreBlack()}
-            updateScore={(inc) => updateScore("black", inc)}
-          />
-          <div class="text-3xl font-bold">:</div>
-          <TeamScore
-            team="yellow"
-            teamName={props.settings.yellowTeam}
-            score={scoreYellow()}
-            updateScore={(inc) => updateScore("yellow", inc)}
-          />
+        <div class="flex-col">
+          <div class="flex justify-center">
+            <span class="text-center text-xl">Time: {formatTime(gameState.timer)}</span>
+          </div>
+
+          <div class="mt-4 flex w-full items-center gap-8">
+            <div class="flex-1 text-right">
+              <TeamScore
+                team="black"
+                teamName={props.settings.blackTeam}
+                score={scoreBlack()}
+                updateScore={(inc) => updateScore("black", inc)}
+              />
+            </div>
+            <div class="text-3xl font-bold">:</div>
+            <div class="flex-1 text-left">
+              <TeamScore
+                team="yellow"
+                teamName={props.settings.yellowTeam}
+                score={scoreYellow()}
+                updateScore={(inc) => updateScore("yellow", inc)}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

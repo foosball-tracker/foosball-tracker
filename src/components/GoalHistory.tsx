@@ -30,7 +30,7 @@ export function GoalHistory(props: GoalHistoryProps) {
                     class={`absolute -left-6 h-3 w-3 ${dotColor} border-base-300 top-1/2 -translate-y-1/2 transform rounded-full border-2`}
                   />
                   {/* Team name in fixed width for alignment */}
-                  <span class="w-40 truncate font-semibold">
+                  <span class="w-64 truncate font-semibold">
                     {entry.team === "black" ? props.settings.blackTeam : props.settings.yellowTeam}
                   </span>
                   {/* Time badge */}
