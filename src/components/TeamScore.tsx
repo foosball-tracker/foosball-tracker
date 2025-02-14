@@ -9,7 +9,7 @@ interface TeamScoreProps {
 
 export function TeamScore(props: TeamScoreProps) {
   return (
-    <div class="flex w-full max-w-[10rem] flex-col items-center text-center">
+    <div class="flex w-full max-w-[14rem] flex-col items-center text-center">
       <h3
         class="line-clamp-2 min-h-[2rem] overflow-hidden text-sm leading-tight font-bold md:text-xl"
         style={{ display: "-webkit-box", "-webkit-box-orient": "vertical" }}
