@@ -5,12 +5,23 @@ type MqttEvents = {
   [topic: string]: string; // Each topic event contains a string message
 };
 
+function getOrCreateClientSuffix() {
+  const key = "mqtt-client-suffix";
+  let clientId = localStorage.getItem(key);
+
+  if (!clientId) {
+    clientId = `client-${crypto.randomUUID()}`;
+    localStorage.setItem(key, clientId);
+  }
+
+  return clientId;
+}
+
 const options: IClientOptions = {
-  clientId: import.meta.env.VITE_MQTT_CLIENT_ID,
+  clientId: `${import.meta.env.VITE_MQTT_CLIENT_ID}_${getOrCreateClientSuffix()}`,
   username: import.meta.env.VITE_MQTT_USERNAME,
   password: import.meta.env.VITE_MQTT_PASSWORD,
   rejectUnauthorized: false,
-  clean: false,
   reconnectPeriod: 3000, // Try reconnecting every 2s
   connectTimeout: 10000, // Give up connecting after 5s
 };
