@@ -3,8 +3,8 @@ import { onMount } from "solid-js";
 import { mqttService } from "../service/mqttService.ts";
 import { createLocalStorageSignal } from "../hooks/createLocalStorageSignal.tsx";
 import { TeamScore } from "./TeamScore.tsx";
-import { playGoalSound } from "../service/soundService.ts";
 import { gameState, setGameState } from "../store/gameStore.ts";
+import { playSound } from "../service/soundService.ts";
 
 interface ScoreBoardProps {
   settings: ISettings;
@@ -87,7 +87,7 @@ export function ScoreBoard(props: ScoreBoardProps) {
             if (newScore >= 10) setGameState("gameRunning", false);
             return newScore;
           });
-          playGoalSound();
+          playSound(data.value > 0 ? "goal" : "no-goal");
         } else if (data.team === "yellow") {
           setScoreYellow((prev) => {
             const newScore = prev + data.value;
@@ -95,7 +95,7 @@ export function ScoreBoard(props: ScoreBoardProps) {
             if (newScore >= 10) setGameState("gameRunning", false);
             return newScore;
           });
-          playGoalSound();
+          playSound(data.value > 0 ? "goal" : "no-goal");
         }
       } catch (error) {
         console.error("Failed to parse MQTT message:", msg, error);
