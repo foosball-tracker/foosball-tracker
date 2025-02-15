@@ -33,6 +33,13 @@ export function Settings(props: SettingsProps) {
             value={props.settings.yellowTeam}
             onInput={[setTeamName, "yellowTeam"]}
           />
+          <input
+            class="input"
+            type="number"
+            placeholder={"Tore zum Sieg"}
+            value={props.settings.goalsToWin}
+            onInput={(event) => props.setSettings("goalsToWin", parseInt(event.target.value))}
+          />
         </div>
       </div>
     </>

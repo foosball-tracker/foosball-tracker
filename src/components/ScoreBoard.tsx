@@ -16,6 +16,11 @@ export function ScoreBoard(props: ScoreBoardProps) {
   const [scoreBlack, setScoreBlack] = createLocalStorageSignal("score_black", 0);
   const [scoreYellow, setScoreYellow] = createLocalStorageSignal("score_yellow", 0);
 
+  const endGame = () => {
+    playSound("win");
+    setGameState("gameRunning", false);
+  };
+
   const formatTime = (sec: number) => {
     const minutes = Math.floor(sec / 60);
     const seconds = sec % 60;
@@ -31,10 +36,12 @@ export function ScoreBoard(props: ScoreBoardProps) {
 
   // Centralized update function for both MQTT and manual updates.
   const updateScore = (team: "black" | "yellow", increment: number) => {
-    if (increment > 0 && gameState.gameRunning) {
+    if (!gameState.gameRunning) return;
+
+    if (increment > 0) {
       recordGoal(team);
     } else if (increment < 0) {
-      // Remove the last recorded goal of this team from the history
+      // Remove the last recorded goal for this team
       setGameState("goalHistory", (prev) => {
         const lastIndex = prev.map((g) => g.team).lastIndexOf(team);
         if (lastIndex !== -1) {
@@ -45,17 +52,31 @@ export function ScoreBoard(props: ScoreBoardProps) {
     }
 
     if (team === "black") {
-      setScoreBlack((prev) => {
-        const newScore = Math.max(0, prev + increment);
-        if (newScore >= 10) setGameState("gameRunning", false);
-        return newScore;
-      });
+      const currentScore = scoreBlack();
+      const newScore = Math.max(0, currentScore + increment);
+      setScoreBlack(newScore);
+      if (increment > 0) {
+        if (newScore >= props.settings.goalsToWin) {
+          endGame();
+        } else {
+          playSound("goal");
+        }
+      } else if (increment < 0) {
+        playSound("no-goal");
+      }
     } else if (team === "yellow") {
-      setScoreYellow((prev) => {
-        const newScore = Math.max(0, prev + increment);
-        if (newScore >= 10) setGameState("gameRunning", false);
-        return newScore;
-      });
+      const currentScore = scoreYellow();
+      const newScore = Math.max(0, currentScore + increment);
+      setScoreYellow(newScore);
+      if (increment > 0) {
+        if (newScore >= props.settings.goalsToWin) {
+          endGame();
+        } else {
+          playSound("goal");
+        }
+      } else if (increment < 0) {
+        playSound("no-goal");
+      }
     }
   };
 
@@ -80,22 +101,8 @@ export function ScoreBoard(props: ScoreBoardProps) {
     const handleMessage = (msg: string) => {
       try {
         const data = JSON.parse(msg); // expect { team: "black"|"yellow", value: number }
-        if (data.team === "black") {
-          setScoreBlack((prev) => {
-            const newScore = prev + data.value;
-            if (data.value > 0 && gameState.gameRunning) recordGoal("black");
-            if (newScore >= 10) setGameState("gameRunning", false);
-            return newScore;
-          });
-          playSound(data.value > 0 ? "goal" : "no-goal");
-        } else if (data.team === "yellow") {
-          setScoreYellow((prev) => {
-            const newScore = prev + data.value;
-            if (data.value > 0 && gameState.gameRunning) recordGoal("yellow");
-            if (newScore >= 10) setGameState("gameRunning", false);
-            return newScore;
-          });
-          playSound(data.value > 0 ? "goal" : "no-goal");
+        if (data.team === "black" || data.team === "yellow") {
+          updateScore(data.team, data.value);
         }
       } catch (error) {
         console.error("Failed to parse MQTT message:", msg, error);
@@ -141,23 +148,21 @@ export function ScoreBoard(props: ScoreBoardProps) {
 
           {/* Keep both TeamScore columns side by side */}
           <div class="mt-4 flex w-full items-center justify-center gap-4">
-            {/* Left/Black team */}
             <div class="flex flex-1 justify-end">
-              <TeamScore
-                team="black"
-                teamName={props.settings.blackTeam}
-                score={scoreBlack()}
-                updateScore={(inc) => updateScore("black", inc)}
-              />
-            </div>
-            <div class="text-3xl font-bold">:</div>
-            {/* Right/Yellow team */}
-            <div class="flex flex-1 justify-start">
               <TeamScore
                 team="yellow"
                 teamName={props.settings.yellowTeam}
                 score={scoreYellow()}
                 updateScore={(inc) => updateScore("yellow", inc)}
+              />
+            </div>
+            <div class="text-3xl font-bold">:</div>
+            <div class="flex flex-1 justify-start">
+              <TeamScore
+                team="black"
+                teamName={props.settings.blackTeam}
+                score={scoreBlack()}
+                updateScore={(inc) => updateScore("black", inc)}
               />
             </div>
           </div>

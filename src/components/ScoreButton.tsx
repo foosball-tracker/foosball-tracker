@@ -1,6 +1,5 @@
 import { JSX } from "solid-js";
 import { gameState } from "../store/gameStore.ts";
-import { playSound } from "../service/soundService.ts";
 
 interface ScoreButtonProps {
   direction: number;
@@ -9,7 +8,6 @@ interface ScoreButtonProps {
 
 export function ScoreButton(props: ScoreButtonProps): JSX.Element {
   const handleClick = () => {
-    playSound(props.direction > 0 ? "goal" : "no-goal");
     props.updateScore(props.direction);
   };
 

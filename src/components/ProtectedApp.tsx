@@ -11,6 +11,7 @@ export default function ProtectedApp() {
   const [settings, setSettings] = createLocalStorageStore<ISettings>("settings", {
     yellowTeam: "Gelbes Team",
     blackTeam: "Schwarzes Team",
+    goalsToWin: 10,
   });
 
   return (

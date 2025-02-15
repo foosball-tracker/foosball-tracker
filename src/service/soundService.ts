@@ -1,23 +1,25 @@
-// soundService.ts
-
-export type SoundType = "goal" | "no-goal";
+export type SoundType = "goal" | "no-goal" | "win";
 
 class SoundService {
-  // Keep track of the last 5 picks per sound type.
-  private recentPicks: Record<SoundType, number[]> = {
+  // Keep track of the last 5 picks per sound type (not needed for "win").
+  private recentPicks: Record<"goal" | "no-goal", number[]> = {
     goal: [],
     "no-goal": [],
   };
 
   // Total number of sounds available for each type.
-  // For example, if you have goal-0.mp3 to goal-19.mp3, total for "goal" is 20.
   private readonly totals: Record<SoundType, number>;
 
   constructor(totals: Record<SoundType, number>) {
     this.totals = totals;
   }
 
-  getRandomSoundPath(type: SoundType): string {
+  getSoundPath(type: SoundType): string {
+    if (type === "win") {
+      // Always play the first "win" sound (or random if multiple exist)
+      return `/audio/win/win-1.mp3`;
+    }
+
     const total = this.totals[type];
 
     // Build list of indices not in the recent picks.
@@ -42,24 +44,22 @@ class SoundService {
       this.recentPicks[type].shift();
     }
 
-    // Build the URL path relative to the public folder.
-    // E.g., /audio/goal/goal-0.mp3 or /audio/no-goal/no-goal-0.mp3.
     return `/audio/${type}/${type}-${chosenIndex}.mp3`;
   }
 }
 
 // Create a default instance.
-// Adjust the totals if you add more sounds.
 const soundService = new SoundService({
   goal: 22,
   "no-goal": 13,
+  win: 1, // Set to the number of available "win" sounds
 });
 
 export default soundService;
 
 export function playSound(type: SoundType) {
-  const soundUrl = soundService.getRandomSoundPath(type);
+  const soundUrl = soundService.getSoundPath(type);
   console.log("playing sound url", soundUrl);
   const audio = new Audio(soundUrl);
-  audio.play().then((r) => console.log("audio", r));
+  audio.play().then(() => console.log("Audio played:", soundUrl));
 }
