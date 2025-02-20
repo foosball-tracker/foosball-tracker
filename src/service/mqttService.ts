@@ -17,35 +17,58 @@ function getOrCreateClientSuffix() {
   return clientId;
 }
 
+const MAX_RETRIES = 5; // Maximum number of retry attempts
+const RETRY_INTERVAL = 3000; // 3 seconds between retries
+
 const options: IClientOptions = {
   clientId: `${import.meta.env.VITE_MQTT_CLIENT_ID}_${getOrCreateClientSuffix()}`,
   username: import.meta.env.VITE_MQTT_USERNAME,
   password: import.meta.env.VITE_MQTT_PASSWORD,
   rejectUnauthorized: false,
-  reconnectPeriod: 3000, // Try reconnecting every 2s
-  connectTimeout: 10000, // Give up connecting after 5s
+  reconnectPeriod: 0, // Disable automatic reconnection, we handle it manually
+  connectTimeout: 10000, // Give up connecting after 10s
 };
 
 class MQTTService {
   private client: mqtt.MqttClient;
   private emitter = mitt<MqttEvents>(); // Use mitt as an event bus
+  private retryCount = 0;
+  private isStopping = false;
 
   constructor() {
+    this.connect();
+  }
+
+  private connect() {
+    if (this.isStopping) return;
+
+    console.debug(
+      `Attempting to connect to MQTT broker... (Attempt ${this.retryCount + 1}/${MAX_RETRIES})`
+    );
+
     this.client = mqtt.connect(`wss://${import.meta.env.VITE_MQTT_BROKER}:8884/mqtt`, options);
 
     this.client.on("connect", () => {
-      console.log("Connected to MQTT broker");
+      console.debug("Connected to MQTT broker");
+      this.retryCount = 0; // Reset retry counter
       this.emitter.emit("mqtt_status", "connected");
     });
 
     this.client.on("reconnect", () => {
-      console.log("Reconnecting to MQTT broker");
+      console.log("Reconnecting to MQTT broker...");
       this.emitter.emit("mqtt_status", "reconnecting");
     });
 
     this.client.on("close", () => {
       console.log("MQTT connection closed");
       this.emitter.emit("mqtt_status", "disconnected");
+
+      if (!this.isStopping && this.retryCount < MAX_RETRIES) {
+        this.retryCount++;
+        setTimeout(() => this.connect(), RETRY_INTERVAL);
+      } else {
+        console.warn("Max retry limit reached. Stopping reconnection attempts.");
+      }
     });
 
     this.client.on("error", (err) => {
@@ -57,6 +80,12 @@ class MQTTService {
       console.log(`Received message on ${topic}: ${payload.toString()}`);
       this.emitter.emit(topic, payload.toString()); // Emit event for the topic
     });
+  }
+
+  disconnect() {
+    console.log("Disconnecting MQTT client...");
+    this.isStopping = true;
+    this.client.end();
   }
 
   subscribe(topic: string) {
