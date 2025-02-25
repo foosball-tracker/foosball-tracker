@@ -1,35 +1,45 @@
 import { A } from "@solidjs/router";
 import { MqttStatus } from "../components/MqttStatus.tsx";
 import { ThemeSwitch } from "../components/ThemeSwitch.tsx";
+import { ParentComponent } from "solid-js";
+import { Login } from "../components/auth/Login.tsx";
 
-export function MainLayout(props) {
+export const MainLayout: ParentComponent = (props) => {
   return (
     <>
-      <div class="navbar bg-base-100 shadow-sm">
-        <div class="navbar-start">
-          <A class="btn btn-ghost text-xl" href={"/"}>
-            Foosball Tracker
-          </A>
-        </div>
-        <div class="navbar-center flex">
-          <ul class="menu menu-horizontal px-1">
-            <li>
-              <A href={"/players"}>Players</A>
-            </li>
+      <div class={"flex h-screen flex-col"}>
+        <div class="navbar bg-base-100 h-20 shadow-sm">
+          <div class="navbar-start">
+            <A class="btn btn-ghost text-xl" href={"/"}>
+              Foosball Tracker
+            </A>
+            <div class="flex gap-2">
+              <MqttStatus />
+              <ThemeSwitch />
+            </div>
+          </div>
+          <div class="navbar-center flex">
+            <ul class="menu menu-horizontal px-1">
+              <li>
+                <A href={"/players"} activeClass={"menu-active"}>
+                  Players
+                </A>
+              </li>
 
-            <li>
-              <a>Item 3</a>
-            </li>
-          </ul>
-        </div>
-        <div class="navbar-end">
-          <div class="flex gap-2">
-            <MqttStatus />
-            <ThemeSwitch />
+              <li>
+                <A href={"/teams"} activeClass={"menu-active"}>
+                  Teams
+                </A>
+              </li>
+            </ul>
+          </div>
+          <div class="navbar-end">
+            <Login />
           </div>
         </div>
+        <div class={"flex-1 overflow-y-auto"}>{props.children}</div>
+        {/*Actual Component rendered based on the route*/}
       </div>
-      {props.children}
     </>
   );
-}
+};

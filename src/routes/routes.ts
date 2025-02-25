@@ -9,4 +9,8 @@ export const routes = [
     path: "/players",
     component: lazy(() => import("../components/players/Players.tsx")),
   },
+  {
+    path: "/teams",
+    component: lazy(() => import("../components/teams/Teams.tsx")),
+  },
 ];

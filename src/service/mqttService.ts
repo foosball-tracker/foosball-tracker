@@ -30,7 +30,7 @@ const options: IClientOptions = {
 };
 
 class MQTTService {
-  private client: mqtt.MqttClient;
+  private client!: mqtt.MqttClient;
   private emitter = mitt<MqttEvents>(); // Use mitt as an event bus
   private retryCount = 0;
   private isStopping = false;
