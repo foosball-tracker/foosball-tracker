@@ -1,5 +1,5 @@
 import { ComponentProps, JSX, ParentComponent, Show, splitProps } from "solid-js";
-import { cn } from "~/lib/utils"; // or your own path
+import { cn } from "~/lib/utils";
 
 /**
  * Table Wrapper
@@ -8,9 +8,9 @@ import { cn } from "~/lib/utils"; // or your own path
 export const Table: ParentComponent<ComponentProps<"table">> = (rawProps) => {
   const [local, others] = splitProps(rawProps, ["class", "children"]);
   return (
-    <div class="rounded-box border-base-content/5 bg-base-300 overflow-x-auto border">
-      {/* Merge a DaisyUI "table" class with user overrides */}
-      <table class={cn("table", local.class)} {...others}>
+    <div class="rounded-box border-base-content/10 bg-base-300 overflow-x-auto border shadow-sm">
+      {/* DaisyUI "table" plus "table-compact" for a clean modern look. */}
+      <table class={cn("table-compact table w-full", local.class)} {...others}>
         {local.children}
       </table>
     </div>
@@ -26,7 +26,9 @@ export const TableHeader: ParentComponent<JSX.HTMLAttributes<HTMLTableSectionEle
 ) => {
   const [local, others] = splitProps(rawProps, ["class", "children"]);
   return (
-    <thead class={cn("", local.class)} {...others}>
+    /* Give the header a subtle background.
+       "bg-base-200" is typically lighter, you can tweak to taste. */
+    <thead class={cn("bg-base-200", local.class)} {...others}>
       {local.children}
     </thead>
   );
@@ -50,11 +52,19 @@ export const TableBody: ParentComponent<JSX.HTMLAttributes<HTMLTableSectionEleme
 /**
  * TableRow
  * Renders a <tr> with optional class overrides.
+ * Default includes "hover" for a hover highlight.
  */
 export const TableRow: ParentComponent<JSX.HTMLAttributes<HTMLTableRowElement>> = (rawProps) => {
   const [local, others] = splitProps(rawProps, ["class", "children"]);
   return (
-    <tr class={cn("", local.class)} {...others}>
+    <tr
+      class={cn(
+        // "hover" from DaisyUI highlights row on hover
+        "hover:bg-base-200 transition-colors",
+        local.class
+      )}
+      {...others}
+    >
       {local.children}
     </tr>
   );
@@ -62,8 +72,7 @@ export const TableRow: ParentComponent<JSX.HTMLAttributes<HTMLTableRowElement>> 
 
 /**
  * TableCell
- * Renders either a <th> or <td> depending on isHeader prop.
- * Pass class to override styles.
+ * Renders either a <th> or <td> depending on `isHeader` prop.
  */
 interface TableCellProps extends JSX.TdHTMLAttributes<HTMLTableCellElement> {
   isHeader?: boolean;
@@ -72,16 +81,18 @@ interface TableCellProps extends JSX.TdHTMLAttributes<HTMLTableCellElement> {
 export const TableCell: ParentComponent<TableCellProps> = (rawProps) => {
   const [local, others] = splitProps(rawProps, ["class", "children", "isHeader"]);
 
+  // Use <Show> to ensure Solid sees the condition in a reactive context
   return (
     <Show
       when={local.isHeader}
       fallback={
-        <td class={cn("", local.class)} {...others}>
+        <td class={cn("px-4 py-2", local.class)} {...others}>
           {local.children}
         </td>
       }
     >
-      <th class={cn("", local.class)} {...others}>
+      {/* Typically table headers might be bolder or uppercased */}
+      <th class={cn("px-4 py-2 font-semibold", local.class)} {...others}>
         {local.children}
       </th>
     </Show>

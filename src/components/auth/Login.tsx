@@ -1,6 +1,6 @@
 import { createSignal, onCleanup, onMount, Show } from "solid-js";
 import { Session } from "@supabase/supabase-js";
-import { supabase } from "../../service/supabaseService.ts";
+import { supabase } from "~/service/supabaseService.ts";
 import { Auth } from "@supabase/auth-ui-solid";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 
