@@ -25,7 +25,6 @@ export function Login() {
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((_event, session) => {
-        console.log("session", session);
         setSession(session);
       });
 

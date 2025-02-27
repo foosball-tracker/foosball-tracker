@@ -5,12 +5,23 @@ import { createLocalStorageSignal } from "../hooks/createLocalStorageSignal.tsx"
 import { TeamScore } from "./TeamScore.tsx";
 import { gameState, setGameState } from "../store/gameStore.ts";
 import { playSound } from "../service/soundService.ts";
+import { supabase } from "~/service/supabaseService.ts";
 
 interface ScoreBoardProps {
   settings: ISettings;
 }
 
 const topic = "goal";
+
+const insertGoal = async (team: "black" | "yellow", goalTime: string) => {
+  const { error } = await supabase
+    .from("goals")
+    .insert({ match_id: 1, team_id: team === "yellow" ? 1 : 2, goal_time: goalTime });
+
+  if (error) {
+    console.error(error);
+  }
+};
 
 export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
   const [scoreBlack, setScoreBlack] = createLocalStorageSignal("score_black", 0);
@@ -55,6 +66,9 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
       const currentScore = scoreBlack();
       const newScore = Math.max(0, currentScore + increment);
       setScoreBlack(newScore);
+
+      insertGoal("black", `00:${formatTime(gameState.timer)}`);
+
       if (increment > 0) {
         if (newScore >= props.settings.goalsToWin) {
           endGame();
@@ -68,6 +82,7 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
       const currentScore = scoreYellow();
       const newScore = Math.max(0, currentScore + increment);
       setScoreYellow(newScore);
+      insertGoal("yellow", `00:${formatTime(gameState.timer)}`);
       if (increment > 0) {
         if (newScore >= props.settings.goalsToWin) {
           endGame();
