@@ -27,23 +27,21 @@ export default function Teams() {
   const [data] = createResource(getTeams);
 
   return (
-    <>
-      <div class={"p-2"}>
-        <div class={"text-lg"}>Teams</div>
-        <div class="mx-auto w-full">
-          <Show
-            when={data()}
-            keyed
-            fallback={
-              <div class={"flex h-full items-center justify-center"}>
-                <span class="loading loading-spinner loading-xl" />
-              </div>
-            }
-          >
-            {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
-          </Show>
-        </div>
+    <div class={"p-2"}>
+      <div class={"text-lg"}>Teams</div>
+      <div class="mx-auto w-full">
+        <Show
+          when={data()}
+          keyed
+          fallback={
+            <div class={"flex h-full items-center justify-center"}>
+              <span class="loading loading-spinner loading-xl" />
+            </div>
+          }
+        >
+          {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
+        </Show>
       </div>
-    </>
+    </div>
   );
 }

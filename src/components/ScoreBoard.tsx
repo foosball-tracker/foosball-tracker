@@ -12,7 +12,7 @@ interface ScoreBoardProps {
 
 const topic = "goal";
 
-export function ScoreBoard(props: ScoreBoardProps) {
+export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
   const [scoreBlack, setScoreBlack] = createLocalStorageSignal("score_black", 0);
   const [scoreYellow, setScoreYellow] = createLocalStorageSignal("score_yellow", 0);
 

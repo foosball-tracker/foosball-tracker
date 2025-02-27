@@ -6,7 +6,7 @@ interface GoalHistoryProps {
   settings: ISettings;
 }
 
-export function GoalHistory(props: GoalHistoryProps) {
+export function GoalHistory(props: Readonly<GoalHistoryProps>) {
   const formatTime = (sec: number) => {
     const minutes = Math.floor(sec / 60);
     const seconds = sec % 60;
