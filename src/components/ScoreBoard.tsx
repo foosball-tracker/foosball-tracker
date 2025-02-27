@@ -1,5 +1,5 @@
 import { ISettings } from "../types/Settings.ts";
-import { onMount } from "solid-js";
+import { onCleanup, onMount } from "solid-js";
 import { mqttService } from "../service/mqttService.ts";
 import { createLocalStorageSignal } from "../hooks/createLocalStorageSignal.tsx";
 import { TeamScore } from "./TeamScore.tsx";
@@ -132,11 +132,11 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
       }
     }, 1000);
 
-    return () => {
+    onCleanup(() => {
       mqttService.off(topic, handleMessage);
       mqttService.unsubscribe(topic);
       clearInterval(timerInterval);
-    };
+    });
   });
 
   return (

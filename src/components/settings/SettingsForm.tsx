@@ -14,7 +14,7 @@ export default function SettingsForm(props: SettingsProps) {
       return [];
     }
     return loadedTeams?.map((team: Tables<"teams">) => ({
-      value: team.name,
+      value: team.id,
       label: team.name,
     }));
   });

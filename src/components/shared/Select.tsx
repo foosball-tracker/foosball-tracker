@@ -47,6 +47,7 @@ const Select: Component<SelectProps> = (props) => {
   ]);
 
   const handleChange: JSX.EventHandler<HTMLSelectElement, Event> = (e) => {
+    console.log("handleChange", e.target, e.currentTarget);
     local.onChange?.(e.currentTarget.value);
   };
 
