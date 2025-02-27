@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@plugin 'tailwindcss-animate';
-@plugin '@kobalte/tailwindcss';
 @plugin "daisyui";
 
 @plugin "daisyui" {
