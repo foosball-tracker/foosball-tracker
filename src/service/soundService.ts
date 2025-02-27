@@ -2,7 +2,7 @@ export type SoundType = "goal" | "no-goal" | "win";
 
 class SoundService {
   // Keep track of the last 5 picks per sound type (not needed for "win").
-  private recentPicks: Record<"goal" | "no-goal", number[]> = {
+  private readonly recentPicks: Record<"goal" | "no-goal", number[]> = {
     goal: [],
     "no-goal": [],
   };

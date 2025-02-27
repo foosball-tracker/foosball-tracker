@@ -1,4 +1,4 @@
-import { children, createSignal, JSX, onMount, Show } from "solid-js";
+import { children, createSignal, onMount, ParentComponent, Show } from "solid-js";
 import { createLocalStorageSignal } from "../hooks/createLocalStorageSignal";
 
 // Helper to hash a string using SHA‑256 via the Web Crypto API
@@ -11,7 +11,7 @@ async function hashPassword(password: string): Promise<string> {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export default function PasswordGate(props: { children: JSX.Element }) {
+const PasswordGate: ParentComponent = (props) => {
   const resolvedChildren = children(() => props.children);
 
   // Single localStorage-based signal to store the hashed password
@@ -67,4 +67,6 @@ export default function PasswordGate(props: { children: JSX.Element }) {
       {resolvedChildren()}
     </Show>
   );
-}
+};
+
+export default PasswordGate;
