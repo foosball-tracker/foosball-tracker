@@ -76,12 +76,12 @@ function Players() {
           </div>
         }
       >
-        <input
-          class="font-lg border-block mb-2 border p-2 shadow"
-          value={globalFilter() ?? ""}
-          onInput={(e) => setGlobalFilter(e.currentTarget.value)}
-          placeholder="Search all columns..."
-        />
+        {/*<input*/}
+        {/*  class="font-lg border-block mb-2 border p-2 shadow"*/}
+        {/*  value={globalFilter() ?? ""}*/}
+        {/*  onInput={(e) => setGlobalFilter(e.currentTarget.value)}*/}
+        {/*  placeholder="Search all columns..."*/}
+        {/*/>*/}
         <div class="rounded-box border-base-content/5 bg-base-300 overflow-x-auto border">
           <table class="table w-full">
             <thead>
