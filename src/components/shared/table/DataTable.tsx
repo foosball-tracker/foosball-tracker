@@ -6,7 +6,7 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-} from "~/components/ui/table/Table.tsx";
+} from "~/components/shared/table/Table.tsx";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

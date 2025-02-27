@@ -2,7 +2,7 @@ import { supabase } from "~/service/supabaseService.ts";
 import { createResource, Show } from "solid-js";
 import { ColumnDef } from "@tanstack/solid-table";
 import { Tables } from "~/types/database.ts";
-import { DataTable } from "~/components/ui/DataTable.tsx";
+import { DataTable } from "~/components/shared/table/DataTable.tsx";
 
 const getTeams = async () => {
   const { data, error } = await supabase.from("teams").select();

@@ -4,6 +4,9 @@ import { Router } from "@solidjs/router";
 import { MainLayout } from "./routes/MainLayout.tsx";
 import "./App.css";
 import { routes } from "./routes/routes.ts";
+import { inject } from "@vercel/analytics";
+
+inject();
 
 const wrapper = document.getElementById("root");
 
