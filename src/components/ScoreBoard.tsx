@@ -1,142 +1,259 @@
-import { ISettings } from "../types/Settings.ts";
-import { onCleanup, onMount } from "solid-js";
-import { mqttService } from "../service/mqttService.ts";
-import { createLocalStorageSignal } from "../hooks/createLocalStorageSignal.tsx";
-import { TeamScore } from "./TeamScore.tsx";
-import { gameState, setGameState } from "../store/gameStore.ts";
-import { playSound } from "../service/soundService.ts";
-import { supabase } from "~/service/supabaseService.ts";
+import { createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { supabase } from "~/service/supabaseService";
+import { Tables } from "~/types/database";
+import { TeamScore } from "~/components/TeamScore";
+import { playSound } from "../service/soundService";
+import { gameState, setGameState } from "../store/gameStore";
+import type { ISettings } from "../types/Settings";
+
+type GoalsRow = Tables<"goals">;
+type MatchesRow = Tables<"matches">;
 
 interface ScoreBoardProps {
   settings: ISettings;
 }
 
-const topic = "goal";
+export function ScoreBoard(props: ScoreBoardProps) {
+  // Track current match
+  const [currentMatch, setCurrentMatch] = createSignal<MatchesRow | null>(null);
+  // Supabase goals for this match
+  const [goals, setGoals] = createSignal<GoalsRow[]>([]);
 
-const insertGoal = async (team: "black" | "yellow", goalTime: string) => {
-  const { error } = await supabase
-    .from("goals")
-    .insert({ match_id: 1, team_id: team === "yellow" ? 1 : 2, goal_time: goalTime });
+  // Derived scores
+  const yellowScore = createMemo(
+    () => goals().filter((g) => g.team_id === props.settings.yellowTeam.id).length
+  );
+  const blackScore = createMemo(
+    () => goals().filter((g) => g.team_id === props.settings.blackTeam.id).length
+  );
 
-  if (error) {
-    console.error(error);
-  }
-};
-
-export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
-  const [scoreBlack, setScoreBlack] = createLocalStorageSignal("score_black", 0);
-  const [scoreYellow, setScoreYellow] = createLocalStorageSignal("score_yellow", 0);
-
-  const endGame = () => {
-    playSound("win");
-    setGameState("gameRunning", false);
-  };
-
+  // Format seconds as mm:ss for display
   const formatTime = (sec: number) => {
     const minutes = Math.floor(sec / 60);
     const seconds = sec % 60;
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   };
 
-  // Record a goal entry only when the game is running.
-  const recordGoal = (team: "black" | "yellow") => {
-    if (gameState.gameRunning) {
-      setGameState("goalHistory", (prev) => [...prev, { team, time: gameState.timer }]);
-    }
+  const endGame = () => {
+    playSound("win");
+    setGameState("gameRunning", false);
   };
 
-  // Centralized update function for both MQTT and manual updates.
-  const updateScore = (team: "black" | "yellow", increment: number) => {
-    if (!gameState.gameRunning) return;
-
-    if (increment > 0) {
-      recordGoal(team);
-    } else if (increment < 0) {
-      // Remove the last recorded goal for this team
-      setGameState("goalHistory", (prev) => {
-        const lastIndex = prev.map((g) => g.team).lastIndexOf(team);
-        if (lastIndex !== -1) {
-          return prev.filter((_, i) => i !== lastIndex);
-        }
-        return prev;
-      });
-    }
-
-    if (team === "black") {
-      const currentScore = scoreBlack();
-      const newScore = Math.max(0, currentScore + increment);
-      setScoreBlack(newScore);
-
-      insertGoal("black", `00:${formatTime(gameState.timer)}`);
-
-      if (increment > 0) {
-        if (newScore >= props.settings.goalsToWin) {
-          endGame();
-        } else {
-          playSound("goal");
-        }
-      } else if (increment < 0) {
-        playSound("no-goal");
+  /**
+   * Central handler for a newly inserted goal row in Supabase
+   */
+  const handleGoalInsert = (newGoal: GoalsRow) => {
+    // Avoid duplicates (if we inserted it locally, we might already have it)
+    // If the array doesn't contain that id, add it + do side effects
+    setGoals((prev) => {
+      if (prev.find((g) => g.id === newGoal.id)) {
+        return prev; // we already have it
       }
-    } else if (team === "yellow") {
-      const currentScore = scoreYellow();
-      const newScore = Math.max(0, currentScore + increment);
-      setScoreYellow(newScore);
-      insertGoal("yellow", `00:${formatTime(gameState.timer)}`);
-      if (increment > 0) {
-        if (newScore >= props.settings.goalsToWin) {
-          endGame();
-        } else {
-          playSound("goal");
-        }
-      } else if (increment < 0) {
-        playSound("no-goal");
-      }
+      return [...prev, newGoal];
+    });
+
+    // Play sound
+    playSound("goal");
+  };
+
+  /**
+   * Central handler for a deleted goal row
+   */
+  const handleGoalDelete = (oldGoalId: number) => {
+    setGoals((prev) => prev.filter((g) => g.id !== oldGoalId));
+    // For a deletion, let's do "no-goal" sound
+    playSound("no-goal");
+  };
+
+  // Insert a new goal into Supabase (no immediate local changes).
+  // We'll rely on the subscription callback to update local state and play sound
+  const recordGoal = async (teamId: number) => {
+    const match = currentMatch();
+    if (!match) return;
+
+    const goalTime = `00:${formatTime(gameState.timer)}`;
+    const { error } = await supabase.from("goals").insert({
+      match_id: match.id,
+      team_id: teamId,
+      goal_time: goalTime,
+    });
+    if (error) console.error("Error recording goal:", error);
+  };
+
+  // Delete the last goal for a team
+  const removeLastGoal = async (teamId: number) => {
+    const match = currentMatch();
+    if (!match) return;
+
+    const { data: foundGoals, error: fetchErr } = await supabase
+      .from("goals")
+      .select("*")
+      .eq("match_id", match.id)
+      .eq("team_id", teamId)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (fetchErr || !foundGoals?.length) {
+      console.error("Error fetching last goal:", fetchErr);
+      return;
+    }
+
+    const { error: deleteErr } = await supabase.from("goals").delete().eq("id", foundGoals[0].id);
+
+    if (deleteErr) console.error("Error deleting goal:", deleteErr);
+  };
+
+  /**
+   * This is what you call from UI buttons to increase or decrease a team's score.
+   * We do NOT do local immediate changes or sounds here to avoid double updates.
+   * Instead, we rely on realtime subscription => handleGoalInsert or handleGoalDelete.
+   */
+  const adjustGoal = async (teamId: number, inc: number) => {
+    if (!gameState.gameRunning || !currentMatch()) return;
+    if (inc > 0) {
+      await recordGoal(teamId);
+    } else {
+      await removeLastGoal(teamId);
     }
   };
 
-  // Starts a new game.
-  const startGame = () => {
-    setScoreBlack(0);
-    setScoreYellow(0);
-    setGameState({ timer: 0, gameRunning: true, goalHistory: [] });
+  // Start a new match in the DB
+  const createMatch = async (homeTeamId: number, awayTeamId: number) => {
+    const { data, error } = await supabase
+      .from("matches")
+      .insert([{ home_team_id: homeTeamId, away_team_id: awayTeamId }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating match:", error);
+      return null;
+    }
+    return data;
   };
 
-  // Reset scores and game state.
+  const startGame = async () => {
+    const { blackTeam, yellowTeam } = props.settings;
+    if (!blackTeam.id || !yellowTeam.id) {
+      alert("Please select both teams before starting the game.");
+      return;
+    }
+    // e.g. blackTeam is home, yellowTeam is away
+    const match = await createMatch(blackTeam.id, yellowTeam.id);
+    if (!match) return;
+
+    setCurrentMatch(match);
+    setGoals([]);
+    setGameState({
+      timer: 0,
+      gameRunning: true,
+      goalHistory: [],
+    });
+  };
+
   const resetScores = () => {
-    setScoreBlack(0);
-    setScoreYellow(0);
-    setGameState({ timer: 0, gameRunning: false, goalHistory: [] });
+    setCurrentMatch(null);
+    setGoals([]);
+    setGameState({
+      timer: 0,
+      gameRunning: false,
+      goalHistory: [],
+    });
   };
 
-  // MQTT subscription & timer interval.
-  onMount(() => {
-    mqttService.subscribe(topic);
+  // Fetch goals from DB
+  const fetchGoalsForMatch = async (matchId: number) => {
+    const { data, error } = await supabase
+      .from("goals")
+      .select("*")
+      .eq("match_id", matchId)
+      .order("created_at");
+    if (error) {
+      console.error("Error fetching goals:", error);
+      return [];
+    }
+    return data;
+  };
 
-    const handleMessage = (msg: string) => {
-      try {
-        const data = JSON.parse(msg); // expect { team: "black"|"yellow", value: number }
-        if (data.team === "black" || data.team === "yellow") {
-          updateScore(data.team, data.value);
+  // Realtime subscription
+  let subscriptionChannel: ReturnType<typeof supabase.channel> | null = null;
+
+  const subscribeToGoals = (matchId: number) => {
+    // Clean up old subscription if any
+    subscriptionChannel?.unsubscribe();
+
+    // New channel for goals
+    subscriptionChannel = supabase
+      .channel("match_goals")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "goals" }, (payload) => {
+        const newGoal = payload.new as GoalsRow;
+        if (newGoal.match_id === matchId) {
+          handleGoalInsert(newGoal);
         }
-      } catch (error) {
-        console.error("Failed to parse MQTT message:", msg, error);
-      }
-    };
+      })
+      .on<Tables<"goals">>(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "goals" },
+        (payload) => {
+          console.log("deleted goal", payload);
+          const oldGoalId = payload.old.id;
+          if (oldGoalId) {
+            handleGoalDelete(oldGoalId);
+          }
+        }
+      )
+      .subscribe();
+  };
 
-    mqttService.on(topic, handleMessage);
+  const getLatestMatch = async () => {
+    const { data, error } = await supabase
+      .from("matches")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(1);
 
+    if (error) {
+      console.error("Error fetching current match:", error);
+      return null;
+    }
+    return data?.length ? data[0] : null;
+  };
+
+  onMount(async () => {
+    // Possibly load a "current" match if it exists
+    const match = await getLatestMatch();
+    if (match) {
+      setCurrentMatch(match);
+      setGameState("gameRunning", true); // optional
+      const existingGoals = await fetchGoalsForMatch(match.id);
+      setGoals(existingGoals);
+    }
+
+    // Start timer
     const timerInterval = setInterval(() => {
       if (gameState.gameRunning) {
         setGameState("timer", (t) => t + 1);
       }
     }, 1000);
 
-    onCleanup(() => {
-      mqttService.off(topic, handleMessage);
-      mqttService.unsubscribe(topic);
-      clearInterval(timerInterval);
-    });
+    onCleanup(() => clearInterval(timerInterval));
+  });
+
+  // Whenever we have a new currentMatch, subscribe to it
+  createEffect(() => {
+    const match = currentMatch();
+    if (match) {
+      subscribeToGoals(match.id);
+    }
+  });
+
+  // Watch for the score crossing the threshold
+  createEffect(() => {
+    if (!gameState.gameRunning) return;
+    const goalsToWin = props.settings.goalsToWin;
+    if (blackScore() >= goalsToWin || yellowScore() >= goalsToWin) {
+      endGame();
+    }
   });
 
   return (
@@ -161,23 +278,27 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
             <span class="text-center text-xl">Time: {formatTime(gameState.timer)}</span>
           </div>
 
-          {/* Keep both TeamScore columns side by side */}
+          {/* Teams side by side */}
           <div class="mt-4 flex w-full items-center justify-center gap-4">
+            {/* Yellow side */}
             <div class="flex flex-1 justify-end">
               <TeamScore
                 team="yellow"
-                teamName={props.settings.yellowTeam}
-                score={scoreYellow()}
-                updateScore={(inc) => updateScore("yellow", inc)}
+                teamName={props.settings.yellowTeam.name ?? "Yellow Team"}
+                score={yellowScore()}
+                updateScore={(inc) => adjustGoal(props.settings.yellowTeam.id!, inc)}
               />
             </div>
+
             <div class="text-3xl font-bold">:</div>
+
+            {/* Black side */}
             <div class="flex flex-1 justify-start">
               <TeamScore
                 team="black"
-                teamName={props.settings.blackTeam}
-                score={scoreBlack()}
-                updateScore={(inc) => updateScore("black", inc)}
+                teamName={props.settings.blackTeam.name ?? "Black Team"}
+                score={blackScore()}
+                updateScore={(inc) => adjustGoal(props.settings.blackTeam.id!, inc)}
               />
             </div>
           </div>

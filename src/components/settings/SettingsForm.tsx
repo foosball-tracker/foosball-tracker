@@ -8,7 +8,7 @@ export default function SettingsForm(props: SettingsProps) {
   const [teams] = createResource(getTeams);
 
   // Memoize transformed options.
-  const teamOptions = createMemo<Option[]>(() => {
+  const teamOptions = createMemo<Option<number>[]>(() => {
     const loadedTeams = teams();
     if (!loadedTeams) {
       return [];
@@ -22,16 +22,20 @@ export default function SettingsForm(props: SettingsProps) {
   return (
     <>
       <Select
-        value={props.settings.yellowTeam}
-        onChange={(value) => props.setSettings("yellowTeam", value)}
+        value={props.settings.yellowTeam.id}
+        onChange={(value, option) =>
+          props.setSettings("yellowTeam", { id: value, name: option.label })
+        }
         legend="Gelbes Team"
         options={teamOptions()}
         placeholder="Select a Team"
         class="select-bordered w-full"
       />
       <Select
-        value={props.settings.blackTeam}
-        onChange={(value) => props.setSettings("blackTeam", value)}
+        value={props.settings.blackTeam.id}
+        onChange={(value, option) =>
+          props.setSettings("blackTeam", { id: value, name: option.label })
+        }
         legend="Schwarzes Team"
         options={teamOptions()}
         placeholder="Select a Team"
