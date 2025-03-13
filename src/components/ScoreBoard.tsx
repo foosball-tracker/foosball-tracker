@@ -11,10 +11,10 @@ type GoalsRow = Tables<"goals">;
 type MatchesRow = Tables<"matches">;
 
 interface ScoreBoardProps {
-  settings: ISettings;
+  settings: Readonly<ISettings>;
 }
 
-export function ScoreBoard(props: ScoreBoardProps) {
+export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
   // Track current match
   const [currentMatch, setCurrentMatch] = createSignal<MatchesRow | null>(null);
   // Supabase goals for this match

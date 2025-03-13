@@ -44,7 +44,7 @@ export interface SelectProps<T extends string | number = string | number>
  * />
  * ```
  */
-const Select = <T extends string | number = string>(props: SelectProps<T>) => {
+const Select = <T extends string | number = string>(props: Readonly<SelectProps<T>>) => {
   const [local, others] = splitProps(props, [
     "options",
     "onChange",

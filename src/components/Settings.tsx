@@ -10,7 +10,7 @@ export interface SettingsProps {
 }
 
 // The parent renders the card and header immediately.
-export function Settings(props: SettingsProps) {
+export function Settings(props: Readonly<SettingsProps>) {
   return (
     <div class="card card-border bg-base-300">
       <div class="card-body">

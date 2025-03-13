@@ -7,7 +7,7 @@ interface TeamScoreProps {
   updateScore: (inc: number) => void;
 }
 
-export function TeamScore(props: TeamScoreProps) {
+export function TeamScore(props: Readonly<TeamScoreProps>) {
   return (
     <div class="flex w-full max-w-[14rem] flex-col items-center text-center">
       <h3

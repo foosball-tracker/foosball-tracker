@@ -4,7 +4,7 @@ import { getTeams } from "~/components/teams/Teams.tsx";
 import Select, { Option } from "~/components/shared/Select.tsx";
 import { SettingsProps } from "~/components/Settings.tsx";
 
-export default function SettingsForm(props: SettingsProps) {
+export default function SettingsForm(props: Readonly<SettingsProps>) {
   const [teams] = createResource(getTeams);
 
   // Memoize transformed options.
