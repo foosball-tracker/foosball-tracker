@@ -41,13 +41,16 @@ export default function SettingsForm(props: SettingsProps) {
         placeholder="Select a Team"
         class="select-bordered w-full"
       />
-      <input
-        class="input"
-        type="number"
-        placeholder="Tore zum Sieg"
-        value={props.settings.goalsToWin}
-        onInput={(event) => props.setSettings("goalsToWin", parseInt(event.currentTarget.value))}
-      />
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">Tore zum Sieg</legend>
+        <input
+          class="input"
+          type="number"
+          placeholder="Tore zum Sieg"
+          value={props.settings.goalsToWin}
+          onInput={(event) => props.setSettings("goalsToWin", parseInt(event.currentTarget.value))}
+        />
+      </fieldset>
     </>
   );
 }

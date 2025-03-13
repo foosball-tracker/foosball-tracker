@@ -34,7 +34,21 @@ export function ScoreBoard(props: ScoreBoardProps) {
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   };
 
-  const endGame = () => {
+  const endGame = async () => {
+    const match = currentMatch();
+    if (!match) return;
+
+    // Update the match's in_progress field
+    const { error } = await supabase
+      .from("matches")
+      .update({ in_progress: false })
+      .eq("id", match.id);
+
+    if (error) {
+      console.error("Error updating match status:", error);
+      return;
+    }
+
     playSound("win");
     setGameState("gameRunning", false);
   };
@@ -209,6 +223,7 @@ export function ScoreBoard(props: ScoreBoardProps) {
     const { data, error } = await supabase
       .from("matches")
       .select("*")
+      .eq("in_progress", true)
       .order("created_at", { ascending: false })
       .limit(1);
 
