@@ -135,7 +135,13 @@ export function ScoreBoard(props: ScoreBoardProps) {
   const createMatch = async (homeTeamId: number, awayTeamId: number) => {
     const { data, error } = await supabase
       .from("matches")
-      .insert([{ home_team_id: homeTeamId, away_team_id: awayTeamId }])
+      .insert([
+        {
+          home_team_id: homeTeamId,
+          away_team_id: awayTeamId,
+          goals_to_win: props.settings.goalsToWin,
+        },
+      ])
       .select()
       .single();
 
@@ -152,8 +158,8 @@ export function ScoreBoard(props: ScoreBoardProps) {
       alert("Please select both teams before starting the game.");
       return;
     }
-    // e.g. blackTeam is home, yellowTeam is away
-    const match = await createMatch(blackTeam.id, yellowTeam.id);
+    // Yellow team is home, black team is away
+    const match = await createMatch(yellowTeam.id, blackTeam.id);
     if (!match) return;
 
     setCurrentMatch(match);
@@ -267,7 +273,7 @@ export function ScoreBoard(props: ScoreBoardProps) {
     if (!gameState.gameRunning) return;
     const goalsToWin = props.settings.goalsToWin;
     if (blackScore() >= goalsToWin || yellowScore() >= goalsToWin) {
-      endGame();
+      endGame().then(() => console.log("Game ended"));
     }
   });
 
