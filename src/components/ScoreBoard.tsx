@@ -5,6 +5,7 @@ import { TeamScore } from "~/components/TeamScore";
 import { playSound } from "../service/soundService";
 import { gameState, setGameState } from "../store/gameStore";
 import type { ISettings } from "../types/Settings";
+import { useGameTimer } from "../hooks/useGamerTimer";
 
 type GoalsRow = Tables<"goals">;
 type MatchesRow = Tables<"matches">;
@@ -18,6 +19,9 @@ export function ScoreBoard(props: ScoreBoardProps) {
   const [currentMatch, setCurrentMatch] = createSignal<MatchesRow | null>(null);
   // Supabase goals for this match
   const [goals, setGoals] = createSignal<GoalsRow[]>([]);
+
+  // Timer hook
+  const { elapsedTime, start, stop, reset } = useGameTimer();
 
   // Derived scores
   const yellowScore = createMemo(
@@ -51,6 +55,7 @@ export function ScoreBoard(props: ScoreBoardProps) {
 
     playSound("win");
     setGameState("gameRunning", false);
+    stop(); // Stop the timer
   };
 
   /**
@@ -169,6 +174,7 @@ export function ScoreBoard(props: ScoreBoardProps) {
       gameRunning: true,
       goalHistory: [],
     });
+    start(); // Start the timer
   };
 
   const resetScores = () => {
@@ -179,6 +185,7 @@ export function ScoreBoard(props: ScoreBoardProps) {
       gameRunning: false,
       goalHistory: [],
     });
+    reset(); // Reset the timer
   };
 
   // Fetch goals from DB
@@ -248,16 +255,10 @@ export function ScoreBoard(props: ScoreBoardProps) {
       setGameState("gameRunning", true); // optional
       const existingGoals = await fetchGoalsForMatch(match.id);
       setGoals(existingGoals);
+      start(); // Start the timer if a match is loaded
     }
 
-    // Start timer
-    const timerInterval = setInterval(() => {
-      if (gameState.gameRunning) {
-        setGameState("timer", (t) => t + 1);
-      }
-    }, 1000);
-
-    onCleanup(() => clearInterval(timerInterval));
+    onCleanup(() => stop()); // Ensure timer stops on cleanup
   });
 
   // Whenever we have a new currentMatch, subscribe to it
@@ -296,7 +297,7 @@ export function ScoreBoard(props: ScoreBoardProps) {
 
         <div class="flex-col">
           <div class="flex justify-center">
-            <span class="text-center text-xl">Time: {formatTime(gameState.timer)}</span>
+            <span class="text-center text-xl">Time: {formatTime(elapsedTime())}</span>
           </div>
 
           {/* Teams side by side */}
