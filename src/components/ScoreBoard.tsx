@@ -205,32 +205,43 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
   // Realtime subscription
   let subscriptionChannel: ReturnType<typeof supabase.channel> | null = null;
 
-  const subscribeToGoals = (matchId: number) => {
-    // Clean up old subscription if any
+  // Manage Supabase subscription based on currentMatch
+  createEffect(() => {
+    const match = currentMatch();
+    if (!match) {
+      // No active match, ensure no subscription is active
+      subscriptionChannel?.unsubscribe();
+      subscriptionChannel = null;
+      return;
+    }
+
+    // Clean up previous subscription if any
     subscriptionChannel?.unsubscribe();
 
-    // New channel for goals
+    // Create a new subscription for the current match
     subscriptionChannel = supabase
-      .channel("match_goals")
+      .channel(`match_goals_${match.id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "goals" }, (payload) => {
         const newGoal = payload.new as GoalsRow;
-        if (newGoal.match_id === matchId) {
+        if (newGoal.match_id === match.id) {
           handleGoalInsert(newGoal);
         }
       })
-      .on<Tables<"goals">>(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "goals" },
-        (payload) => {
-          console.log("deleted goal", payload);
-          const oldGoalId = payload.old.id;
-          if (oldGoalId) {
-            handleGoalDelete(oldGoalId);
-          }
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "goals" }, (payload) => {
+        console.log("deleted goal", payload);
+        const oldGoalId = payload.old.id;
+        if (oldGoalId) {
+          handleGoalDelete(oldGoalId);
         }
-      )
+      })
       .subscribe();
-  };
+
+    // Cleanup subscription on re-run or component unmount
+    onCleanup(() => {
+      subscriptionChannel?.unsubscribe();
+      subscriptionChannel = null;
+    });
+  });
 
   const getLatestMatch = async () => {
     const { data, error } = await supabase
@@ -259,14 +270,6 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
     }
 
     onCleanup(() => stop()); // Ensure timer stops on cleanup
-  });
-
-  // Whenever we have a new currentMatch, subscribe to it
-  createEffect(() => {
-    const match = currentMatch();
-    if (match) {
-      subscribeToGoals(match.id);
-    }
   });
 
   // Watch for the score crossing the threshold
