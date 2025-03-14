@@ -25,7 +25,6 @@ export function Login() {
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((_event, session) => {
-        console.log("session", session);
         setSession(session);
       });
 
@@ -42,68 +41,66 @@ export function Login() {
   }
 
   return (
-    <>
-      <Show
-        when={session() === null}
-        fallback={
-          <div class="flex items-center gap-2">
-            <p>{session()?.user.email}</p>
-            <button class="btn btn-secondary" onClick={signOut}>
-              Logout
-            </button>
-          </div>
-        }
+    <Show
+      when={session() === null}
+      fallback={
+        <div class="flex items-center gap-2">
+          <p>{session()?.user.email}</p>
+          <button class="btn btn-secondary" onClick={signOut}>
+            Logout
+          </button>
+        </div>
+      }
+    >
+      {/* Open the modal using document.getElementById('ID').showModal() method */}
+      <button
+        class="btn"
+        onClick={() => {
+          const modal = document.getElementById("login-modal");
+          if (modal instanceof HTMLDialogElement) {
+            modal.showModal();
+          }
+        }}
       >
-        {/* Open the modal using document.getElementById('ID').showModal() method */}
-        <button
-          class="btn"
-          onClick={() => {
-            const modal = document.getElementById("login-modal");
-            if (modal instanceof HTMLDialogElement) {
-              modal.showModal();
-            }
-          }}
-        >
-          open modal
-        </button>
-        <dialog id="login-modal" class="modal">
-          <div class="modal-box">
-            <h3 class="text-lg font-bold">Sign in</h3>
-            <Auth
-              supabaseClient={supabase}
-              appearance={{
-                theme: ThemeSupa,
-                className: {
-                  message: "bg-blue-500",
-                },
-              }}
-              providers={["google"]}
-              socialLayout={"horizontal"}
-              theme={"dark"}
-            />
-            <div class="modal-action">
-              <form method="dialog">
-                {/* if there is a button in form, it will close the modal */}
-                <button class="btn">Close</button>
-              </form>
-            </div>
+        open modal
+      </button>
+      <dialog id="login-modal" class="modal">
+        <div class="modal-box">
+          <h3 class="text-lg font-bold">Sign in</h3>
+          <Auth
+            supabaseClient={supabase}
+            appearance={{
+              theme: ThemeSupa,
+              className: {
+                message: "bg-blue-500",
+              },
+            }}
+            providers={["google"]}
+            socialLayout={"horizontal"}
+            theme={"dark"}
+          />
+          <div class="modal-action">
+            <form method="dialog">
+              {/* if there is a button in form, it will close the modal */}
+              <button class="btn">Close</button>
+            </form>
           </div>
-        </dialog>
-        {/*<button*/}
-        {/*  class={"btn btn-primary"}*/}
-        {/*  onClick={() => {*/}
-        {/*    supabase.auth*/}
-        {/*      .signInWithOAuth({*/}
-        {/*        provider: "google",*/}
-        {/*      })*/}
-        {/*      .then((response) => {*/}
-        {/*        console.log("Sign in with Google", response);*/}
-        {/*      });*/}
-        {/*  }}*/}
-        {/*>*/}
-        {/*  Log in with Google*/}
-        {/*</button>*/}
-      </Show>
-    </>
+        </div>
+      </dialog>
+      {/*<button*/}
+      {/*  class={"btn btn-primary"}*/}
+      {/*  onClick={() => {*/}
+      {/*    supabase.auth*/}
+      {/*      .signInWithOAuth({*/}
+      {/*        provider: "google",*/}
+      {/*      })*/}
+      {/*      .then((response) => {*/}
+      {/*        console.log("Sign in with Google", response);*/}
+      {/*      });*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  Log in with Google*/}
+      {/*</button>*/}
+    </Show>
   );
 }

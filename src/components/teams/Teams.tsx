@@ -4,7 +4,12 @@ import { ColumnDef } from "@tanstack/solid-table";
 import { Tables } from "~/types/database.ts";
 import { DataTable } from "~/components/shared/table/DataTable.tsx";
 
-const getTeams = async () => {
+const ARTIFICIAL_DELAY_MS = 1000;
+
+export const getTeams = async () => {
+  // Add artificial delay for testing purposes
+  await new Promise((resolve) => setTimeout(resolve, ARTIFICIAL_DELAY_MS));
+
   const { data, error } = await supabase.from("teams").select();
   if (error) {
     console.error("error fetching teams", error);

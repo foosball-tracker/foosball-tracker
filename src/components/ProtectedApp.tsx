@@ -4,18 +4,12 @@ import { ScoreBoard } from "./ScoreBoard.tsx";
 import { GoalHistory } from "./GoalHistory.tsx";
 import { Settings } from "./Settings.tsx";
 import "../App.css";
-import { onCleanup } from "solid-js";
-import { mqttService } from "../service/mqttService.ts";
 
 export default function ProtectedApp() {
   const [settings, setSettings] = createLocalStorageStore<ISettings>("settings", {
-    yellowTeam: "Gelbes Team",
-    blackTeam: "Schwarzes Team",
+    yellowTeam: { id: undefined, name: "Gelbes Team" },
+    blackTeam: { id: undefined, name: "Schwarzes Team" },
     goalsToWin: 10,
-  });
-
-  onCleanup(() => {
-    mqttService.disconnect();
   });
 
   return (

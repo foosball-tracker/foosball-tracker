@@ -62,20 +62,26 @@ export type Database = {
         Row: {
           away_team_id: number
           created_at: string
+          goals_to_win: number
           home_team_id: number
           id: number
+          in_progress: boolean
         }
         Insert: {
           away_team_id: number
           created_at?: string
+          goals_to_win?: number
           home_team_id: number
           id?: number
+          in_progress?: boolean
         }
         Update: {
           away_team_id?: number
           created_at?: string
+          goals_to_win?: number
           home_team_id?: number
           id?: number
+          in_progress?: boolean
         }
         Relationships: [
           {
@@ -115,20 +121,29 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          email: string | null
+          first_name: string | null
           id: number
           is_admin: boolean
+          last_name: string | null
           user_id: string | null
         }
         Insert: {
           created_at?: string
+          email?: string | null
+          first_name?: string | null
           id?: number
           is_admin?: boolean
+          last_name?: string | null
           user_id?: string | null
         }
         Update: {
           created_at?: string
+          email?: string | null
+          first_name?: string | null
           id?: number
           is_admin?: boolean
+          last_name?: string | null
           user_id?: string | null
         }
         Relationships: []
@@ -189,7 +204,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       team_type: "player" | "team"

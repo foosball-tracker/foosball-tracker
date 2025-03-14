@@ -1,127 +1,121 @@
-import { ISettings } from "../types/Settings.ts";
-import { onMount } from "solid-js";
-import { mqttService } from "../service/mqttService.ts";
-import { createLocalStorageSignal } from "../hooks/createLocalStorageSignal.tsx";
-import { TeamScore } from "./TeamScore.tsx";
-import { gameState, setGameState } from "../store/gameStore.ts";
-import { playSound } from "../service/soundService.ts";
+// src/components/ScoreBoard.tsx
+import { createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { TeamScore } from "~/components/TeamScore";
+import { playSound } from "../service/soundService";
+import { gameState, setGameState } from "../store/gameStore";
+import { useMatchSubscription } from "../hooks/useMatchSubscription";
+import type { ISettings } from "../types/Settings";
+import type { Tables } from "~/types/database";
+import { useGameTimer } from "~/hooks/useGamerTimer";
+import { formatTime } from "~/lib/utils.ts";
+import * as matchService from "../service/matchService";
+
+type GoalsRow = Tables<"goals">;
+type MatchesRow = Tables<"matches">;
 
 interface ScoreBoardProps {
-  settings: ISettings;
+  settings: Readonly<ISettings>;
 }
 
-const topic = "goal";
-
 export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
-  const [scoreBlack, setScoreBlack] = createLocalStorageSignal("score_black", 0);
-  const [scoreYellow, setScoreYellow] = createLocalStorageSignal("score_yellow", 0);
+  // Track current match
+  const [currentMatch, setCurrentMatch] = createSignal<MatchesRow | null>(null);
+  // Supabase goals for this match
+  const [goals, setGoals] = createSignal<GoalsRow[]>([]);
 
-  const endGame = () => {
-    playSound("win");
-    setGameState("gameRunning", false);
+  // Timer hook
+  const { elapsedTime, start, stop, reset } = useGameTimer();
+
+  // Derived scores
+  const yellowScore = createMemo(
+    () => goals().filter((g) => g.team_id === props.settings.yellowTeam.id).length
+  );
+  const blackScore = createMemo(
+    () => goals().filter((g) => g.team_id === props.settings.blackTeam.id).length
+  );
+
+  const handleGoalInsert = (newGoal: GoalsRow) => {
+    setGoals((prev) => (prev.find((g) => g.id === newGoal.id) ? prev : [...prev, newGoal]));
+    playSound("goal");
   };
 
-  const formatTime = (sec: number) => {
-    const minutes = Math.floor(sec / 60);
-    const seconds = sec % 60;
-    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  const handleGoalDelete = (oldGoalId: number) => {
+    setGoals((prev) => prev.filter((g) => g.id !== oldGoalId));
+    playSound("no-goal");
   };
 
-  // Record a goal entry only when the game is running.
-  const recordGoal = (team: "black" | "yellow") => {
-    if (gameState.gameRunning) {
-      setGameState("goalHistory", (prev) => [...prev, { team, time: gameState.timer }]);
+  const adjustGoal = async (teamId: number, inc: number) => {
+    if (!gameState.gameRunning || !currentMatch()) return;
+    if (inc > 0) {
+      await matchService.recordGoal(currentMatch()!.id, teamId, gameState.timer, formatTime);
+    } else {
+      await matchService.removeLastGoal(currentMatch()!.id, teamId);
     }
   };
 
-  // Centralized update function for both MQTT and manual updates.
-  const updateScore = (team: "black" | "yellow", increment: number) => {
-    if (!gameState.gameRunning) return;
-
-    if (increment > 0) {
-      recordGoal(team);
-    } else if (increment < 0) {
-      // Remove the last recorded goal for this team
-      setGameState("goalHistory", (prev) => {
-        const lastIndex = prev.map((g) => g.team).lastIndexOf(team);
-        if (lastIndex !== -1) {
-          return prev.filter((_, i) => i !== lastIndex);
-        }
-        return prev;
-      });
+  const startGame = async () => {
+    const { blackTeam, yellowTeam } = props.settings;
+    if (!blackTeam.id || !yellowTeam.id) {
+      alert("Please select both teams before starting the game.");
+      return;
     }
+    const match = await matchService.createMatch(
+      yellowTeam.id,
+      blackTeam.id,
+      props.settings.goalsToWin
+    );
+    if (!match) return;
 
-    if (team === "black") {
-      const currentScore = scoreBlack();
-      const newScore = Math.max(0, currentScore + increment);
-      setScoreBlack(newScore);
-      if (increment > 0) {
-        if (newScore >= props.settings.goalsToWin) {
-          endGame();
-        } else {
-          playSound("goal");
-        }
-      } else if (increment < 0) {
-        playSound("no-goal");
-      }
-    } else if (team === "yellow") {
-      const currentScore = scoreYellow();
-      const newScore = Math.max(0, currentScore + increment);
-      setScoreYellow(newScore);
-      if (increment > 0) {
-        if (newScore >= props.settings.goalsToWin) {
-          endGame();
-        } else {
-          playSound("goal");
-        }
-      } else if (increment < 0) {
-        playSound("no-goal");
-      }
-    }
-  };
-
-  // Starts a new game.
-  const startGame = () => {
-    setScoreBlack(0);
-    setScoreYellow(0);
+    setCurrentMatch(match);
+    setGoals([]);
     setGameState({ timer: 0, gameRunning: true, goalHistory: [] });
+    start();
   };
 
-  // Reset scores and game state.
   const resetScores = () => {
-    setScoreBlack(0);
-    setScoreYellow(0);
+    setCurrentMatch(null);
+    setGoals([]);
     setGameState({ timer: 0, gameRunning: false, goalHistory: [] });
+    reset();
   };
 
-  // MQTT subscription & timer interval.
-  onMount(() => {
-    mqttService.subscribe(topic);
+  const endCurrentGame = async () => {
+    const match = currentMatch();
+    if (!match) return;
+    if (await matchService.endGame(match.id)) {
+      playSound("win");
+      setGameState("gameRunning", false);
+      stop();
+    }
+  };
 
-    const handleMessage = (msg: string) => {
-      try {
-        const data = JSON.parse(msg); // expect { team: "black"|"yellow", value: number }
-        if (data.team === "black" || data.team === "yellow") {
-          updateScore(data.team, data.value);
-        }
-      } catch (error) {
-        console.error("Failed to parse MQTT message:", msg, error);
-      }
-    };
+  onMount(async () => {
+    const match = await matchService.getLatestMatch();
+    if (match) {
+      setCurrentMatch(match);
+      setGameState("gameRunning", true);
+      const existingGoals = await matchService.fetchGoalsForMatch(match.id);
+      setGoals(existingGoals);
+      start();
+    }
+    // Ensure timer stops on unmount
+    onCleanup(() => stop());
+  });
 
-    mqttService.on(topic, handleMessage);
+  // Subscribe to real-time updates if a match is active
+  createEffect(() => {
+    const match = currentMatch();
+    if (match) {
+      useMatchSubscription(match.id, handleGoalInsert, handleGoalDelete);
+    }
+  });
 
-    const timerInterval = setInterval(() => {
-      if (gameState.gameRunning) {
-        setGameState("timer", (t) => t + 1);
-      }
-    }, 1000);
-
-    return () => {
-      mqttService.off(topic, handleMessage);
-      mqttService.unsubscribe(topic);
-      clearInterval(timerInterval);
-    };
+  // Check for game end condition
+  createEffect(() => {
+    if (!gameState.gameRunning) return;
+    if (blackScore() >= props.settings.goalsToWin || yellowScore() >= props.settings.goalsToWin) {
+      endCurrentGame().then(() => console.log("Game ended"));
+    }
   });
 
   return (
@@ -143,26 +137,30 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
 
         <div class="flex-col">
           <div class="flex justify-center">
-            <span class="text-center text-xl">Time: {formatTime(gameState.timer)}</span>
+            <span class="text-center text-xl">Time: {formatTime(elapsedTime())}</span>
           </div>
 
-          {/* Keep both TeamScore columns side by side */}
+          {/* Teams side by side */}
           <div class="mt-4 flex w-full items-center justify-center gap-4">
+            {/* Yellow side */}
             <div class="flex flex-1 justify-end">
               <TeamScore
                 team="yellow"
-                teamName={props.settings.yellowTeam}
-                score={scoreYellow()}
-                updateScore={(inc) => updateScore("yellow", inc)}
+                teamName={props.settings.yellowTeam.name ?? "Yellow Team"}
+                score={yellowScore()}
+                updateScore={(inc) => adjustGoal(props.settings.yellowTeam.id!, inc)}
               />
             </div>
+
             <div class="text-3xl font-bold">:</div>
+
+            {/* Black side */}
             <div class="flex flex-1 justify-start">
               <TeamScore
                 team="black"
-                teamName={props.settings.blackTeam}
-                score={scoreBlack()}
-                updateScore={(inc) => updateScore("black", inc)}
+                teamName={props.settings.blackTeam.name ?? "Black Team"}
+                score={blackScore()}
+                updateScore={(inc) => adjustGoal(props.settings.blackTeam.id!, inc)}
               />
             </div>
           </div>

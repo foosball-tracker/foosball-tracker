@@ -1,5 +1,10 @@
+interface Team {
+  id: number | undefined;
+  name: string;
+}
+
 export interface ISettings {
-  yellowTeam: string;
-  blackTeam: string;
+  yellowTeam: Team;
+  blackTeam: Team;
   goalsToWin: number;
 }

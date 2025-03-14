@@ -1,8 +1,7 @@
-import { createSignal, onCleanup, onMount } from "solid-js";
-import { mqttService } from "../service/mqttService.ts";
+import { createSignal } from "solid-js";
 
 export function MqttStatus() {
-  const [status, setStatus] = createSignal("connecting");
+  const [status] = createSignal("disconnected");
 
   // Tailwind CSS classes for the status dot
   const dotClasses: Record<string, string> = {
@@ -21,12 +20,6 @@ export function MqttStatus() {
     error: "badge badge-secondary",
     connecting: "badge badge-info",
   };
-
-  onMount(() => {
-    const callback = (newStatus: string) => setStatus(newStatus);
-    mqttService.on("mqtt_status", callback);
-    onCleanup(() => mqttService.off("mqtt_status", callback));
-  });
 
   return (
     <div class="flex items-center space-x-2" title={`MQTT ${status()}`}>

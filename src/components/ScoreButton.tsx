@@ -6,7 +6,7 @@ interface ScoreButtonProps {
   updateScore: (inc: number) => void;
 }
 
-export function ScoreButton(props: ScoreButtonProps): JSX.Element {
+export function ScoreButton(props: Readonly<ScoreButtonProps>): JSX.Element {
   const handleClick = () => {
     props.updateScore(props.direction);
   };

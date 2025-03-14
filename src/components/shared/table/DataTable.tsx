@@ -13,7 +13,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
 }
 
-export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>(props: Readonly<DataTableProps<TData, TValue>>) {
   const table = createSolidTable({
     get data() {
       return props.data;
