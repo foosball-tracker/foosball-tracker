@@ -1,11 +1,14 @@
+// src/components/ScoreBoard.tsx
 import { createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
-import { supabase } from "~/service/supabaseService";
-import { Tables } from "~/types/database";
 import { TeamScore } from "~/components/TeamScore";
 import { playSound } from "../service/soundService";
 import { gameState, setGameState } from "../store/gameStore";
+import { useMatchSubscription } from "../hooks/useMatchSubscription";
 import type { ISettings } from "../types/Settings";
-import { useGameTimer } from "../hooks/useGamerTimer";
+import type { Tables } from "~/types/database";
+import { useGameTimer } from "~/hooks/useGamerTimer";
+import { formatTime } from "~/lib/utils.ts";
+import * as matchService from "../service/matchService";
 
 type GoalsRow = Tables<"goals">;
 type MatchesRow = Tables<"matches">;
@@ -31,130 +34,23 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
     () => goals().filter((g) => g.team_id === props.settings.blackTeam.id).length
   );
 
-  // Format seconds as mm:ss for display
-  const formatTime = (sec: number) => {
-    const minutes = Math.floor(sec / 60);
-    const seconds = sec % 60;
-    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-  };
-
-  const endGame = async () => {
-    const match = currentMatch();
-    if (!match) return;
-
-    // Update the match's in_progress field
-    const { error } = await supabase
-      .from("matches")
-      .update({ in_progress: false })
-      .eq("id", match.id);
-
-    if (error) {
-      console.error("Error updating match status:", error);
-      return;
-    }
-
-    playSound("win");
-    setGameState("gameRunning", false);
-    stop(); // Stop the timer
-  };
-
-  /**
-   * Central handler for a newly inserted goal row in Supabase
-   */
   const handleGoalInsert = (newGoal: GoalsRow) => {
-    // Avoid duplicates (if we inserted it locally, we might already have it)
-    // If the array doesn't contain that id, add it + do side effects
-    setGoals((prev) => {
-      if (prev.find((g) => g.id === newGoal.id)) {
-        return prev; // we already have it
-      }
-      return [...prev, newGoal];
-    });
-
-    // Play sound
+    setGoals((prev) => (prev.find((g) => g.id === newGoal.id) ? prev : [...prev, newGoal]));
     playSound("goal");
   };
 
-  /**
-   * Central handler for a deleted goal row
-   */
   const handleGoalDelete = (oldGoalId: number) => {
     setGoals((prev) => prev.filter((g) => g.id !== oldGoalId));
-    // For a deletion, let's do "no-goal" sound
     playSound("no-goal");
   };
 
-  // Insert a new goal into Supabase (no immediate local changes).
-  // We'll rely on the subscription callback to update local state and play sound
-  const recordGoal = async (teamId: number) => {
-    const match = currentMatch();
-    if (!match) return;
-
-    const goalTime = `00:${formatTime(gameState.timer)}`;
-    const { error } = await supabase.from("goals").insert({
-      match_id: match.id,
-      team_id: teamId,
-      goal_time: goalTime,
-    });
-    if (error) console.error("Error recording goal:", error);
-  };
-
-  // Delete the last goal for a team
-  const removeLastGoal = async (teamId: number) => {
-    const match = currentMatch();
-    if (!match) return;
-
-    const { data: foundGoals, error: fetchErr } = await supabase
-      .from("goals")
-      .select("*")
-      .eq("match_id", match.id)
-      .eq("team_id", teamId)
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    if (fetchErr || !foundGoals?.length) {
-      console.error("Error fetching last goal:", fetchErr);
-      return;
-    }
-
-    const { error: deleteErr } = await supabase.from("goals").delete().eq("id", foundGoals[0].id);
-
-    if (deleteErr) console.error("Error deleting goal:", deleteErr);
-  };
-
-  /**
-   * This is what you call from UI buttons to increase or decrease a team's score.
-   * We do NOT do local immediate changes or sounds here to avoid double updates.
-   * Instead, we rely on realtime subscription => handleGoalInsert or handleGoalDelete.
-   */
   const adjustGoal = async (teamId: number, inc: number) => {
     if (!gameState.gameRunning || !currentMatch()) return;
     if (inc > 0) {
-      await recordGoal(teamId);
+      await matchService.recordGoal(currentMatch()!.id, teamId, gameState.timer, formatTime);
     } else {
-      await removeLastGoal(teamId);
+      await matchService.removeLastGoal(currentMatch()!.id, teamId);
     }
-  };
-
-  // Start a new match in the DB
-  const createMatch = async (homeTeamId: number, awayTeamId: number) => {
-    const { data, error } = await supabase
-      .from("matches")
-      .insert([
-        {
-          home_team_id: homeTeamId,
-          away_team_id: awayTeamId,
-          goals_to_win: props.settings.goalsToWin,
-        },
-      ])
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error creating match:", error);
-      return null;
-    }
-    return data;
   };
 
   const startGame = async () => {
@@ -163,121 +59,62 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
       alert("Please select both teams before starting the game.");
       return;
     }
-    // Yellow team is home, black team is away
-    const match = await createMatch(yellowTeam.id, blackTeam.id);
+    const match = await matchService.createMatch(
+      yellowTeam.id,
+      blackTeam.id,
+      props.settings.goalsToWin
+    );
     if (!match) return;
 
     setCurrentMatch(match);
     setGoals([]);
-    setGameState({
-      timer: 0,
-      gameRunning: true,
-      goalHistory: [],
-    });
-    start(); // Start the timer
+    setGameState({ timer: 0, gameRunning: true, goalHistory: [] });
+    start();
   };
 
   const resetScores = () => {
     setCurrentMatch(null);
     setGoals([]);
-    setGameState({
-      timer: 0,
-      gameRunning: false,
-      goalHistory: [],
-    });
-    reset(); // Reset the timer
+    setGameState({ timer: 0, gameRunning: false, goalHistory: [] });
+    reset();
   };
 
-  // Fetch goals from DB
-  const fetchGoalsForMatch = async (matchId: number) => {
-    const { data, error } = await supabase
-      .from("goals")
-      .select("*")
-      .eq("match_id", matchId)
-      .order("created_at");
-    if (error) {
-      console.error("Error fetching goals:", error);
-      return [];
-    }
-    return data;
-  };
-
-  // Realtime subscription
-  let subscriptionChannel: ReturnType<typeof supabase.channel> | null = null;
-
-  // Manage Supabase subscription based on currentMatch
-  createEffect(() => {
+  const endCurrentGame = async () => {
     const match = currentMatch();
-    if (!match) {
-      // No active match, ensure no subscription is active
-      subscriptionChannel?.unsubscribe();
-      subscriptionChannel = null;
-      return;
+    if (!match) return;
+    if (await matchService.endGame(match.id)) {
+      playSound("win");
+      setGameState("gameRunning", false);
+      stop();
     }
-
-    // Clean up previous subscription if any
-    subscriptionChannel?.unsubscribe();
-
-    // Create a new subscription for the current match
-    subscriptionChannel = supabase
-      .channel(`match_goals_${match.id}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "goals" }, (payload) => {
-        const newGoal = payload.new as GoalsRow;
-        if (newGoal.match_id === match.id) {
-          handleGoalInsert(newGoal);
-        }
-      })
-      .on("postgres_changes", { event: "DELETE", schema: "public", table: "goals" }, (payload) => {
-        console.log("deleted goal", payload);
-        const oldGoalId = payload.old.id;
-        if (oldGoalId) {
-          handleGoalDelete(oldGoalId);
-        }
-      })
-      .subscribe();
-
-    // Cleanup subscription on re-run or component unmount
-    onCleanup(() => {
-      subscriptionChannel?.unsubscribe();
-      subscriptionChannel = null;
-    });
-  });
-
-  const getLatestMatch = async () => {
-    const { data, error } = await supabase
-      .from("matches")
-      .select("*")
-      .eq("in_progress", true)
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    if (error) {
-      console.error("Error fetching current match:", error);
-      return null;
-    }
-    return data?.length ? data[0] : null;
   };
 
   onMount(async () => {
-    // Possibly load a "current" match if it exists
-    const match = await getLatestMatch();
+    const match = await matchService.getLatestMatch();
     if (match) {
       setCurrentMatch(match);
-      setGameState("gameRunning", true); // optional
-      const existingGoals = await fetchGoalsForMatch(match.id);
+      setGameState("gameRunning", true);
+      const existingGoals = await matchService.fetchGoalsForMatch(match.id);
       setGoals(existingGoals);
-      start(); // Start the timer if a match is loaded
+      start();
     }
-
-    onCleanup(() => stop()); // Ensure timer stops on cleanup
+    // Ensure timer stops on unmount
+    onCleanup(() => stop());
   });
 
-  // Watch for the score crossing the threshold
+  // Subscribe to real-time updates if a match is active
+  createEffect(() => {
+    const match = currentMatch();
+    if (match) {
+      useMatchSubscription(match.id, handleGoalInsert, handleGoalDelete);
+    }
+  });
+
+  // Check for game end condition
   createEffect(() => {
     if (!gameState.gameRunning) return;
-    const goalsToWin = props.settings.goalsToWin;
-    if (blackScore() >= goalsToWin || yellowScore() >= goalsToWin) {
-      endGame().then(() => console.log("Game ended"));
+    if (blackScore() >= props.settings.goalsToWin || yellowScore() >= props.settings.goalsToWin) {
+      endCurrentGame().then(() => console.log("Game ended"));
     }
   });
 
