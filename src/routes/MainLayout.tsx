@@ -1,5 +1,4 @@
 import { A } from "@solidjs/router";
-import { MqttStatus } from "../components/MqttStatus.tsx";
 import { ThemeSwitch } from "../components/ThemeSwitch.tsx";
 import { ParentComponent } from "solid-js";
 import { Login } from "../components/auth/Login.tsx";
@@ -13,7 +12,6 @@ export const MainLayout: ParentComponent = (props) => {
             Foosball Tracker
           </A>
           <div class="flex gap-2">
-            <MqttStatus />
             <ThemeSwitch />
           </div>
         </div>
