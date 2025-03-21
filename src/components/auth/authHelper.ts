@@ -1,6 +1,7 @@
 export const getRedirectUrl = () => {
   const environment: "local" | "preview" | "production" =
     import.meta.env.VITE_VERCEL_TARGET_ENV ?? "local";
+  console.log("environment", environment);
   switch (environment) {
     case "production":
       return `https://${import.meta.env.VITE_VERCEL_PROJECT_PRODUCTION_URL}`;
