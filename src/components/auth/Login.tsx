@@ -3,6 +3,7 @@ import { Session } from "@supabase/supabase-js";
 import { supabase } from "~/service/supabaseService.ts";
 import { Auth } from "@supabase/auth-ui-solid";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { getRedirectUrl } from "~/components/auth/authHelper.ts";
 
 export function Login() {
   const [session, setSession] = createSignal<Session | null>(null);
@@ -78,6 +79,7 @@ export function Login() {
             providers={["google"]}
             socialLayout={"horizontal"}
             theme={"dark"}
+            redirectTo={getRedirectUrl()}
           />
           <div class="modal-action">
             <form method="dialog">
