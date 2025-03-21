@@ -5,20 +5,6 @@ import { Login } from "../components/auth/Login.tsx";
 
 export const MainLayout: ParentComponent = (props) => {
   createEffect(() => {
-    console.log("--- Vercel Environment Variables ---");
-    for (const key in import.meta.env) {
-      if (key.startsWith("VERCEL_")) {
-        console.log(`${key}: ${import.meta.env[key]}`);
-      }
-    }
-
-    console.log("--- Vite Environment Variables ---");
-    for (const key in import.meta.env) {
-      if (key.startsWith("VITE_")) {
-        console.log(`${key}: ${import.meta.env[key]}`);
-      }
-    }
-
     console.log("--- All Environment Variables ---");
     for (const key in import.meta.env) {
       console.log(`${key}: ${import.meta.env[key]}`);
