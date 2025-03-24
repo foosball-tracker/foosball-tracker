@@ -3,6 +3,7 @@ import { Session } from "@supabase/supabase-js";
 import { supabase } from "~/service/supabaseService.ts";
 import { Auth } from "@supabase/auth-ui-solid";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { getRedirectUrl } from "~/components/auth/authHelper.ts";
 
 export function Login() {
   const [session, setSession] = createSignal<Session | null>(null);
@@ -71,13 +72,11 @@ export function Login() {
             supabaseClient={supabase}
             appearance={{
               theme: ThemeSupa,
-              className: {
-                message: "bg-blue-500",
-              },
             }}
             providers={["google"]}
             socialLayout={"horizontal"}
             theme={"dark"}
+            redirectTo={getRedirectUrl()}
           />
           <div class="modal-action">
             <form method="dialog">
@@ -87,20 +86,6 @@ export function Login() {
           </div>
         </div>
       </dialog>
-      {/*<button*/}
-      {/*  class={"btn btn-primary"}*/}
-      {/*  onClick={() => {*/}
-      {/*    supabase.auth*/}
-      {/*      .signInWithOAuth({*/}
-      {/*        provider: "google",*/}
-      {/*      })*/}
-      {/*      .then((response) => {*/}
-      {/*        console.log("Sign in with Google", response);*/}
-      {/*      });*/}
-      {/*  }}*/}
-      {/*>*/}
-      {/*  Log in with Google*/}
-      {/*</button>*/}
     </Show>
   );
 }

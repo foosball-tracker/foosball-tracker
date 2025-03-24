@@ -1,16 +1,9 @@
 import { A } from "@solidjs/router";
 import { ThemeSwitch } from "../components/ThemeSwitch.tsx";
-import { createEffect, ParentComponent } from "solid-js";
+import { ParentComponent } from "solid-js";
 import { Login } from "../components/auth/Login.tsx";
 
 export const MainLayout: ParentComponent = (props) => {
-  createEffect(() => {
-    console.log("--- All Environment Variables ---");
-    for (const key in import.meta.env) {
-      console.log(`${key}: ${import.meta.env[key]}`);
-    }
-  });
-
   return (
     <div class={"flex h-screen flex-col"}>
       <div class="navbar bg-base-100 h-20 shadow-sm">
