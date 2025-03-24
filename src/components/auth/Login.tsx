@@ -72,9 +72,6 @@ export function Login() {
             supabaseClient={supabase}
             appearance={{
               theme: ThemeSupa,
-              className: {
-                message: "bg-blue-500",
-              },
             }}
             providers={["google"]}
             socialLayout={"horizontal"}
@@ -89,20 +86,6 @@ export function Login() {
           </div>
         </div>
       </dialog>
-      {/*<button*/}
-      {/*  class={"btn btn-primary"}*/}
-      {/*  onClick={() => {*/}
-      {/*    supabase.auth*/}
-      {/*      .signInWithOAuth({*/}
-      {/*        provider: "google",*/}
-      {/*      })*/}
-      {/*      .then((response) => {*/}
-      {/*        console.log("Sign in with Google", response);*/}
-      {/*      });*/}
-      {/*  }}*/}
-      {/*>*/}
-      {/*  Log in with Google*/}
-      {/*</button>*/}
     </Show>
   );
 }
