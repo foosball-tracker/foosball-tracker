@@ -1,7 +1,3 @@
-Okay, here are the updated contribution guidelines incorporating the branch naming convention and instructions for linting/formatting based on your `package.json`.
-
----
-
 ## How to Contribute to This Project
 
 We're excited to have you contribute! To keep things organized and maintain code quality, please follow these simple steps:
