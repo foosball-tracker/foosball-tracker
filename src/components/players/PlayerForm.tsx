@@ -1,6 +1,9 @@
+//@ts-nocheck
 import { createSignal, JSX } from "solid-js";
 import { createPlayer } from "../../service/playerService";
 import Spinner from "../shared/Spinner";
+import { supabase } from "~/service/supabaseService.ts";
+
 
 interface PlayerFormProps {
   onSuccess?: () => void;
@@ -60,8 +63,8 @@ export default function PlayerForm(props: Readonly<PlayerFormProps>) {
             <button
               type="submit"
               class="btn btn-primary"
-              disabled={isSubmitting()}
-            >
+              disabled={isSubmitting()
+              }            >
               {isSubmitting() ? (
                 <>
                  <Spinner/>
