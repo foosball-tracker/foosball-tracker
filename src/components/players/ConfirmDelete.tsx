@@ -13,8 +13,8 @@ const ConfirmDelete = (props: ConfirmDeleteProps) => {
     <Show when={props.showConfirm}>
       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-base-300 p-6 rounded-lg shadow-lg w-80">
-          <h2 class="text-lg font-semibold mb-4">Confirm Delete</h2>
-          <p class="mb-4">
+          <h2 class="text-lg font-semibold mb-4 text-base-content">Confirm Delete</h2>
+          <p class="mb-4 text-base-content">
             Are you sure you want to delete <strong>{props.playerToDelete?.name}</strong>?
           </p>
           <div class="flex justify-end gap-2">
