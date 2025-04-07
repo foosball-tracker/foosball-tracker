@@ -41,3 +41,19 @@ export const getPlayers = async () => {
   
   return data ?? [];
 };
+
+/**
+ * Deletes Player by ID
+ * @param id player ID to delete
+ */
+
+export const deletePlayer = async(id: number)=>{
+  const {error} = await supabase.from('players').delete().eq('id', id)
+
+  if(error){
+    console.log('error deleting', error);
+    throw new Error(error.message);
+  }
+
+
+};

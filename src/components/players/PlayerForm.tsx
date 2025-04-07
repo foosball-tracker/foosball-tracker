@@ -53,7 +53,7 @@ export default function PlayerForm(props: Readonly<PlayerFormProps>) {
             />
           </fieldset>
 
-          {error() && <div class="alert alert-error mt-2">{error()}</div>}
+          {error() && <div class="alert alert-error mt-2">Delete Failed!</div>}
           {success() && (
             <div class="alert alert-success mt-2">Player created successfully!</div>
           )}

@@ -49,20 +49,8 @@ const getPlayers = async () => {
 
 
 function Players() {
-  const [data, { refetch }] = createResource(getPlayers);
-  const deletePlayer = async()=>{
-    const player = playerToDelete()
-    if (!player) return;
-    const {error} = await supabase.from('players').delete().eq('id', player.id)
-  
-    if (error){
-      console.log('error deleting', error)
-    }else{
-      refetch();
-      setPlayerToDelete(null);
-      setShowConfirm(false)
-    }
-  }
+  const [data, {refetch}] = createResource(getPlayers);
+
   const handleCreatePlayerSuccess = () => {
     refetch();
     setTimeout(()=>{
@@ -101,7 +89,10 @@ function Players() {
           setShowConfirm(false);
           setPlayerToDelete(null);
         }}
-        onConfirm={deletePlayer}
+  
+        onSuccess={()=>{
+          refetch();
+        }}
       />
     </>
     
