@@ -2,7 +2,6 @@
 import { createSignal, JSX } from "solid-js";
 import { createPlayer } from "../../service/playerService";
 import Spinner from "../shared/Spinner";
-import { supabase } from "~/service/supabaseService.ts";
 
 
 interface PlayerFormProps {

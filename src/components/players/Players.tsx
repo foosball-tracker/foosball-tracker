@@ -8,13 +8,12 @@ import ConfirmDelete from "./ConfirmDelete";
 
 // Define the Person type
 interface Player {
-  id: string;
+  id: number;
   name: string;
 }
-const [selected, setSelected] = createSignal(false);
+const [showCreateForm, setShowCreateForm] = createSignal(false);
 const [showConfirm, setShowConfirm] = createSignal(false);
 const [playerToDelete, setPlayerToDelete] = createSignal(null);
-const [showPlayerForm, setShowPlayerForm] = createSignal(false);
 
 
 // Define columns, including custom cells for a checkbox and an action button.
@@ -48,17 +47,6 @@ const getPlayers = async () => {
   return data ?? [];
 };
 
-const CreatePlayer = async()=>{
-  const addPlayer = {
-    name: name,
-  }
-  const {data, error} = await supabase.from('players').insert([addPlayer]).select().single();
-  if (error){
-    console.log("error creating player", error)
-  }
-  return data
-}
-
 
 function Players() {
   const [data, { refetch }] = createResource(getPlayers);
@@ -77,13 +65,15 @@ function Players() {
   }
   const handleCreatePlayerSuccess = () => {
     refetch();
-    setShowPlayerForm(false);
+    setTimeout(()=>{
+      setShowCreateForm(false)
+    }, 1000);
   };
 
   return (
     <>
       <Show
-        when={selected() == false}
+        when={!showCreateForm()}
         keyed
         fallback={
           <PlayerForm onSuccess={handleCreatePlayerSuccess}/>
@@ -100,7 +90,7 @@ function Players() {
             >
               {(resolvedData) => <DataTable columns={columns} data={resolvedData}/>}
             </Show>
-            <button class="btn btn-primary mx-auto mt-4"onclick={()=>setSelected(!selected())}>Create New Player</button>
+            <button class="btn btn-primary mx-auto mt-4"onclick={()=>setShowCreateForm(!showCreateForm())}>Create New Player</button>
           </div>
       </Show>
       {/*use confirm delete component */}

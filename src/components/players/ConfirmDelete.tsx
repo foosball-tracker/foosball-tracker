@@ -3,7 +3,7 @@ import {  Show } from "solid-js";
 
 interface ConfirmDeleteProps {
   showConfirm: boolean;
-  playerToDelete: { name: string } | null;
+  playerToDelete: {id: number, name: string } | null;
   onCancel: () => void;
   onConfirm: () => void;
 }
