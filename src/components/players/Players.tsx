@@ -20,11 +20,6 @@ const [showPlayerForm, setShowPlayerForm] = createSignal(false);
 // Define columns, including custom cells for a checkbox and an action button.
 const columns: ColumnDef<Player>[] = [
   {
-    header: "Name",
-    accessorKey: "name",
-    cell: (info) => info.getValue(),
-  },
-  {
     header: "Actions",
     cell: (info) => {
       const player = info.row.original;
@@ -37,6 +32,11 @@ const columns: ColumnDef<Player>[] = [
         </button>
       );
     },
+  },
+  {
+    header: "Name",
+    accessorKey: "name",
+    cell: (info) => info.getValue(),
   },
 ];
 
@@ -76,7 +76,6 @@ function Players() {
     }
   }
   const handleCreatePlayerSuccess = () => {
-    console.log('refetching')
     refetch();
     setShowPlayerForm(false);
   };
