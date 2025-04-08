@@ -14,7 +14,6 @@ const [showCreateForm, setShowCreateForm] = createSignal(false);
 const [showConfirm, setShowConfirm] = createSignal(false);
 const [playerToDelete, setPlayerToDelete] = createSignal<Player | null>(null);
 
-
 // Define columns, including custom cells for a checkbox and an action button.
 const columns: ColumnDef<Player>[] = [
   {
@@ -22,10 +21,13 @@ const columns: ColumnDef<Player>[] = [
     cell: (info) => {
       const player = info.row.original;
       return (
-        <button class="btn btn-error btn-sm" onClick={() => {
-          setPlayerToDelete(player);
-          setShowConfirm(true);
-        }}>
+        <button
+          class="btn btn-error btn-sm"
+          onClick={() => {
+            setPlayerToDelete(player);
+            setShowConfirm(true);
+          }}
+        >
           Delete
         </button>
       );
@@ -46,14 +48,13 @@ const getPlayers = async () => {
   return data ?? [];
 };
 
-
 function Players() {
-  const [data, {refetch}] = createResource(getPlayers);
+  const [data, { refetch }] = createResource(getPlayers);
 
   const handleCreatePlayerSuccess = () => {
     refetch();
-    setTimeout(()=>{
-      setShowCreateForm(false)
+    setTimeout(() => {
+      setShowCreateForm(false);
     }, 1000);
   };
 
@@ -62,25 +63,28 @@ function Players() {
       <Show
         when={!showCreateForm()}
         keyed
-        fallback={
-          <PlayerForm onSuccess={handleCreatePlayerSuccess}/>
-        }>
-          <div class="h-full p-2">
-            <Show
-              when={data()}
-              keyed
-              fallback={
-                <div class={"flex h-full items-center justify-center"}>
-                  <span class="loading loading-spinner loading-xl" />
-                </div>
-              }
-            >
-              {(resolvedData) => <DataTable columns={columns} data={resolvedData}/>}
-            </Show>
-            <button class="btn btn-primary mx-auto mt-4"onclick={()=>setShowCreateForm(!showCreateForm())}>Create New Player</button>
-          </div>
+        fallback={<PlayerForm onSuccess={handleCreatePlayerSuccess} />}
+      >
+        <div class="h-full p-2">
+          <Show
+            when={data()}
+            keyed
+            fallback={
+              <div class={"flex h-full items-center justify-center"}>
+                <span class="loading loading-spinner loading-xl" />
+              </div>
+            }
+          >
+            {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
+          </Show>
+          <button
+            class="btn btn-primary mx-auto mt-4"
+            onClick={() => setShowCreateForm(!showCreateForm())}
+          >
+            Create New Player
+          </button>
+        </div>
       </Show>
-      {/*use confirm delete component */}
       <ConfirmDelete
         showConfirm={showConfirm()}
         playerToDelete={playerToDelete()}
@@ -88,13 +92,11 @@ function Players() {
           setShowConfirm(false);
           setPlayerToDelete(null);
         }}
-  
-        onSuccess={()=>{
+        onSuccess={() => {
           refetch();
         }}
       />
     </>
-    
   );
 }
 

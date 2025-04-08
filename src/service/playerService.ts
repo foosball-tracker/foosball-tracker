@@ -33,12 +33,12 @@ export const createPlayer = async (params: CreatePlayerParams) => {
  */
 export const getPlayers = async () => {
   const { data, error } = await supabase.from("players").select();
-  
+
   if (error) {
     console.error("Error fetching players:", error);
     throw new Error(error.message);
   }
-  
+
   return data ?? [];
 };
 
@@ -47,13 +47,11 @@ export const getPlayers = async () => {
  * @param id player ID to delete
  */
 
-export const deletePlayer = async(id: number)=>{
-  const {error} = await supabase.from('players').delete().eq('id', id)
+export const deletePlayer = async (id: number) => {
+  const { error } = await supabase.from("players").delete().eq("id", id);
 
-  if(error){
-    console.log('error deleting', error);
+  if (error) {
+    console.log("error deleting", error);
     throw new Error(error.message);
   }
-
-
 };

@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { createSignal, JSX } from "solid-js";
 import { createPlayer } from "../../service/playerService";
 import Spinner from "../shared/Spinner";
