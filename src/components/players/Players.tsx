@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { ColumnDef } from "@tanstack/solid-table";
 import { createResource, createSignal, Show } from "solid-js";
 import { supabase } from "~/service/supabaseService.ts";
@@ -13,7 +12,7 @@ interface Player {
 }
 const [showCreateForm, setShowCreateForm] = createSignal(false);
 const [showConfirm, setShowConfirm] = createSignal(false);
-const [playerToDelete, setPlayerToDelete] = createSignal(null);
+const [playerToDelete, setPlayerToDelete] = createSignal<Player | null>(null);
 
 
 // Define columns, including custom cells for a checkbox and an action button.
