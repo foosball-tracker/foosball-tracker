@@ -1,16 +1,19 @@
 # Foosball Tracker
 
 ## Introduction
+
 A real-time [foosball](https://foosballplanet.com/cdn/shop/products/TornadoElite.jpg?v=1671815293) (table football) match tracking system with Solid.js frontend, Supabase backend, and MQTT integration for instant updates. Tracks player stats, match history, and provides live scoreboards.
 
 ## System Architecture
 
 The system consists of:
+
 1. **Goal Sensors** - Two Raspberry Pi Pico W devices with break-beam sensors detect goals
 2. **Web Interface** - Solid.js frontend displays live scores and plays sound effects
 3. **Supabase Backend** - Stores match data and handles real-time updates
 
 **Sensor-to-Web Flow**:
+
 1. Goal detected by Pico W sensor (debounced to prevent false positives)
 2. Pico W sends POST request to Supabase `goals` table via REST API
 3. Solid.js frontend listens for real-time database changes via Supabase Realtime
@@ -19,6 +22,7 @@ The system consists of:
 See companion sensor project: [Goal Tracker Hardware](https://github.com/joshua-lehmann/goal-tracker)
 
 ## Key Technologies
+
 - **Frontend**: Solid.js v1.9.5 (Reactive UI Framework)
 - **Routing**: Solid Router v1.10.2
 - **Styling**: DaisyUI + Tailwind CSS
@@ -33,7 +37,6 @@ See companion sensor project: [Goal Tracker Hardware](https://github.com/joshua-
 - **Supabase** v2.49.1 ([Backend Services](https://supabase.com/))
 - **UI Components**: Lucide Solid icons v0.479.0
 
-
 ```bash
 pnpm install
 pnpm run dev  # Starts Vite dev server
@@ -44,25 +47,31 @@ pnpm db-types  # Generate Supabase types from database schema
 ```
 
 ## Authentication
+
 Integrated with Supabase Auth for secure user management. Features include:
+
 - Email/password authentication
 - Social logins (Google/GitHub)
 - Protected routes using Solid Router
 - Session management via Solid.js signals
 
 ## Type Generation
+
 Database types are automatically generated using:
+
 ```bash
 pnpm run db-types
 ```
 
 ## Design System
+
 - Uses DaisyUI components with Tailwind utility classes
 - Themed using DaisyUI's default color schemes
 - Responsive layout patterns using Tailwind breakpoints
 - Consistent component organization in `/src/components`
 
 ## Project Structure
+
 ```
 src/
 ├── components/      # Reusable UI components
@@ -76,6 +85,7 @@ src/
 ```
 
 ## Best Practices
+
 1. **Type Safety**: Strict TypeScript configuration
 2. **Linting**: ESLint with Solid.js rules
 3. **Formatting**: Prettier with Tailwind plugin
@@ -84,9 +94,11 @@ src/
 6. **Responsive Design**: Mobile-first Tailwind classes
 
 ## Deployment
+
 Built using Vite's optimized production build. Environment variables should be configured on the production deployment
 
 ## Environment Variables
+
 This project requires the following environment variables set in a `.env` file:
 
 - `VITE_SUPABASE_URL`: Your Supabase project URL \
@@ -97,6 +109,7 @@ This project requires the following environment variables set in a `.env` file:
   (Found in Supabase Dashboard > Project Settings > General)
 
 These are used in:
+
 - `src/service/supabaseService.ts` - Initializing the Supabase client
 - Authentication flows - For secure API interactions
 - Database operations - Managing match data and player statistics

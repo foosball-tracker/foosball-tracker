@@ -1,4 +1,4 @@
-import { createSignal, JSX } from "solid-js";
+import { createSignal, JSX, Match, Show, Switch } from "solid-js";
 import { createPlayer } from "../../service/playerService";
 import Spinner from "../shared/Spinner";
 
@@ -51,25 +51,22 @@ export default function PlayerForm(props: Readonly<PlayerFormProps>) {
             />
           </fieldset>
 
-          {error() && <div class="alert alert-error mt-2">{error()}</div>}
-          {success() && (
-            <div class="alert alert-success mt-2">Player created successfully!</div>
-          )}
+          <div class="mt-2">
+            <Switch>
+              <Match when={error()}>
+                <div class="alert alert-error">{error()}</div>
+              </Match>
+              <Match when={success()}>
+                <div class="alert alert-success">Player created successfully!</div>
+              </Match>
+            </Switch>
+          </div>
 
-          <div class="card-actions justify-end mt-4">
-            <button
-              type="submit"
-              class="btn btn-primary"
-              disabled={isSubmitting()}
-            >
-              {isSubmitting() ? (
-                <>
-                 <Spinner/>
-              
-                </>
-              ) : (
-                "Create Player"
-              )}
+          <div class="card-actions mt-4 justify-end">
+            <button type="submit" class="btn btn-primary" disabled={isSubmitting()}>
+              <Show when={isSubmitting()} fallback={"Create Player"}>
+                <Spinner />
+              </Show>
             </button>
           </div>
         </form>

@@ -24,10 +24,7 @@ export default [
     rules: {
       ...typescriptEslint.configs.recommended.rules,
       ...solid.configs.recommended.rules,
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        { argsIgnorePattern: "^_" },
-      ],
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
     },
   },
   prettier,
