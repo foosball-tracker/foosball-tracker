@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "eslint .",
+    "lint": "eslint . ",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -15,9 +15,9 @@
     "db-types": "supabase gen types typescript --project-id ghtgwqvzohkyulbfwcjs --schema public > src/types/database.ts"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
+    "*": [
       "prettier --write",
-      "pnpm lint"
+      "eslint"
     ],
     "*.{json,css,md}": "prettier --write"
   },
