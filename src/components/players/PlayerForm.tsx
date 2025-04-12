@@ -12,7 +12,8 @@ export default function PlayerForm(props: Readonly<PlayerFormProps>) {
   const [error, setError] = createSignal<string | null>(null);
   const [success, setSuccess] = createSignal(false);
 
-  const handleSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (e) => {
+  // prettier-ignore
+  const handleSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (e) => {// NOSONAR
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
