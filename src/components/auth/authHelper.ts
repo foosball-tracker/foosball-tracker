@@ -1,11 +1,11 @@
+export type EnvironmentType = "local" | "deploy-preview" | "production";
 export const getRedirectUrl = () => {
-  const environment: "local" | "preview" | "production" =
-    import.meta.env.VITE_VERCEL_TARGET_ENV ?? "local";
+  const environment = import.meta.env.VITE_CONTEXT ?? "local";
   switch (environment) {
     case "production":
-      return `https://${import.meta.env.VITE_VERCEL_PROJECT_PRODUCTION_URL}`;
-    case "preview":
-      return `https://${import.meta.env.VITE_VERCEL_BRANCH_URL}`;
+      return `https://${import.meta.env.VITE_URL}`;
+    case "deploy-preview":
+      return `https://${import.meta.env.VITE_DEPLOY_PRIME_URL}`;
     case "local":
       return "http://localhost:5173";
   }
