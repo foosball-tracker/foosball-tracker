@@ -27,7 +27,6 @@
     "@supabase/auth-ui-solid": "^0.3.8",
     "@supabase/supabase-js": "^2.49.4",
     "@tanstack/solid-table": "^8.21.2",
-    "@vercel/analytics": "^1.5.0",
     "lucide-solid": "^0.479.0",
     "solid-js": "^1.9.5"
   },

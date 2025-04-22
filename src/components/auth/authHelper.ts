@@ -1,7 +1,6 @@
+export type EnvironmentType = "local" | "deploy-preview" | "production";
 export const getRedirectUrl = () => {
-  console.log("env", import.meta.env);
-  const environment: "local" | "deploy-preview" | "production" =
-    import.meta.env.VITE_CONTEXT ?? "local";
+  const environment = import.meta.env.VITE_CONTEXT ?? "local";
   switch (environment) {
     case "production":
       return `https://${import.meta.env.VITE_URL}`;
