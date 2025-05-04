@@ -63,7 +63,6 @@ export default function TeamForm(props: Readonly<PlayerFormProps>) {
         setError("You can only select up to 2 players");
       }
     }
-    // Reset dropdown selection
     e.currentTarget.value = "";
   };
 
@@ -92,7 +91,7 @@ export default function TeamForm(props: Readonly<PlayerFormProps>) {
             <legend class="fieldset-legend">Select Players</legend>
             <select class="input input-bordered w-full" onChange={handlePlayerSelect} disabled={isSubmitting()}>
               <option value="">Select player...</option>
-              <For each={players()}>
+              <For each={players() ?? []}>
                 {(player) => (
                   <option value={player.id}>
                     {player.name}
