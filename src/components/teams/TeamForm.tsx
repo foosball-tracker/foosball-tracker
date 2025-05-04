@@ -34,9 +34,6 @@ export default function TeamForm(props: Readonly<PlayerFormProps>) {
       if (selectedPlayerIds().length === 0) {
         throw new Error("At least add one player");
       }
-      if (selectedPlayerIds().length > 2) {
-        throw new Error("You can only select up to 2 players");
-      }
 
       await createTeam({
         name: name().trim(),

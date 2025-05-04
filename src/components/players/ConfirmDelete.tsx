@@ -23,7 +23,9 @@ const ConfirmDelete = (props: ConfirmDeleteProps) => {
       props.onSuccess?.();
       props.onCancel();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete player");
+      setError(
+        err instanceof Error ? `Failed to delete team: ${err.message}` : "Failed to delete team"
+      );
     } finally {
       setIsDeleting(false);
     }
