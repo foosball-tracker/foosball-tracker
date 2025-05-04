@@ -31,16 +31,19 @@ const columns: ColumnDef<Tables<"teams">>[] = [
   {
     header: "Actions",
     cell: (info) => {
-      const team = info.row.original
+      const team = info.row.original;
       return (
-        <button class="btn btn-error btn-sm" onClick={() => {
-          setTeamToDelete(team);
-          setShowConfirm(true);
-        }}>
+        <button
+          class="btn btn-error btn-sm"
+          onClick={() => {
+            setTeamToDelete(team);
+            setShowConfirm(true);
+          }}
+        >
           Delete
         </button>
-      )
-    }
+      );
+    },
   },
   {
     accessorKey: "name",
@@ -64,9 +67,11 @@ export default function Teams() {
 
   return (
     <>
-      <Show when={!showTeamForm()}
+      <Show
+        when={!showTeamForm()}
         keyed
-        fallback={<TeamForm onSuccess={handleCreateTeamSuccess} />}>
+        fallback={<TeamForm onSuccess={handleCreateTeamSuccess} />}
+      >
         <div class={"p-2"}>
           <div class={"text-lg"}>Teams</div>
           <div class="mx-auto w-full">
@@ -82,7 +87,12 @@ export default function Teams() {
               {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
             </Show>
           </div>
-          <button class="btn btn-primary mx-auto mt-4" onClick={() => setShowTeamForm(!showTeamForm())}>Create New Team</button>
+          <button
+            class="btn btn-primary mx-auto mt-4"
+            onClick={() => setShowTeamForm(!showTeamForm())}
+          >
+            Create New Team
+          </button>
         </div>
       </Show>
       <ConfirmTeamDelete
@@ -94,8 +104,8 @@ export default function Teams() {
         }}
         onSuccess={() => {
           refetch();
-        }} />
-
+        }}
+      />
     </>
   );
 }

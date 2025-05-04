@@ -1,4 +1,4 @@
-import { createSignal, createResource, JSX, Match, Show, Switch, For} from "solid-js";
+import { createSignal, createResource, JSX, Match, Show, Switch, For } from "solid-js";
 import Spinner from "../shared/Spinner";
 import { createTeam } from "~/service/teamService";
 import { supabase } from "~/service/supabaseService";
@@ -67,7 +67,7 @@ export default function TeamForm(props: Readonly<PlayerFormProps>) {
   };
 
   const removePlayer = (id: number) => {
-    setSelectedPlayerIds(selectedPlayerIds().filter(pid => pid !== id));
+    setSelectedPlayerIds(selectedPlayerIds().filter((pid) => pid !== id));
   };
 
   return (
@@ -89,14 +89,14 @@ export default function TeamForm(props: Readonly<PlayerFormProps>) {
 
           <fieldset class="fieldset mt-4">
             <legend class="fieldset-legend">Select Players</legend>
-            <select class="input input-bordered w-full" onChange={handlePlayerSelect} disabled={isSubmitting()}>
+            <select
+              class="input input-bordered w-full"
+              onChange={handlePlayerSelect}
+              disabled={isSubmitting()}
+            >
               <option value="">Select player...</option>
               <For each={players() ?? []}>
-                {(player) => (
-                  <option value={player.id}>
-                    {player.name}
-                  </option>
-                )}
+                {(player) => <option value={player.id}>{player.name}</option>}
               </For>
             </select>
           </fieldset>
@@ -104,11 +104,15 @@ export default function TeamForm(props: Readonly<PlayerFormProps>) {
           <div class="mt-2 flex flex-wrap gap-2">
             <For each={selectedPlayerIds()}>
               {(id) => {
-                const player = players()?.find(p => p.id === id);
+                const player = players()?.find((p) => p.id === id);
                 return (
                   <div class="badge badge-primary gap-2 p-3">
                     {player?.name ?? "Unknown"}
-                    <button type="button" class="btn btn-xs btn-circle btn-error ml-2" onClick={() => removePlayer(id)}>
+                    <button
+                      type="button"
+                      class="btn btn-xs btn-circle btn-error ml-2"
+                      onClick={() => removePlayer(id)}
+                    >
                       ✕
                     </button>
                   </div>
