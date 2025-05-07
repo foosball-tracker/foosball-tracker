@@ -41,7 +41,8 @@ const ConfirmDeleteModal = <T extends { id: number }>(props: ConfirmDeleteModalP
         <div class="bg-base-300 w-80 rounded-lg p-6 shadow-lg">
           <h2 class="text-base-content mb-4 text-lg font-semibold">Confirm Delete</h2>
           <p class="text-base-content mb-4">
-            Are you sure you want to delete <strong>{props.entityToDelete && props.getName(props.entityToDelete)}</strong>?
+            Are you sure you want to delete{" "}
+            <strong>{props.entityToDelete && props.getName(props.entityToDelete)}</strong>?
           </p>
           {error() && <div class="alert alert-error mt-2">{error()}</div>}
 
