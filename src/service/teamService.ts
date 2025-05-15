@@ -1,12 +1,12 @@
 import { Database, TablesInsert } from "~/types/database";
 import { supabase } from "./supabaseService";
 
-interface createTeamParams {
+interface CreateTeamParams {
   name: string;
   playerIds: number[];
 }
 
-export const createTeam = async (params: createTeamParams) => {
+export const createTeam = async (params: CreateTeamParams) => {
   const { data, error: teamError } = await supabase
     .from("teams")
     .insert({
