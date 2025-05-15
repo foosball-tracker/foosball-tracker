@@ -1,23 +1,20 @@
 import { createSignal, createResource, JSX, Match, Show, Switch, For } from "solid-js";
 import Spinner from "../shared/Spinner";
 import { createTeam } from "~/service/teamService";
-import { supabase } from "~/service/supabaseService";
+import { fetchPlayers } from "~/service/playerService";
 
-interface PlayerFormProps {
+interface TeamFormProps {
   onSuccess?: () => void;
 }
 
-export default function TeamForm(props: Readonly<PlayerFormProps>) {
+export default function TeamForm(props: Readonly<TeamFormProps>) {
   const [name, setName] = createSignal("");
   const [isSubmitting, setIsSubmitting] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
   const [success, setSuccess] = createSignal(false);
   const [selectedPlayerIds, setSelectedPlayerIds] = createSignal<number[]>([]);
 
-  const fetchPlayers = async () => {
-    const { data } = await supabase.from("players").select("*");
-    return data ?? [];
-  };
+
 
   const [players] = createResource(fetchPlayers);
 
@@ -32,7 +29,7 @@ export default function TeamForm(props: Readonly<PlayerFormProps>) {
         throw new Error("Name is required");
       }
       if (selectedPlayerIds().length === 0) {
-        throw new Error("At least add one player");
+        throw new Error("Add at least one player");
       }
 
       await createTeam({
