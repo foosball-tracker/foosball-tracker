@@ -14,8 +14,6 @@ export default function TeamForm(props: Readonly<TeamFormProps>) {
   const [success, setSuccess] = createSignal(false);
   const [selectedPlayerIds, setSelectedPlayerIds] = createSignal<number[]>([]);
 
-
-
   const [players] = createResource(fetchPlayers);
 
   const handleSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (e) => {
