@@ -20,7 +20,7 @@ export const getTeams = async () => {
   // Add artificial delay for testing purposes
   await new Promise((resolve) => setTimeout(resolve, ARTIFICIAL_DELAY_MS));
 
-  const { data, error } = await supabase.from("teams").select();
+  const { data, error } = await supabase.from("teams").select().eq("type", "team");
   if (error) {
     console.error("error fetching teams", error);
   }
