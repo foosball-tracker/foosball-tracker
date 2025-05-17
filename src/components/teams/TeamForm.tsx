@@ -1,7 +1,7 @@
 import { createSignal, createResource, JSX, Match, Show, Switch, For } from "solid-js";
 import Spinner from "../shared/Spinner";
 import { createTeam } from "~/service/teamService";
-import { fetchPlayers } from "~/service/playerService";
+import { getPlayers } from "~/service/playerService";
 
 interface TeamFormProps {
   onSuccess?: () => void;
@@ -14,7 +14,7 @@ export default function TeamForm(props: Readonly<TeamFormProps>) {
   const [success, setSuccess] = createSignal(false);
   const [selectedPlayerIds, setSelectedPlayerIds] = createSignal<number[]>([]);
 
-  const [players] = createResource(fetchPlayers);
+  const [players] = createResource(getPlayers);
 
   const handleSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (e) => {
     e.preventDefault();
