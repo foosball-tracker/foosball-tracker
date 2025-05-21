@@ -6,7 +6,6 @@ import { DataTable } from "~/components/shared/table/DataTable.tsx";
 import TeamForm from "./TeamForm";
 import ConfirmTeamDelete from "./ConfirmDelete";
 
-const ARTIFICIAL_DELAY_MS = 1000;
 interface Team {
   id: number;
   name: string;
@@ -17,9 +16,6 @@ const [showConfirm, setShowConfirm] = createSignal(false);
 const [teamToDelete, setTeamToDelete] = createSignal<Team | null>(null);
 
 export const getTeams = async () => {
-  // Add artificial delay for testing purposes
-  await new Promise((resolve) => setTimeout(resolve, ARTIFICIAL_DELAY_MS));
-
   const { data, error } = await supabase.from("teams").select().eq("type", "team");
   if (error) {
     console.error("error fetching teams", error);
