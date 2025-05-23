@@ -74,14 +74,14 @@ export const TableRow: ParentComponent<JSX.HTMLAttributes<HTMLTableRowElement>> 
  * TableCell
  * Renders either a <th> or <td> depending on `isHeader` prop.
  */
-interface TableCellProps extends JSX.TdHTMLAttributes<HTMLTableCellElement> {
+interface TableCellProps extends Omit<JSX.TdHTMLAttributes<HTMLTableCellElement>, "height"> {
   isHeader?: boolean;
+  height?: string | undefined; // Explicitly type height as string or undefined
 }
 
 export const TableCell: ParentComponent<TableCellProps> = (rawProps) => {
   const [local, others] = splitProps(rawProps, ["class", "children", "isHeader"]);
 
-  // Use <Show> to ensure Solid sees the condition in a reactive context
   return (
     <Show
       when={local.isHeader}
