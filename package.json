@@ -21,34 +21,40 @@
     ]
   },
   "dependencies": {
-    "@solid-primitives/scheduled": "^1.5.1",
-    "@solidjs/router": "^0.15.3",
+    "@solid-primitives/scheduled": "^1.5.3",
+    "@solidjs/router": "^0.16.1",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/auth-ui-solid": "^0.3.8",
-    "@supabase/supabase-js": "^2.49.8",
+    "@supabase/supabase-js": "^2.105.4",
     "@tanstack/solid-table": "^8.21.3",
-    "lucide-solid": "^0.511.0",
-    "solid-js": "^1.9.7"
+    "lucide-solid": "^1.16.0",
+    "solid-js": "^1.9.13"
+  },
+  "packageManager": "pnpm@10.33.4",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.27.0",
-    "@tailwindcss/vite": "^4.1.7",
-    "@typescript-eslint/eslint-plugin": "^8.32.1",
-    "@typescript-eslint/parser": "^8.32.1",
-    "daisyui": "5.0.37",
-    "eslint": "^9.27.0",
-    "eslint-config-prettier": "^10.1.5",
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^9.39.4",
+    "@tailwindcss/vite": "^4.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
+    "daisyui": "5.5.19",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-solid": "^0.14.5",
-    "globals": "^16.1.0",
+    "globals": "^17.6.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.0.0",
-    "prettier": "^3.5.3",
-    "prettier-plugin-tailwindcss": "^0.6.11",
-    "tailwindcss": "^4.1.7",
+    "lint-staged": "^17.0.5",
+    "prettier": "^3.8.3",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "tailwindcss": "^4.3.0",
     "typescript": "~5.8.3",
-    "vite": "^6.3.5",
-    "vite-plugin-solid": "^2.11.6",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite": "^6.4.2",
+    "vite-plugin-solid": "^2.11.12",
+    "vite-tsconfig-paths": "^6.1.1"
   }
 }

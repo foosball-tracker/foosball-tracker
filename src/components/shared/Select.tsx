@@ -6,8 +6,10 @@ export interface Option<T extends string | number = string | number> {
   disabled?: boolean;
 }
 
-export interface SelectProps<T extends string | number = string | number>
-  extends Omit<JSX.SelectHTMLAttributes<HTMLSelectElement>, "onChange" | "value"> {
+export interface SelectProps<T extends string | number = string | number> extends Omit<
+  JSX.SelectHTMLAttributes<HTMLSelectElement>,
+  "onChange" | "value"
+> {
   options: Option<T>[];
   value?: T;
   /**
