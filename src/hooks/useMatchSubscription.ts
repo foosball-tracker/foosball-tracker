@@ -10,6 +10,7 @@ export function useMatchSubscription(
   onGoalInsert: (goal: GoalsRow) => void,
   onGoalDelete: (goalId: number) => void
 ) {
+  if (!supabase) return;
   const channel = supabase
     .channel(`match_goals_${matchId}`)
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "goals" }, (payload) => {

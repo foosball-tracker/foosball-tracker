@@ -97,9 +97,13 @@ src/
 
 Built using Vite's optimized production build. Environment variables should be configured on the production deployment
 
+## Running Without Supabase
+
+This app can run without Supabase environment variables configured. When `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are missing, the app renders in **limited mode**: a banner warns that online features are unavailable, and the Players and Teams pages display disabled messages instead of attempting backend calls. Sign-in, match tracking, and realtime updates require the environment variables below.
+
 ## Environment Variables
 
-This project requires the following environment variables set in a `.env` file:
+To enable full functionality, set these environment variables in a `.env` file:
 
 - `VITE_SUPABASE_URL`: Your Supabase project URL \
   (Found in Supabase Dashboard > Project Settings > General)

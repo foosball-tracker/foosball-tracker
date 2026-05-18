@@ -2,6 +2,7 @@ import { A } from "@solidjs/router";
 import { ThemeSwitch } from "../components/ThemeSwitch.tsx";
 import { ParentComponent } from "solid-js";
 import { Login } from "../components/auth/Login.tsx";
+import { SupabaseBanner } from "../components/SupabaseBanner.tsx";
 
 export const MainLayout: ParentComponent = (props) => {
   return (
@@ -34,8 +35,8 @@ export const MainLayout: ParentComponent = (props) => {
           <Login />
         </div>
       </div>
+      <SupabaseBanner />
       <div class={"flex-1 overflow-y-auto"}>{props.children}</div>
-      {/*Actual Component rendered based on the route*/}
     </div>
   );
 };
