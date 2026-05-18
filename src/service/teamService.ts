@@ -1,13 +1,19 @@
 import { Database, TablesInsert } from "~/types/database";
 import { supabase } from "./supabaseService";
 
+function requireSupabase() {
+  if (!supabase) throw new Error("Supabase is not configured");
+  return supabase;
+}
+
 interface CreateTeamParams {
   name: string;
   playerIds: number[];
 }
 
 export const createTeam = async (params: CreateTeamParams) => {
-  const { data, error: teamError } = await supabase
+  const client = requireSupabase();
+  const { data, error: teamError } = await client
     .from("teams")
     .insert({
       name: params.name,
@@ -26,7 +32,7 @@ export const createTeam = async (params: CreateTeamParams) => {
     team_id: data.id,
   }));
 
-  const { error: memberError } = await supabase
+  const { error: memberError } = await client
     .from("team_members")
     .insert(teamMembers as TablesInsert<"team_members">[]);
 
@@ -39,14 +45,15 @@ export const createTeam = async (params: CreateTeamParams) => {
 };
 
 export const deleteTeam = async (teamId: number) => {
-  const { error: memberError } = await supabase.from("team_members").delete().eq("team_id", teamId);
+  const client = requireSupabase();
+  const { error: memberError } = await client.from("team_members").delete().eq("team_id", teamId);
 
   if (memberError) {
     console.error("Error deleting team members:", memberError);
     throw new Error(memberError.message);
   }
 
-  const { error: teamError } = await supabase.from("teams").delete().eq("id", teamId);
+  const { error: teamError } = await client.from("teams").delete().eq("id", teamId);
 
   if (teamError) {
     console.log("Error deleting team:", teamError);

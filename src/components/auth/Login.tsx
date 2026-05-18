@@ -1,6 +1,6 @@
 import { createSignal, onCleanup, onMount, Show } from "solid-js";
 import { Session } from "@supabase/supabase-js";
-import { supabase } from "~/service/supabaseService.ts";
+import { hasSupabaseConfig, supabase } from "~/service/supabaseService.ts";
 import { Auth } from "@supabase/auth-ui-solid";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { getRedirectUrl } from "~/components/auth/authHelper.ts";
@@ -8,11 +8,11 @@ import { getRedirectUrl } from "~/components/auth/authHelper.ts";
 export function Login() {
   const [session, setSession] = createSignal<Session | null>(null);
 
-  // On component mount, get the current session and subscribe to auth state changes.
   onMount(() => {
+    if (!hasSupabaseConfig()) return;
+
     let subscriptionCleanup: () => void;
 
-    // Register cleanup immediately in the reactive context.
     onCleanup(() => {
       if (subscriptionCleanup) subscriptionCleanup();
     });
@@ -20,21 +20,21 @@ export function Login() {
     (async () => {
       const {
         data: { session: currentSession },
-      } = await supabase.auth.getSession();
+      } = await supabase!.auth.getSession();
       setSession(currentSession);
 
       const {
         data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, session) => {
+      } = supabase!.auth.onAuthStateChange((_event, session) => {
         setSession(session);
       });
 
-      // Assign the cleanup function for later use.
       subscriptionCleanup = () => subscription.unsubscribe();
     })();
   });
 
   async function signOut() {
+    if (!supabase) return;
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error(error);
@@ -43,7 +43,7 @@ export function Login() {
 
   return (
     <Show
-      when={session() === null}
+      when={!hasSupabaseConfig() || session() === null}
       fallback={
         <div class="flex items-center gap-2">
           <p>{session()?.user.email}</p>
@@ -53,39 +53,42 @@ export function Login() {
         </div>
       }
     >
-      {/* Open the modal using document.getElementById('ID').showModal() method */}
-      <button
-        class="btn"
-        onClick={() => {
-          const modal = document.getElementById("login-modal");
-          if (modal instanceof HTMLDialogElement) {
-            modal.showModal();
-          }
-        }}
+      <Show
+        when={hasSupabaseConfig()}
+        fallback={<span class="text-base-content/60 text-sm">Sign in unavailable</span>}
       >
-        open modal
-      </button>
-      <dialog id="login-modal" class="modal">
-        <div class="modal-box">
-          <h3 class="text-lg font-bold">Sign in</h3>
-          <Auth
-            supabaseClient={supabase}
-            appearance={{
-              theme: ThemeSupa,
-            }}
-            providers={["google"]}
-            socialLayout={"horizontal"}
-            theme={"dark"}
-            redirectTo={getRedirectUrl()}
-          />
-          <div class="modal-action">
-            <form method="dialog">
-              {/* if there is a button in form, it will close the modal */}
-              <button class="btn">Close</button>
-            </form>
+        <button
+          class="btn"
+          onClick={() => {
+            const modal = document.getElementById("login-modal");
+            if (modal instanceof HTMLDialogElement) {
+              modal.showModal();
+            }
+          }}
+        >
+          open modal
+        </button>
+        <dialog id="login-modal" class="modal">
+          <div class="modal-box">
+            <h3 class="text-lg font-bold">Sign in</h3>
+            <Auth
+              supabaseClient={supabase!}
+              appearance={{
+                theme: ThemeSupa,
+              }}
+              providers={["google"]}
+              socialLayout={"horizontal"}
+              theme={"dark"}
+              redirectTo={getRedirectUrl()}
+            />
+            <div class="modal-action">
+              <form method="dialog">
+                <button class="btn">Close</button>
+              </form>
+            </div>
           </div>
-        </div>
-      </dialog>
+        </dialog>
+      </Show>
     </Show>
   );
 }

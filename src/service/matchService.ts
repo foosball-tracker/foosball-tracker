@@ -2,6 +2,11 @@
 import { supabase } from "~/service/supabaseService";
 import type { Tables } from "~/types/database";
 
+function requireSupabase() {
+  if (!supabase) throw new Error("Supabase is not configured");
+  return supabase;
+}
+
 type GoalsRow = Tables<"goals">;
 type MatchesRow = Tables<"matches">;
 
@@ -10,7 +15,8 @@ export async function createMatch(
   awayTeamId: number,
   goalsToWin: number
 ): Promise<MatchesRow | null> {
-  const { data, error } = await supabase
+  const client = requireSupabase();
+  const { data, error } = await client
     .from("matches")
     .insert([{ home_team_id: homeTeamId, away_team_id: awayTeamId, goals_to_win: goalsToWin }])
     .select()
@@ -28,8 +34,9 @@ export async function recordGoal(
   timer: number,
   formatTime: (sec: number) => string
 ) {
+  const client = requireSupabase();
   const goalTime = `00:${formatTime(timer)}`;
-  const { error } = await supabase.from("goals").insert({
+  const { error } = await client.from("goals").insert({
     match_id: matchId,
     team_id: teamId,
     goal_time: goalTime,
@@ -38,7 +45,8 @@ export async function recordGoal(
 }
 
 export async function removeLastGoal(matchId: number, teamId: number) {
-  const { data: foundGoals, error: fetchErr } = await supabase
+  const client = requireSupabase();
+  const { data: foundGoals, error: fetchErr } = await client
     .from("goals")
     .select("*")
     .eq("match_id", matchId)
@@ -49,12 +57,13 @@ export async function removeLastGoal(matchId: number, teamId: number) {
     console.error("Error fetching last goal:", fetchErr);
     return;
   }
-  const { error: deleteErr } = await supabase.from("goals").delete().eq("id", foundGoals[0].id);
+  const { error: deleteErr } = await client.from("goals").delete().eq("id", foundGoals[0].id);
   if (deleteErr) console.error("Error deleting goal:", deleteErr);
 }
 
 export async function fetchGoalsForMatch(matchId: number): Promise<GoalsRow[]> {
-  const { data, error } = await supabase
+  const client = requireSupabase();
+  const { data, error } = await client
     .from("goals")
     .select("*")
     .eq("match_id", matchId)
@@ -67,7 +76,8 @@ export async function fetchGoalsForMatch(matchId: number): Promise<GoalsRow[]> {
 }
 
 export async function getLatestMatch() {
-  const { data, error } = await supabase
+  const client = requireSupabase();
+  const { data, error } = await client
     .from("matches")
     .select("*")
     .eq("in_progress", true)
@@ -81,7 +91,8 @@ export async function getLatestMatch() {
 }
 
 export async function endGame(matchId: number) {
-  const { error } = await supabase.from("matches").update({ in_progress: false }).eq("id", matchId);
+  const client = requireSupabase();
+  const { error } = await client.from("matches").update({ in_progress: false }).eq("id", matchId);
   if (error) {
     console.error("Error updating match status:", error);
     return false;

@@ -1,4 +1,4 @@
-import { supabase } from "~/service/supabaseService.ts";
+import { hasSupabaseConfig, supabase } from "~/service/supabaseService.ts";
 import { createResource, createSignal, Show } from "solid-js";
 import { ColumnDef } from "@tanstack/solid-table";
 import { Tables } from "~/types/database.ts";
@@ -16,6 +16,7 @@ const [showConfirm, setShowConfirm] = createSignal(false);
 const [teamToDelete, setTeamToDelete] = createSignal<Team | null>(null);
 
 export const getTeams = async () => {
+  if (!supabase) return [];
   const { data, error } = await supabase.from("teams").select().eq("type", "team");
   if (error) {
     console.error("error fetching teams", error);
@@ -62,46 +63,55 @@ export default function Teams() {
   };
 
   return (
-    <>
-      <Show
-        when={!showTeamForm()}
-        keyed
-        fallback={<TeamForm onSuccess={handleCreateTeamSuccess} />}
-      >
-        <div class={"p-2"}>
-          <div class={"text-lg"}>Teams</div>
-          <div class="mx-auto w-full">
-            <Show
-              when={data()}
-              keyed
-              fallback={
-                <div class={"flex h-full items-center justify-center"}>
-                  <span class="loading loading-spinner loading-xl" />
-                </div>
-              }
-            >
-              {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
-            </Show>
-          </div>
-          <button
-            class="btn btn-primary mx-auto mt-4"
-            onClick={() => setShowTeamForm(!showTeamForm())}
-          >
-            Create New Team
-          </button>
+    <Show
+      when={hasSupabaseConfig()}
+      fallback={
+        <div class="alert alert-info m-4">
+          <span>Supabase is not configured. Team management is unavailable.</span>
         </div>
-      </Show>
-      <ConfirmTeamDelete
-        showConfirm={showConfirm()}
-        teamToDelete={teamToDelete()}
-        onCancel={() => {
-          setShowConfirm(false);
-          setTeamToDelete(null);
-        }}
-        onSuccess={() => {
-          refetch();
-        }}
-      />
-    </>
+      }
+    >
+      <>
+        <Show
+          when={!showTeamForm()}
+          keyed
+          fallback={<TeamForm onSuccess={handleCreateTeamSuccess} />}
+        >
+          <div class={"p-2"}>
+            <div class={"text-lg"}>Teams</div>
+            <div class="mx-auto w-full">
+              <Show
+                when={data()}
+                keyed
+                fallback={
+                  <div class={"flex h-full items-center justify-center"}>
+                    <span class="loading loading-spinner loading-xl" />
+                  </div>
+                }
+              >
+                {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
+              </Show>
+            </div>
+            <button
+              class="btn btn-primary mx-auto mt-4"
+              onClick={() => setShowTeamForm(!showTeamForm())}
+            >
+              Create New Team
+            </button>
+          </div>
+        </Show>
+        <ConfirmTeamDelete
+          showConfirm={showConfirm()}
+          teamToDelete={teamToDelete()}
+          onCancel={() => {
+            setShowConfirm(false);
+            setTeamToDelete(null);
+          }}
+          onSuccess={() => {
+            refetch();
+          }}
+        />
+      </>
+    </Show>
   );
 }

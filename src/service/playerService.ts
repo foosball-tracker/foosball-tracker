@@ -1,6 +1,11 @@
 import { supabase } from "./supabaseService";
 import { TablesInsert } from "~/types/database";
 
+function requireSupabase() {
+  if (!supabase) throw new Error("Supabase is not configured");
+  return supabase;
+}
+
 interface CreatePlayerParams {
   name: string;
 }
@@ -11,7 +16,8 @@ interface CreatePlayerParams {
  * @returns The created player data
  */
 export const createPlayer = async (params: CreatePlayerParams) => {
-  const { data, error } = await supabase
+  const client = requireSupabase();
+  const { data, error } = await client
     .from("players")
     .insert({
       name: params.name,
@@ -32,6 +38,7 @@ export const createPlayer = async (params: CreatePlayerParams) => {
  * @returns Array of players
  */
 export const getPlayers = async () => {
+  if (!supabase) return [];
   const { data, error } = await supabase.from("players").select();
 
   if (error) {
@@ -48,7 +55,8 @@ export const getPlayers = async () => {
  */
 
 export const deletePlayer = async (id: number) => {
-  const { error } = await supabase.from("players").delete().eq("id", id);
+  const client = requireSupabase();
+  const { error } = await client.from("players").delete().eq("id", id);
 
   if (error) {
     console.log("error deleting", error);
