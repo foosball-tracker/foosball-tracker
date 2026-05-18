@@ -1,11 +1,6 @@
 // src/services/matchService.ts
-import { supabase } from "~/service/supabaseService";
+import { requireSupabase, supabase } from "~/service/supabaseService";
 import type { Tables } from "~/types/database";
-
-function requireSupabase() {
-  if (!supabase) throw new Error("Supabase is not configured");
-  return supabase;
-}
 
 type GoalsRow = Tables<"goals">;
 type MatchesRow = Tables<"matches">;
@@ -62,8 +57,8 @@ export async function removeLastGoal(matchId: number, teamId: number) {
 }
 
 export async function fetchGoalsForMatch(matchId: number): Promise<GoalsRow[]> {
-  const client = requireSupabase();
-  const { data, error } = await client
+  if (!supabase) return [];
+  const { data, error } = await supabase
     .from("goals")
     .select("*")
     .eq("match_id", matchId)
@@ -76,8 +71,8 @@ export async function fetchGoalsForMatch(matchId: number): Promise<GoalsRow[]> {
 }
 
 export async function getLatestMatch() {
-  const client = requireSupabase();
-  const { data, error } = await client
+  if (!supabase) return null;
+  const { data, error } = await supabase
     .from("matches")
     .select("*")
     .eq("in_progress", true)

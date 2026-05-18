@@ -18,3 +18,8 @@ function getClient(): SupabaseClient<Database> | null {
 }
 
 export const supabase: SupabaseClient<Database> | null = getClient();
+
+export function requireSupabase(): SupabaseClient<Database> {
+  if (!supabase) throw new Error("Supabase is not configured");
+  return supabase;
+}

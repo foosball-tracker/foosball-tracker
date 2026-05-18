@@ -1,10 +1,5 @@
-import { supabase } from "./supabaseService";
+import { requireSupabase, supabase } from "./supabaseService";
 import { TablesInsert } from "~/types/database";
-
-function requireSupabase() {
-  if (!supabase) throw new Error("Supabase is not configured");
-  return supabase;
-}
 
 interface CreatePlayerParams {
   name: string;

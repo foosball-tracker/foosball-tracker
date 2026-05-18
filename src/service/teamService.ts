@@ -1,10 +1,5 @@
 import { Database, TablesInsert } from "~/types/database";
-import { supabase } from "./supabaseService";
-
-function requireSupabase() {
-  if (!supabase) throw new Error("Supabase is not configured");
-  return supabase;
-}
+import { requireSupabase } from "./supabaseService";
 
 interface CreateTeamParams {
   name: string;
