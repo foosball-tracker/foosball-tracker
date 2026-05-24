@@ -1,4 +1,8 @@
-name: Register Netlify deployment
+name: Register Netlify deployment links
+
+# Netlify does the real deploys.
+# This workflow only adds Netlify URLs to GitHub's deployment UI.
+# Status is not synced with Netlify by design.
 
 on:
   push:
