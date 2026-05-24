@@ -34,6 +34,7 @@ jobs:
             -f transient_environment=false \
             -f production_environment="${{ steps.vars.outputs.environment == 'Production' }}" \
             -f auto_merge=false \
+            -f required_contexts[]= \
             > /tmp/deployment.json
 
           DEPLOY_ID=$(jq -r '.id' /tmp/deployment.json)
