@@ -27,11 +27,11 @@ We're excited to have you contribute! To keep things organized and maintain code
     - **Test Locally:** Please make sure your changes work correctly and don't break anything else by testing the application locally on your computer _before_ you push your code.
     - **Run Formatter:** Format your code using Prettier by running this command in your terminal:
       ```bash
-      npm run format
+      pnpm format
       ```
     - **Run Linter:** Check and automatically fix any linting issues using ESLint by running this command:
       ```bash
-      npm run lint
+      pnpm lint
       ```
     - Commit any changes made by the formatter or linter.
 

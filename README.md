@@ -95,7 +95,12 @@ src/
 
 ## Deployment
 
-Built using Vite's optimized production build. Environment variables should be configured on the production deployment
+Deployed on [Netlify](https://www.netlify.com/) with continuous deployment from the `main` branch.
+
+- **Production**: [foosly.netlify.app](https://foosly.netlify.app)
+- **Preview**: Automatic deploy previews for every pull request (e.g., `deploy-preview-{PR_NUMBER}--foosly.netlify.app`)
+
+Build settings are configured in [`netlify.toml`](./netlify.toml). Environment variables are managed in the Netlify dashboard.
 
 ## Running Without Supabase
 
