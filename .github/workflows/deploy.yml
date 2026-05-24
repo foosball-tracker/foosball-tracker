@@ -1,51 +1,26 @@
-name: Deploy (Netlify)
+name: Register Netlify deployment
 
 on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
-
-permissions:
-  contents: read
-  deployments: write
+    types: [opened, synchronize, reopened]
 
 jobs:
-  create-deployment:
+  register-production:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://foosly.netlify.app
     steps:
-      - name: Set environment and URL
-        id: vars
-        run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
-            echo "environment=Production" >> "$GITHUB_OUTPUT"
-            echo "url=https://foosly.netlify.app" >> "$GITHUB_OUTPUT"
-          else
-            echo "environment=Preview" >> "$GITHUB_OUTPUT"
-            echo "url=https://deploy-preview-${{ github.event.number }}--foosly.netlify.app" >> "$GITHUB_OUTPUT"
-          fi
+      - run: echo "Registered Netlify production deployment in GitHub"
 
-      - name: Create deployment
-        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
-        run: |
-          gh api repos/${{ github.repository }}/deployments \
-            -f ref="${{ github.event.pull_request.head.sha || github.sha }}" \
-            -f environment="${{ steps.vars.outputs.environment }}" \
-            -f transient_environment=false \
-            -f production_environment="${{ steps.vars.outputs.environment == 'Production' }}" \
-            -f auto_merge=false \
-            -f required_contexts[]= \
-            > /tmp/deployment.json
-
-          DEPLOY_ID=$(jq -r '.id' /tmp/deployment.json)
-          echo "deployment_id=$DEPLOY_ID" >> "$GITHUB_OUTPUT"
-
-          gh api repos/${{ github.repository }}/deployments/$DEPLOY_ID/statuses \
-            -f state=in_progress \
-            -f environment="${{ steps.vars.outputs.environment }}" \
-            -f environment_url="${{ steps.vars.outputs.url }}" \
-            -f log_url="${{ steps.vars.outputs.url }}" \
-            -f description="Deploying via Netlify (check Netlify status for final result)"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        id: deploy
+  register-preview:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: preview
+      url: https://deploy-preview-${{ github.event.pull_request.number }}--foosly.netlify.app
+    steps:
+      - run: echo "Registered Netlify preview deployment in GitHub"
