@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  deployments: write
+
 jobs:
   create-deployment:
     runs-on: ubuntu-latest
@@ -22,9 +26,10 @@ jobs:
           fi
 
       - name: Create deployment
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
         run: |
           gh api repos/${{ github.repository }}/deployments \
-            -f ref="${{ github.head_ref || github.ref }}" \
+            -f ref="${{ github.event.pull_request.head.sha || github.sha }}" \
             -f environment="${{ steps.vars.outputs.environment }}" \
             -f transient_environment=false \
             -f production_environment="${{ steps.vars.outputs.environment == 'Production' }}" \
