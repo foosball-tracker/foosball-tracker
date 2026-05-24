@@ -40,11 +40,11 @@ jobs:
           echo "deployment_id=$DEPLOY_ID" >> "$GITHUB_OUTPUT"
 
           gh api repos/${{ github.repository }}/deployments/$DEPLOY_ID/statuses \
-            -f state=success \
+            -f state=in_progress \
             -f environment="${{ steps.vars.outputs.environment }}" \
             -f environment_url="${{ steps.vars.outputs.url }}" \
             -f log_url="${{ steps.vars.outputs.url }}" \
-            -f description="Deployed via Netlify"
+            -f description="Deploying via Netlify (check Netlify status for final result)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: deploy
