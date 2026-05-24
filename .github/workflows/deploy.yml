@@ -1,0 +1,45 @@
+name: Deploy (Netlify)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  create-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set environment and URL
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "environment=Production" >> "$GITHUB_OUTPUT"
+            echo "url=https://foosly.netlify.app" >> "$GITHUB_OUTPUT"
+          else
+            echo "environment=Preview" >> "$GITHUB_OUTPUT"
+            echo "url=https://deploy-preview-${{ github.event.number }}--foosly.netlify.app" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create deployment
+        run: |
+          gh api repos/${{ github.repository }}/deployments \
+            -f ref="${{ github.head_ref || github.ref }}" \
+            -f environment="${{ steps.vars.outputs.environment }}" \
+            -f transient_environment=false \
+            -f production_environment="${{ steps.vars.outputs.environment == 'Production' }}" \
+            -f auto_merge=false \
+            > /tmp/deployment.json
+
+          DEPLOY_ID=$(jq -r '.id' /tmp/deployment.json)
+          echo "deployment_id=$DEPLOY_ID" >> "$GITHUB_OUTPUT"
+
+          gh api repos/${{ github.repository }}/deployments/$DEPLOY_ID/statuses \
+            -f state=success \
+            -f environment="${{ steps.vars.outputs.environment }}" \
+            -f environment_url="${{ steps.vars.outputs.url }}" \
+            -f log_url="${{ steps.vars.outputs.url }}" \
+            -f description="Deployed via Netlify"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: deploy
