@@ -30,7 +30,7 @@ export const getTeamsWithMembers = async (): Promise<TeamWithMembers[]> => {
     throw new Error(error.message);
   }
 
-  return (data as unknown as TeamWithMembers[]) ?? [];
+  return data ?? [];
 };
 
 export const getTeamWithMembers = async (teamId: number): Promise<TeamWithMembers | null> => {
@@ -46,7 +46,7 @@ export const getTeamWithMembers = async (teamId: number): Promise<TeamWithMember
     throw new Error(error.message);
   }
 
-  return (data as unknown as TeamWithMembers) ?? null;
+  return data ?? null;
 };
 
 export const getAllTeams = async () => {
