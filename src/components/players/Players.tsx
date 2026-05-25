@@ -5,6 +5,7 @@ import { createResource, createSignal, Show } from "solid-js";
 import { hasSupabaseConfig, supabase } from "~/service/supabaseService.ts";
 import { DataTable } from "~/components/shared/table/DataTable.tsx";
 import ConfirmDelete from "./ConfirmDelete";
+import { PlayerListContext } from "./PlayerListContext";
 
 interface Player {
   id: number;
@@ -60,7 +61,7 @@ function Players(props: RouteSectionProps) {
         </div>
       }
     >
-      <>
+      <PlayerListContext.Provider value={{ refetchPlayers: refetch }}>
         <div class="h-full p-2">
           <Show
             when={data()}
@@ -91,7 +92,7 @@ function Players(props: RouteSectionProps) {
             refetch();
           }}
         />
-      </>
+      </PlayerListContext.Provider>
     </Show>
   );
 }

@@ -14,9 +14,9 @@ export const createPlayer = async (params: CreatePlayerParams) => {
   const client = requireSupabase();
   const { data: player, error } = await client
     .from("players")
-    .insert({
+    .insert<TablesInsert<"players">>({
       name: params.name,
-    } as TablesInsert<"players">)
+    })
     .select()
     .single();
 
@@ -30,9 +30,10 @@ export const createPlayer = async (params: CreatePlayerParams) => {
     const { error: teamError } = await client.from("teams").insert({
       name: player.name,
       type: "player" as Database["public"]["Enums"]["team_type"],
-    } as TablesInsert<"teams">);
+    });
 
     if (teamError) {
+      await client.from("players").delete().eq("id", player.id);
       console.error("Error creating player team:", teamError);
       throw new Error(teamError.message);
     }
@@ -64,6 +65,40 @@ export const getPlayers = async () => {
 
 export const deletePlayer = async (id: number) => {
   const client = requireSupabase();
+  const { data: player, error: fetchError } = await client
+    .from("players")
+    .select("name")
+    .eq("id", id)
+    .single();
+
+  if (fetchError) {
+    console.log("error fetching player", fetchError);
+    throw new Error(fetchError.message);
+  }
+
+  const { data: playerTeams, error: playerTeamFetchError } = await client
+    .from("teams")
+    .select("id")
+    .eq("name", player.name)
+    .eq("type", "player");
+
+  if (playerTeamFetchError) {
+    console.log("error fetching player teams", playerTeamFetchError);
+    throw new Error(playerTeamFetchError.message);
+  }
+
+  for (const playerTeam of playerTeams ?? []) {
+    const { error: deletePlayerTeamError } = await client
+      .from("teams")
+      .delete()
+      .eq("id", playerTeam.id);
+
+    if (deletePlayerTeamError) {
+      console.log("error deleting player team", deletePlayerTeamError);
+      throw new Error(deletePlayerTeamError.message);
+    }
+  }
+
   const { error } = await client.from("players").delete().eq("id", id);
 
   if (error) {

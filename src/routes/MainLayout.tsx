@@ -11,7 +11,7 @@ export const MainLayout: ParentComponent = (props) => {
         <div class="navbar-start">
           {/* Mobile hamburger */}
           <div class="dropdown lg:hidden">
-            <div tabIndex={0} role="button" class="btn btn-ghost btn-circle">
+            <button type="button" class="btn btn-ghost btn-circle">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-6 w-6"
@@ -26,11 +26,8 @@ export const MainLayout: ParentComponent = (props) => {
                   d="M4 6h16M4 12h16M4 18h16"
                 />
               </svg>
-            </div>
-            <ul
-              tabIndex={0}
-              class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-            >
+            </button>
+            <ul class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
               <li>
                 <A href={"/players"} activeClass={"menu-active"}>
                   Players

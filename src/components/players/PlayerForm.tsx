@@ -2,9 +2,11 @@ import { useNavigate } from "@solidjs/router";
 import { createSignal, JSX, Match, Show, Switch } from "solid-js";
 import { createPlayer } from "../../service/playerService";
 import Spinner from "../shared/Spinner";
+import { usePlayerListContext } from "./PlayerListContext";
 
 export default function PlayerForm() {
   const navigate = useNavigate();
+  const playerList = usePlayerListContext();
   const [name, setName] = createSignal("");
   const [isSubmitting, setIsSubmitting] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
@@ -23,6 +25,7 @@ export default function PlayerForm() {
       }
 
       await createPlayer({ name: name().trim() });
+      playerList?.refetchPlayers();
       setName("");
       setSuccess(true);
       setTimeout(() => {

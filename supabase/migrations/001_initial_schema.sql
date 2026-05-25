@@ -238,10 +238,11 @@ CREATE POLICY "Allow Admin Access" ON public.goals
     USING (public.is_admin())
     WITH CHECK (public.is_admin());
 
--- Profiles: insert for everyone
-CREATE POLICY "Enable insert for everyone" ON public.profiles
+-- Profiles: users can insert their own non-admin profile
+CREATE POLICY "Users can insert their own profile" ON public.profiles
     FOR INSERT
-    WITH CHECK (true);
+    TO authenticated
+    WITH CHECK ((select auth.uid()) = user_id AND is_admin = false);
 
 -- =====================================================
 -- 10. REALTIME PUBLICATION

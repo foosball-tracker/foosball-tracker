@@ -13,6 +13,7 @@ import { useParams, useNavigate } from "@solidjs/router";
 import Spinner from "../shared/Spinner";
 import { createTeam, updateTeam, getTeamWithMembers } from "~/service/teamService";
 import { getPlayers } from "~/service/playerService";
+import { useTeamListContext } from "./TeamListContext";
 
 export interface TeamEditData {
   id: number;
@@ -23,6 +24,7 @@ export interface TeamEditData {
 export default function TeamForm() {
   const params = useParams();
   const navigate = useNavigate();
+  const teamList = useTeamListContext();
   const teamId = () => {
     const id = params.id;
     return id ? Number.parseInt(id) : undefined;
@@ -78,6 +80,7 @@ export default function TeamForm() {
         setSelectedPlayerIds([]);
       }
 
+      teamList?.refetchTeams();
       setSuccess(true);
       setTimeout(() => {
         navigate("/teams");

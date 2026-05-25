@@ -6,6 +6,7 @@ import { ColumnDef } from "@tanstack/solid-table";
 import { DataTable } from "~/components/shared/table/DataTable.tsx";
 import ConfirmTeamDelete from "./ConfirmDelete";
 import { getTeamsWithMembers, TeamWithMembers } from "~/service/teamService";
+import { TeamListContext } from "./TeamListContext";
 
 const [showConfirm, setShowConfirm] = createSignal(false);
 const [teamToDelete, setTeamToDelete] = createSignal<TeamWithMembers | null>(null);
@@ -69,7 +70,7 @@ export default function Teams(props: RouteSectionProps) {
         </div>
       }
     >
-      <>
+      <TeamListContext.Provider value={{ refetchTeams: refetch }}>
         <div class="p-2">
           <div class="text-lg">Teams</div>
           <div class="mx-auto w-full">
@@ -103,7 +104,7 @@ export default function Teams(props: RouteSectionProps) {
             refetch();
           }}
         />
-      </>
+      </TeamListContext.Provider>
     </Show>
   );
 }

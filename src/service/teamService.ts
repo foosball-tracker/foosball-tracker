@@ -1,4 +1,4 @@
-import { Database, TablesInsert, TablesUpdate } from "~/types/database";
+import { Database } from "~/types/database";
 import { requireSupabase, supabase } from "./supabaseService";
 
 export interface TeamMember {
@@ -69,7 +69,7 @@ export const createTeam = async (params: CreateTeamParams) => {
     .insert({
       name: params.name,
       type: "team" as Database["public"]["Enums"]["team_type"],
-    } as TablesInsert<"teams">)
+    })
     .select()
     .single();
 
@@ -83,9 +83,7 @@ export const createTeam = async (params: CreateTeamParams) => {
     team_id: data.id,
   }));
 
-  const { error: memberError } = await client
-    .from("team_members")
-    .insert(teamMembers as TablesInsert<"team_members">[]);
+  const { error: memberError } = await client.from("team_members").insert(teamMembers);
 
   if (memberError) {
     console.error("Error adding team members", memberError);
@@ -100,7 +98,7 @@ export const updateTeam = async (teamId: number, params: CreateTeamParams) => {
 
   const { error: updateError } = await client
     .from("teams")
-    .update({ name: params.name } as TablesUpdate<"teams">)
+    .update({ name: params.name })
     .eq("id", teamId);
 
   if (updateError) {
@@ -121,9 +119,7 @@ export const updateTeam = async (teamId: number, params: CreateTeamParams) => {
   }));
 
   if (teamMembers.length > 0) {
-    const { error: insertError } = await client
-      .from("team_members")
-      .insert(teamMembers as TablesInsert<"team_members">[]);
+    const { error: insertError } = await client.from("team_members").insert(teamMembers);
 
     if (insertError) {
       console.error("Error adding team members", insertError);
