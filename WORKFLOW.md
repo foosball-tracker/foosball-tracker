@@ -40,7 +40,12 @@ git checkout -b feat/16-team-management-crud
    ```bash
    npx pnpm@10 dev
    ```
-3. Implement the feature. Follow the guidelines in `AGENTS.md` (SolidJS patterns, service/store split, etc.).
+3. If the change touches UI, verify the browser workflow first:
+   ```bash
+   opencode mcp list
+   ```
+   Confirm `playwright` is connected, then follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md).
+4. Implement the feature. Follow the guidelines in `AGENTS.md` (SolidJS patterns, service/store split, etc.).
 
 ---
 

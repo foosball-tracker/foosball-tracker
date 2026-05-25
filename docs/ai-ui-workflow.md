@@ -10,12 +10,39 @@ The dev server runs at **http://localhost:5173**.
 
 ## Playwright MCP
 
-Playwright MCP is configured in `opencode.jsonc` and `.codex/config.toml`. It runs through `.codex/playwright-mcp-launcher.mjs`, which resolves the locally installed Chromium path from the `playwright` package at runtime instead of hardcoding a cache version. The MCP runs headless in isolated mode so each session starts clean.
+Playwright MCP is configured in `opencode.jsonc` and `.codex/config.toml`. Both Codex and OpenCode use `.codex/playwright-mcp-launcher.mjs`, which resolves the locally installed Chromium path from the `playwright` package at runtime instead of hardcoding a cache version.
+
+The MCP runs headless in isolated mode so each session starts clean.
 
 - **Desktop viewport**: 1280×720 (default)
 - **Mobile viewport**: use `--viewport` flag or resize via tool commands to 375×812
 
 Agent must inspect both desktop and mobile layouts for every UI change.
+
+## Verify the MCP before UI work
+
+1. Confirm Chromium is installed locally:
+
+```sh
+npx playwright install chromium
+```
+
+2. Confirm OpenCode sees the server:
+
+```sh
+opencode mcp list
+```
+
+You should see `playwright` with status `connected`.
+
+3. If you changed `opencode.jsonc` or `.codex/config.toml`, restart the agent session before testing again. Local MCP server config is not hot-reloaded reliably mid-session.
+
+## Troubleshooting
+
+- If Playwright fails with a missing Chrome or Chromium binary, rerun `npx playwright install chromium`.
+- If the configured browser path changed after a Playwright browser update, do not hardcode the new cache directory. Keep using `.codex/playwright-mcp-launcher.mjs`.
+- If the MCP was broken in a previous session, restart the session after fixing config instead of trying to revive stale server processes manually.
+- Prefer MCP browser tools over ad hoc root-level helper scripts for routine UI inspection.
 
 ## Checklist for every UI change
 
@@ -39,4 +66,4 @@ Fix any lint or type errors before submitting.
 
 ## Gitignore
 
-Screenshots, browser caches, and test artifacts are excluded via `.gitignore`. Never commit `*.png`, `*.webm`, `test-results/`, or `.playwright-mcp/`.
+Screenshots, browser caches, auth state, and test artifacts are excluded via `.gitignore`. Never commit `*.png`, `*.webm`, `test-results/`, `.playwright-mcp/`, or `playwright-auth.json`.

@@ -55,6 +55,7 @@ Important rules:
 - Prefer small focused changes over broad refactors.
 - Keep Supabase-related changes typed and centralized in `src/service`.
 - Preserve the existing service/store split instead of moving data access into components.
+- For UI changes, follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md) and verify both desktop and mobile layouts.
 - Run lint and build before opening a PR.
 - Avoid editing generated types manually unless the generation flow is broken.
 
@@ -95,3 +96,4 @@ For the full end-to-end guide (branch naming, PR creation, preview deploys, Code
 - You can use these to inspect, query, or check the project's Supabase instance directly (database, docs, debugging, development, functions, branching, storage).
 - **For any real changes or modifications to the Supabase project** (schema changes, migrations, data mutations, RLS policies, etc.), ask the user first before making the change.
 - A [DaisyUI skill](./.agents/skills/daisyui/SKILL.md) is available locally for component design guidance.
+- Playwright MCP is configured for both Codex and OpenCode through `.codex/playwright-mcp-launcher.mjs`. If you change MCP config, restart the session before retesting because local MCP servers do not reliably hot-reload.
