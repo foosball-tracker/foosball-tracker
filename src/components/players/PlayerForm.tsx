@@ -1,16 +1,23 @@
-import { createSignal, JSX, Match, Show, Switch } from "solid-js";
+import { useNavigate } from "@solidjs/router";
+import { createSignal, JSX, Match, onCleanup, Show, Switch } from "solid-js";
 import { createPlayer } from "../../service/playerService";
 import Spinner from "../shared/Spinner";
+import { usePlayerListContext } from "./PlayerListContext";
 
-interface PlayerFormProps {
-  onSuccess?: () => void;
-}
-
-export default function PlayerForm(props: Readonly<PlayerFormProps>) {
+export default function PlayerForm() {
+  const navigate = useNavigate();
+  const playerList = usePlayerListContext();
   const [name, setName] = createSignal("");
   const [isSubmitting, setIsSubmitting] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
   const [success, setSuccess] = createSignal(false);
+  let redirectTimer: ReturnType<typeof setTimeout> | undefined;
+
+  onCleanup(() => {
+    if (redirectTimer) {
+      clearTimeout(redirectTimer);
+    }
+  });
 
   // prettier-ignore
   const handleSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (e) => {// NOSONAR
@@ -25,9 +32,12 @@ export default function PlayerForm(props: Readonly<PlayerFormProps>) {
       }
 
       await createPlayer({ name: name().trim() });
+      playerList?.refetchPlayers();
       setName("");
       setSuccess(true);
-      props.onSuccess?.();
+      redirectTimer = setTimeout(() => {
+        navigate("/players");
+      }, 800);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create player");
     } finally {
@@ -64,6 +74,14 @@ export default function PlayerForm(props: Readonly<PlayerFormProps>) {
           </div>
 
           <div class="card-actions mt-4 justify-end">
+            <button
+              type="button"
+              class="btn"
+              onClick={() => navigate("/players")}
+              disabled={isSubmitting()}
+            >
+              Cancel
+            </button>
             <button type="submit" class="btn btn-primary" disabled={isSubmitting()}>
               <Show when={isSubmitting()} fallback={"Create Player"}>
                 <Spinner />

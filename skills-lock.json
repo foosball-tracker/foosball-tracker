@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "figma-use": {
+      "source": "figma/mcp-server-guide",
+      "sourceType": "github",
+      "skillPath": "skills/figma-use/SKILL.md",
+      "computedHash": "e2ccd2ea5fe77bcdc2f7149ddc020b98e056c261cfd395a8d40cf0e2aee21a40"
+    },
     "supabase": {
       "source": "supabase/agent-skills",
       "sourceType": "github",

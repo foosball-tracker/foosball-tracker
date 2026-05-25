@@ -7,23 +7,59 @@ import { SupabaseBanner } from "../components/SupabaseBanner.tsx";
 export const MainLayout: ParentComponent = (props) => {
   return (
     <div class={"flex h-screen flex-col"}>
-      <div class="navbar bg-base-100 h-20 shadow-sm">
-        <div class="navbar-start">
-          <A class="btn btn-ghost text-xl" href={"/"}>
+      <div class="navbar bg-base-100 h-20 gap-2 px-2 shadow-sm sm:px-4">
+        <div class="navbar-start min-w-0 gap-1">
+          {/* Mobile hamburger */}
+          <details class="dropdown shrink-0 lg:hidden">
+            <summary class="btn btn-ghost btn-circle list-none">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </summary>
+            <ul class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+              <li>
+                <A href={"/players"} activeClass={"menu-active"}>
+                  Players
+                </A>
+              </li>
+              <li>
+                <A href={"/teams"} activeClass={"menu-active"}>
+                  Teams
+                </A>
+              </li>
+            </ul>
+          </details>
+
+          <A
+            class="btn btn-ghost min-w-0 flex-1 truncate px-2 text-lg sm:flex-none sm:text-xl"
+            href={"/"}
+          >
             Foosball Tracker
           </A>
-          <div class="flex gap-2">
+          <div class="shrink-0">
             <ThemeSwitch />
           </div>
         </div>
-        <div class="navbar-center flex">
+
+        {/* Desktop nav */}
+        <div class="navbar-center hidden lg:flex">
           <ul class="menu menu-horizontal px-1">
             <li>
               <A href={"/players"} activeClass={"menu-active"}>
                 Players
               </A>
             </li>
-
             <li>
               <A href={"/teams"} activeClass={"menu-active"}>
                 Teams
@@ -31,7 +67,8 @@ export const MainLayout: ParentComponent = (props) => {
             </li>
           </ul>
         </div>
-        <div class="navbar-end">
+
+        <div class="navbar-end flex-none">
           <Login />
         </div>
       </div>

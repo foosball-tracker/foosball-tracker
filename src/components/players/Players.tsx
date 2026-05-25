@@ -1,16 +1,17 @@
+import { A } from "@solidjs/router";
+import type { RouteSectionProps } from "@solidjs/router";
 import { ColumnDef } from "@tanstack/solid-table";
 import { createResource, createSignal, Show } from "solid-js";
 import { hasSupabaseConfig, supabase } from "~/service/supabaseService.ts";
 import { DataTable } from "~/components/shared/table/DataTable.tsx";
-import PlayerForm from "./PlayerForm";
 import ConfirmDelete from "./ConfirmDelete";
+import { PlayerListContext } from "./PlayerListContext";
 
 interface Player {
   id: number;
   name: string;
 }
 
-const [showCreateForm, setShowCreateForm] = createSignal(false);
 const [showConfirm, setShowConfirm] = createSignal(false);
 const [playerToDelete, setPlayerToDelete] = createSignal<Player | null>(null);
 
@@ -48,15 +49,8 @@ const getPlayers = async () => {
   return data ?? [];
 };
 
-function Players() {
+function Players(props: RouteSectionProps) {
   const [data, { refetch }] = createResource(getPlayers);
-
-  const handleCreatePlayerSuccess = () => {
-    refetch();
-    setTimeout(() => {
-      setShowCreateForm(false);
-    }, 1000);
-  };
 
   return (
     <Show
@@ -67,32 +61,26 @@ function Players() {
         </div>
       }
     >
-      <>
-        <Show
-          when={!showCreateForm()}
-          keyed
-          fallback={<PlayerForm onSuccess={handleCreatePlayerSuccess} />}
-        >
-          <div class="h-full p-2">
-            <Show
-              when={data()}
-              keyed
-              fallback={
-                <div class={"flex h-full items-center justify-center"}>
-                  <span class="loading loading-spinner loading-xl" />
-                </div>
-              }
-            >
-              {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
-            </Show>
-            <button
-              class="btn btn-primary mx-auto mt-4"
-              onClick={() => setShowCreateForm(!showCreateForm())}
-            >
-              Create New Player
-            </button>
-          </div>
-        </Show>
+      <PlayerListContext.Provider value={{ refetchPlayers: refetch }}>
+        <div class="h-full p-2">
+          <Show
+            when={data()}
+            keyed
+            fallback={
+              <div class="flex h-full items-center justify-center">
+                <span class="loading loading-spinner loading-xl" />
+              </div>
+            }
+          >
+            {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
+          </Show>
+          <A class="btn btn-primary mx-auto mt-4 inline-block" href="/players/new">
+            Create New Player
+          </A>
+        </div>
+
+        {props.children}
+
         <ConfirmDelete
           showConfirm={showConfirm()}
           playerToDelete={playerToDelete()}
@@ -104,7 +92,7 @@ function Players() {
             refetch();
           }}
         />
-      </>
+      </PlayerListContext.Provider>
     </Show>
   );
 }

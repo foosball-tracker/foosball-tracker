@@ -1,10 +1,65 @@
-import { Database, TablesInsert } from "~/types/database";
-import { requireSupabase } from "./supabaseService";
+import { requireSupabase, supabase } from "./supabaseService";
+
+export interface TeamMember {
+  player_id: number;
+  players: { name: string } | null;
+}
+
+export interface TeamWithMembers {
+  id: number;
+  name: string;
+  type: "player" | "team";
+  created_at: string;
+  team_members: TeamMember[] | null;
+}
 
 interface CreateTeamParams {
   name: string;
   playerIds: number[];
 }
+
+export const getTeamsWithMembers = async (): Promise<TeamWithMembers[]> => {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("teams")
+    .select("*, team_members(player_id, players(name))")
+    .eq("type", "team");
+
+  if (error) {
+    console.error("Error fetching teams with members:", error);
+    throw new Error(error.message);
+  }
+
+  return data ?? [];
+};
+
+export const getTeamWithMembers = async (teamId: number): Promise<TeamWithMembers | null> => {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("teams")
+    .select("*, team_members(player_id, players(name))")
+    .eq("id", teamId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error fetching team with members:", error);
+    throw new Error(error.message);
+  }
+
+  return data ?? null;
+};
+
+export const getAllTeams = async () => {
+  if (!supabase) return [];
+  const { data, error } = await supabase.from("teams").select();
+
+  if (error) {
+    console.error("Error fetching all teams:", error);
+    throw new Error(error.message);
+  }
+
+  return data ?? [];
+};
 
 export const createTeam = async (params: CreateTeamParams) => {
   const client = requireSupabase();
@@ -12,8 +67,8 @@ export const createTeam = async (params: CreateTeamParams) => {
     .from("teams")
     .insert({
       name: params.name,
-      type: "team" as Database["public"]["Enums"]["team_type"],
-    } as TablesInsert<"teams">)
+      type: "team",
+    })
     .select()
     .single();
 
@@ -27,9 +82,7 @@ export const createTeam = async (params: CreateTeamParams) => {
     team_id: data.id,
   }));
 
-  const { error: memberError } = await client
-    .from("team_members")
-    .insert(teamMembers as TablesInsert<"team_members">[]);
+  const { error: memberError } = await client.from("team_members").insert(teamMembers);
 
   if (memberError) {
     console.error("Error adding team members", memberError);
@@ -37,6 +90,24 @@ export const createTeam = async (params: CreateTeamParams) => {
   }
 
   return data;
+};
+
+export const updateTeam = async (teamId: number, params: CreateTeamParams) => {
+  const client = requireSupabase();
+
+  // The RPC enforces `type = 'team'` and replaces memberships transactionally.
+  const { error } = await client.rpc("update_team_with_members", {
+    target_name: params.name,
+    target_player_ids: params.playerIds,
+    target_team_id: teamId,
+  });
+
+  if (error) {
+    console.error("Error updating team:", error);
+    throw new Error(error.message);
+  }
+
+  return { id: teamId, name: params.name };
 };
 
 export const deleteTeam = async (teamId: number) => {

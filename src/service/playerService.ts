@@ -1,5 +1,5 @@
-import { requireSupabase, supabase } from "./supabaseService";
 import { TablesInsert } from "~/types/database";
+import { requireSupabase, supabase } from "./supabaseService";
 
 interface CreatePlayerParams {
   name: string;
@@ -12,11 +12,11 @@ interface CreatePlayerParams {
  */
 export const createPlayer = async (params: CreatePlayerParams) => {
   const client = requireSupabase();
-  const { data, error } = await client
+  const { data: player, error } = await client
     .from("players")
-    .insert({
+    .insert<TablesInsert<"players">>({
       name: params.name,
-    } as TablesInsert<"players">)
+    })
     .select()
     .single();
 
@@ -25,7 +25,22 @@ export const createPlayer = async (params: CreatePlayerParams) => {
     throw new Error(error.message);
   }
 
-  return data;
+  // Auto-create a corresponding type='player' team entry so match setup can use it.
+  if (player) {
+    const { error: teamError } = await client.from("teams").insert({
+      name: player.name,
+      player_id: player.id,
+      type: "player",
+    });
+
+    if (teamError) {
+      await client.from("players").delete().eq("id", player.id);
+      console.error("Error creating player team:", teamError);
+      throw new Error(teamError.message);
+    }
+  }
+
+  return player;
 };
 
 /**
@@ -51,10 +66,13 @@ export const getPlayers = async () => {
 
 export const deletePlayer = async (id: number) => {
   const client = requireSupabase();
-  const { error } = await client.from("players").delete().eq("id", id);
+  // Keep the player row and its auto-created pseudo-team in one transaction.
+  const { error } = await client.rpc("delete_player_with_linked_team", {
+    target_player_id: id,
+  });
 
   if (error) {
-    console.log("error deleting", error);
+    console.log("error deleting player with linked team", error);
     throw new Error(error.message);
   }
 };

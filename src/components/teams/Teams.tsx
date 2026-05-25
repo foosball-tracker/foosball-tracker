@@ -1,44 +1,36 @@
-import { hasSupabaseConfig, supabase } from "~/service/supabaseService.ts";
-import { createResource, createSignal, Show } from "solid-js";
+import { A } from "@solidjs/router";
+import type { RouteSectionProps } from "@solidjs/router";
+import { hasSupabaseConfig } from "~/service/supabaseService.ts";
+import { createResource, createSignal, Show, For } from "solid-js";
 import { ColumnDef } from "@tanstack/solid-table";
-import { Tables } from "~/types/database.ts";
 import { DataTable } from "~/components/shared/table/DataTable.tsx";
-import TeamForm from "./TeamForm";
 import ConfirmTeamDelete from "./ConfirmDelete";
+import { getTeamsWithMembers, TeamWithMembers } from "~/service/teamService";
+import { TeamListContext } from "./TeamListContext";
 
-interface Team {
-  id: number;
-  name: string;
-}
-
-const [showTeamForm, setShowTeamForm] = createSignal(false);
 const [showConfirm, setShowConfirm] = createSignal(false);
-const [teamToDelete, setTeamToDelete] = createSignal<Team | null>(null);
+const [teamToDelete, setTeamToDelete] = createSignal<TeamWithMembers | null>(null);
 
-export const getTeams = async () => {
-  if (!supabase) return [];
-  const { data, error } = await supabase.from("teams").select().eq("type", "team");
-  if (error) {
-    console.error("error fetching teams", error);
-  }
-  return data ?? [];
-};
-
-const columns: ColumnDef<Tables<"teams">>[] = [
+const columns: ColumnDef<TeamWithMembers>[] = [
   {
     header: "Actions",
     cell: (info) => {
       const team = info.row.original;
       return (
-        <button
-          class="btn btn-error btn-sm"
-          onClick={() => {
-            setTeamToDelete(team);
-            setShowConfirm(true);
-          }}
-        >
-          Delete
-        </button>
+        <div class="flex gap-2">
+          <A class="btn btn-info btn-sm" href={`/teams/edit/${team.id}`}>
+            Edit
+          </A>
+          <button
+            class="btn btn-error btn-sm"
+            onClick={() => {
+              setTeamToDelete(team);
+              setShowConfirm(true);
+            }}
+          >
+            Delete
+          </button>
+        </div>
       );
     },
   },
@@ -47,20 +39,27 @@ const columns: ColumnDef<Tables<"teams">>[] = [
     header: "Name",
   },
   {
-    accessorKey: "type",
-    header: "Type",
+    header: "Members",
+    cell: (info) => {
+      const team = info.row.original;
+      const members = team.team_members ?? [];
+      return (
+        <div class="flex flex-wrap gap-1">
+          <For each={members}>
+            {(member) => (
+              <span class="badge badge-sm badge-secondary">
+                {member.players?.name ?? "Unknown"}
+              </span>
+            )}
+          </For>
+        </div>
+      );
+    },
   },
 ];
 
-export default function Teams() {
-  const [data, { refetch }] = createResource(getTeams);
-
-  const handleCreateTeamSuccess = () => {
-    refetch();
-    setTimeout(() => {
-      setShowTeamForm(false);
-    }, 1000);
-  };
+export default function Teams(props: RouteSectionProps) {
+  const [data, { refetch }] = createResource(getTeamsWithMembers);
 
   return (
     <Show
@@ -71,35 +70,29 @@ export default function Teams() {
         </div>
       }
     >
-      <>
-        <Show
-          when={!showTeamForm()}
-          keyed
-          fallback={<TeamForm onSuccess={handleCreateTeamSuccess} />}
-        >
-          <div class={"p-2"}>
-            <div class={"text-lg"}>Teams</div>
-            <div class="mx-auto w-full">
-              <Show
-                when={data()}
-                keyed
-                fallback={
-                  <div class={"flex h-full items-center justify-center"}>
-                    <span class="loading loading-spinner loading-xl" />
-                  </div>
-                }
-              >
-                {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
-              </Show>
-            </div>
-            <button
-              class="btn btn-primary mx-auto mt-4"
-              onClick={() => setShowTeamForm(!showTeamForm())}
+      <TeamListContext.Provider value={{ refetchTeams: refetch }}>
+        <div class="p-2">
+          <div class="text-lg">Teams</div>
+          <div class="mx-auto w-full">
+            <Show
+              when={data()}
+              keyed
+              fallback={
+                <div class="flex h-full items-center justify-center">
+                  <span class="loading loading-spinner loading-xl" />
+                </div>
+              }
             >
-              Create New Team
-            </button>
+              {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
+            </Show>
           </div>
-        </Show>
+          <A class="btn btn-primary mx-auto mt-4 inline-block" href="/teams/new">
+            Create New Team
+          </A>
+        </div>
+
+        {props.children}
+
         <ConfirmTeamDelete
           showConfirm={showConfirm()}
           teamToDelete={teamToDelete()}
@@ -111,7 +104,7 @@ export default function Teams() {
             refetch();
           }}
         />
-      </>
+      </TeamListContext.Provider>
     </Show>
   );
 }

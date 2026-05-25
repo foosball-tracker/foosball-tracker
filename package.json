@@ -15,10 +15,12 @@
     "db-types": "supabase gen types typescript --project-id eucjxbcicejyinubzgwh --schema public > src/types/database.ts"
   },
   "lint-staged": {
-    "*": [
-      "prettier --write",
-      "eslint"
-    ]
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,html,json,md,toml,yaml,yml}": "prettier --write",
+    ".prettierrc": "prettier --write"
   },
   "dependencies": {
     "@solid-primitives/scheduled": "^1.5.3",
@@ -49,6 +51,7 @@
     "globals": "^17.6.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
+    "playwright": "^1.60.0",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "prettier-plugin-toml": "^2.0.6",

@@ -1,6 +1,11 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5";
+  };
   public: {
     Tables: {
       goals: {
@@ -177,28 +182,51 @@ export type Database = {
           created_at: string;
           id: number;
           name: string;
+          player_id: number | null;
           type: Database["public"]["Enums"]["team_type"];
         };
         Insert: {
           created_at?: string;
           id?: number;
           name: string;
+          player_id?: number | null;
           type: Database["public"]["Enums"]["team_type"];
         };
         Update: {
           created_at?: string;
           id?: number;
           name?: string;
+          player_id?: number | null;
           type?: Database["public"]["Enums"]["team_type"];
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "teams_player_id_fkey";
+            columns: ["player_id"];
+            isOneToOne: false;
+            referencedRelation: "players";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
+      delete_player_with_linked_team: {
+        Args: { target_player_id: number };
+        Returns: undefined;
+      };
       is_admin: { Args: never; Returns: boolean };
+      update_team_with_members: {
+        Args: {
+          target_name: string;
+          target_player_ids: number[];
+          target_team_id: number;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       team_type: "player" | "team";
