@@ -25,7 +25,7 @@ export default function TeamForm() {
   const navigate = useNavigate();
   const teamId = () => {
     const id = params.id;
-    return id ? parseInt(id) : undefined;
+    return id ? Number.parseInt(id) : undefined;
   };
   const isEditing = () => teamId() !== undefined;
 
@@ -90,7 +90,7 @@ export default function TeamForm() {
   };
 
   const handlePlayerSelect: JSX.EventHandler<HTMLSelectElement, Event> = (e) => {
-    const value = parseInt(e.currentTarget.value);
+    const value = Number.parseInt(e.currentTarget.value);
     if (!isNaN(value) && !selectedPlayerIds().includes(value)) {
       if (selectedPlayerIds().length < 2) {
         setSelectedPlayerIds([...selectedPlayerIds(), value]);

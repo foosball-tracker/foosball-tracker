@@ -48,7 +48,9 @@ export default function SettingsForm(props: Readonly<SettingsProps>) {
           type="number"
           placeholder="Tore zum Sieg"
           value={props.settings.goalsToWin}
-          onInput={(event) => props.setSettings("goalsToWin", parseInt(event.currentTarget.value))}
+          onInput={(event) =>
+            props.setSettings("goalsToWin", Number.parseInt(event.currentTarget.value))
+          }
         />
       </fieldset>
     </>

@@ -34,7 +34,7 @@ export const createPlayer = async (params: CreatePlayerParams) => {
 
     if (teamError) {
       console.error("Error creating player team:", teamError);
-      // Non-fatal: player was created successfully.
+      throw new Error(teamError.message);
     }
   }
 
