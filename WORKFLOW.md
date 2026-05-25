@@ -13,6 +13,13 @@ End-to-end guide for moving from a GitHub issue to a merged PR.
 
 ## 2. Create a Branch
 
+Before creating a branch, update your local `main` from the remote so you do not start from a stale base:
+
+```bash
+git checkout main
+git pull origin main
+```
+
 **Naming convention:** always include the GitHub issue number so the PR auto-links.
 
 ```bash

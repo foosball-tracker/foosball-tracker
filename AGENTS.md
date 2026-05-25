@@ -77,10 +77,17 @@ For the full end-to-end guide (branch naming, PR creation, preview deploys, Code
 - Organization: `foosball-tracker`.
 - Read-only mode is enabled (`SONARQUBE_READ_ONLY: true`).
 
-### SonarQube checks after pushing
+### Workflow after pushing / creating a PR
 
-- Wait for SonarCloud CI analysis, then use the MCP tools to check new issues and the quality gate.
-- See [`WORKFLOW.md`](./WORKFLOW.md) for the detailed SonarQube checklist.
+1. Push your branch and open (or update) a PR on GitHub.
+2. Wait a few minutes for the SonarCloud CI analysis to complete.
+3. Use the SonarQube MCP tools to check the PR:
+   - `sonarqube_list_pull_requests` to find the PR key.
+   - `sonarqube_search_sonar_issues_in_projects` with `pullRequestId` to see new issues introduced by the PR.
+   - `sonarqube_get_project_quality_gate_status` with `pullRequest` to verify the quality gate passes.
+   - `sonarqube_search_security_hotspots` with `pullRequest` to review any security hotspots on the PR.
+4. Fix any issues that block the quality gate or are significant, then push again.
+5. Ignore issues in generated files (e.g. `src/types/database.ts`) unless the generation flow is broken.
 
 ## Supabase MCP & Skills
 

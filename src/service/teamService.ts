@@ -1,4 +1,3 @@
-import { Database } from "~/types/database";
 import { requireSupabase, supabase } from "./supabaseService";
 
 export interface TeamMember {
@@ -9,7 +8,7 @@ export interface TeamMember {
 export interface TeamWithMembers {
   id: number;
   name: string;
-  type: Database["public"]["Enums"]["team_type"];
+  type: "player" | "team";
   created_at: string;
   team_members: TeamMember[] | null;
 }
@@ -68,7 +67,7 @@ export const createTeam = async (params: CreateTeamParams) => {
     .from("teams")
     .insert({
       name: params.name,
-      type: "team" as Database["public"]["Enums"]["team_type"],
+      type: "team",
     })
     .select()
     .single();
