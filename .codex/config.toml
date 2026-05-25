@@ -2,3 +2,11 @@
 url = "https://api.sonarcloud.io/mcp"
 bearer_token_env_var = "SONARQUBE_TOKEN"
 http_headers = { SONARQUBE_ORG = "foosball-tracker", SONARQUBE_PROJECT_KEY = "foosball-tracker_foosball-tracker", SONARQUBE_READ_ONLY = "true" }
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@latest", "--headless", "--isolated"]
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp@latest"]

@@ -28,3 +28,11 @@ dist-ssr
 .env.*
 .secrets/
 *.token
+
+# Playwright / browser automation
+.playwright-mcp/
+playwright/.cache/
+test-results/
+screenshots/
+*.png
+*.webm
