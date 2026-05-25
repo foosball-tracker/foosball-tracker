@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "sonarqube": {
+      "type": "remote",
+      "url": "https://api.sonarcloud.io/mcp",
+      "enabled": true,
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {env:SONARQUBE_TOKEN}",
+        "SONARQUBE_ORG": "foosball-tracker",
+        "SONARQUBE_PROJECT_KEY": "foosball-tracker_foosball-tracker",
+        "SONARQUBE_READ_ONLY": "true"
+      }
+    }
+  }
+}
