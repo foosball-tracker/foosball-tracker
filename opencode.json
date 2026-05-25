@@ -12,6 +12,11 @@
         "SONARQUBE_PROJECT_KEY": "foosball-tracker_foosball-tracker",
         "SONARQUBE_READ_ONLY": "true"
       }
+    },
+    "supabase": {
+      "type": "remote",
+      "url": "https://mcp.supabase.com/mcp?project_ref=eucjxbcicejyinubzgwh&features=docs%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching%2Cstorage",
+      "enabled": true
     }
   }
 }
