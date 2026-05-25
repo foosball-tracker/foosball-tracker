@@ -5,6 +5,7 @@ import {
   createMemo,
   JSX,
   Match,
+  onCleanup,
   Show,
   Switch,
   For,
@@ -27,9 +28,13 @@ export default function TeamForm() {
   const teamList = useTeamListContext();
   const teamId = () => {
     const id = params.id;
-    return id ? Number.parseInt(id) : undefined;
+    if (!id) return undefined;
+
+    const parsedId = Number.parseInt(id);
+    return Number.isNaN(parsedId) ? undefined : parsedId;
   };
-  const isEditing = () => teamId() !== undefined;
+  const isEditing = () => params.id !== undefined;
+  const hasValidTeamId = () => teamId() !== undefined;
 
   const [players] = createResource(getPlayers);
   const [teamData] = createResource(teamId, async (id) => {
@@ -42,11 +47,18 @@ export default function TeamForm() {
   const [error, setError] = createSignal<string | null>(null);
   const [success, setSuccess] = createSignal(false);
   const [selectedPlayerIds, setSelectedPlayerIds] = createSignal<number[]>([]);
+  let redirectTimer: ReturnType<typeof setTimeout> | undefined;
+
+  onCleanup(() => {
+    if (redirectTimer) {
+      clearTimeout(redirectTimer);
+    }
+  });
 
   // Pre-fill form when editing and team data loads
   createEffect(() => {
     const team = teamData();
-    if (team && isEditing()) {
+    if (team && hasValidTeamId()) {
       setName(team.name);
       setSelectedPlayerIds(team.team_members?.map((m) => m.player_id) ?? []);
     }
@@ -59,6 +71,9 @@ export default function TeamForm() {
     setSuccess(false);
 
     try {
+      if (isEditing() && !hasValidTeamId()) {
+        throw new Error("Invalid team ID");
+      }
       if (!name().trim()) {
         throw new Error("Name is required");
       }
@@ -66,7 +81,7 @@ export default function TeamForm() {
         throw new Error("Add at least one player");
       }
 
-      if (isEditing() && teamId()) {
+      if (hasValidTeamId()) {
         await updateTeam(teamId()!, {
           name: name().trim(),
           playerIds: selectedPlayerIds(),
@@ -82,7 +97,7 @@ export default function TeamForm() {
 
       teamList?.refetchTeams();
       setSuccess(true);
-      setTimeout(() => {
+      redirectTimer = setTimeout(() => {
         navigate("/teams");
       }, 800);
     } catch (err) {

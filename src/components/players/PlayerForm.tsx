@@ -1,5 +1,5 @@
 import { useNavigate } from "@solidjs/router";
-import { createSignal, JSX, Match, Show, Switch } from "solid-js";
+import { createSignal, JSX, Match, onCleanup, Show, Switch } from "solid-js";
 import { createPlayer } from "../../service/playerService";
 import Spinner from "../shared/Spinner";
 import { usePlayerListContext } from "./PlayerListContext";
@@ -11,6 +11,13 @@ export default function PlayerForm() {
   const [isSubmitting, setIsSubmitting] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
   const [success, setSuccess] = createSignal(false);
+  let redirectTimer: ReturnType<typeof setTimeout> | undefined;
+
+  onCleanup(() => {
+    if (redirectTimer) {
+      clearTimeout(redirectTimer);
+    }
+  });
 
   // prettier-ignore
   const handleSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (e) => {// NOSONAR
@@ -28,7 +35,7 @@ export default function PlayerForm() {
       playerList?.refetchPlayers();
       setName("");
       setSuccess(true);
-      setTimeout(() => {
+      redirectTimer = setTimeout(() => {
         navigate("/players");
       }, 800);
     } catch (err) {
