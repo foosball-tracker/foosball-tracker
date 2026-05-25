@@ -143,6 +143,8 @@ Closes #16
   @codex review
   ```
   (Post this as a PR comment.)
+- After pushing a fix for a specific review thread, check whether GitHub auto-resolved it.
+- If the thread or comment is still open even though the fix is in the branch, manually resolve that specific thread so the PR reflects the real review state.
 
 ### Human Review
 
