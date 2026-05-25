@@ -1,8 +1,11 @@
 [build]
-  command = "pnpm run build"
-  publish = "dist"
+command = "VITE_URL=$URL VITE_DEPLOY_PRIME_URL=$DEPLOY_PRIME_URL VITE_CONTEXT=$CONTEXT pnpm run build"
+publish = "dist"
+
+[functions]
+directory = "netlify/functions"
 
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+from = "/*"
+to = "/index.html"
+status = 200

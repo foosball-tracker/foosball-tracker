@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
-    "db-types": "supabase gen types typescript --project-id ghtgwqvzohkyulbfwcjs --schema public > src/types/database.ts"
+    "db-types": "supabase gen types typescript --project-id eucjxbcicejyinubzgwh --schema public > src/types/database.ts"
   },
   "lint-staged": {
     "*": [
@@ -51,6 +51,7 @@
     "lint-staged": "^17.0.5",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
+    "prettier-plugin-toml": "^2.0.6",
     "tailwindcss": "^4.3.0",
     "typescript": "~5.8.3",
     "vite": "^6.4.2",
