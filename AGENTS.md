@@ -89,8 +89,9 @@ For the full end-to-end guide (branch naming, PR creation, preview deploys, Code
 4. Fix any issues that block the quality gate or are significant, then push again.
 5. Ignore issues in generated files (e.g. `src/types/database.ts`) unless the generation flow is broken.
 
-## Supabase MCP & Skills
+## MCP & Skills
 
 - A Supabase MCP server is configured in `opencode.json` and a [Supabase skill](./.agents/skills/supabase/SKILL.md) is available locally.
 - You can use these to inspect, query, or check the project's Supabase instance directly (database, docs, debugging, development, functions, branching, storage).
 - **For any real changes or modifications to the Supabase project** (schema changes, migrations, data mutations, RLS policies, etc.), ask the user first before making the change.
+- A [DaisyUI skill](./.agents/skills/daisyui/SKILL.md) is available locally for component design guidance.
