@@ -1,5 +1,5 @@
+import { Database, TablesInsert } from "~/types/database";
 import { requireSupabase, supabase } from "./supabaseService";
-import { TablesInsert } from "~/types/database";
 
 interface CreatePlayerParams {
   name: string;
@@ -12,7 +12,7 @@ interface CreatePlayerParams {
  */
 export const createPlayer = async (params: CreatePlayerParams) => {
   const client = requireSupabase();
-  const { data, error } = await client
+  const { data: player, error } = await client
     .from("players")
     .insert({
       name: params.name,
@@ -25,7 +25,20 @@ export const createPlayer = async (params: CreatePlayerParams) => {
     throw new Error(error.message);
   }
 
-  return data;
+  // Auto-create a corresponding type='player' team entry so match setup can use it.
+  if (player) {
+    const { error: teamError } = await client.from("teams").insert({
+      name: player.name,
+      type: "player" as Database["public"]["Enums"]["team_type"],
+    } as TablesInsert<"teams">);
+
+    if (teamError) {
+      console.error("Error creating player team:", teamError);
+      // Non-fatal: player was created successfully.
+    }
+  }
+
+  return player;
 };
 
 /**

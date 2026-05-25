@@ -1,10 +1,66 @@
-import { Database, TablesInsert } from "~/types/database";
-import { requireSupabase } from "./supabaseService";
+import { Database, TablesInsert, TablesUpdate } from "~/types/database";
+import { requireSupabase, supabase } from "./supabaseService";
+
+export interface TeamMember {
+  player_id: number;
+  players: { name: string } | null;
+}
+
+export interface TeamWithMembers {
+  id: number;
+  name: string;
+  type: Database["public"]["Enums"]["team_type"];
+  created_at: string;
+  team_members: TeamMember[] | null;
+}
 
 interface CreateTeamParams {
   name: string;
   playerIds: number[];
 }
+
+export const getTeamsWithMembers = async (): Promise<TeamWithMembers[]> => {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("teams")
+    .select("*, team_members(player_id, players(name))")
+    .eq("type", "team");
+
+  if (error) {
+    console.error("Error fetching teams with members:", error);
+    throw new Error(error.message);
+  }
+
+  return (data as unknown as TeamWithMembers[]) ?? [];
+};
+
+export const getTeamWithMembers = async (teamId: number): Promise<TeamWithMembers | null> => {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("teams")
+    .select("*, team_members(player_id, players(name))")
+    .eq("id", teamId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching team with members:", error);
+    throw new Error(error.message);
+  }
+
+  return (data as unknown as TeamWithMembers) ?? null;
+};
+
+export const getAllTeams = async () => {
+  if (!supabase) return [];
+  const { data, error } = await supabase.from("teams").select();
+
+  if (error) {
+    console.error("Error fetching all teams:", error);
+    throw new Error(error.message);
+  }
+
+  return data ?? [];
+};
 
 export const createTeam = async (params: CreateTeamParams) => {
   const client = requireSupabase();
@@ -37,6 +93,45 @@ export const createTeam = async (params: CreateTeamParams) => {
   }
 
   return data;
+};
+
+export const updateTeam = async (teamId: number, params: CreateTeamParams) => {
+  const client = requireSupabase();
+
+  const { error: updateError } = await client
+    .from("teams")
+    .update({ name: params.name } as TablesUpdate<"teams">)
+    .eq("id", teamId);
+
+  if (updateError) {
+    console.error("Error updating team:", updateError);
+    throw new Error(updateError.message);
+  }
+
+  const { error: deleteError } = await client.from("team_members").delete().eq("team_id", teamId);
+
+  if (deleteError) {
+    console.error("Error deleting old team members:", deleteError);
+    throw new Error(deleteError.message);
+  }
+
+  const teamMembers = params.playerIds.map((player_id) => ({
+    player_id,
+    team_id: teamId,
+  }));
+
+  if (teamMembers.length > 0) {
+    const { error: insertError } = await client
+      .from("team_members")
+      .insert(teamMembers as TablesInsert<"team_members">[]);
+
+    if (insertError) {
+      console.error("Error adding team members", insertError);
+      throw new Error(insertError.message);
+    }
+  }
+
+  return { id: teamId, name: params.name };
 };
 
 export const deleteTeam = async (teamId: number) => {

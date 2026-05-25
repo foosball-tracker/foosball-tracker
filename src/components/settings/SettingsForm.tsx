@@ -1,21 +1,21 @@
 import { createMemo, createResource } from "solid-js";
 import { Tables } from "~/types/database.ts";
-import { getTeams } from "~/components/teams/Teams.tsx";
+import { getAllTeams } from "~/service/teamService";
 import Select, { Option } from "~/components/shared/Select.tsx";
 import { SettingsProps } from "~/components/Settings.tsx";
 
 export default function SettingsForm(props: Readonly<SettingsProps>) {
-  const [teams] = createResource(getTeams);
+  const [teams] = createResource(getAllTeams);
 
-  // Memoize transformed options.
+  // Memoize transformed options; distinguish individual players from custom teams.
   const teamOptions = createMemo<Option<number>[]>(() => {
     const loadedTeams = teams();
     if (!loadedTeams) {
       return [];
     }
-    return loadedTeams?.map((team: Tables<"teams">) => ({
+    return loadedTeams.map((team: Tables<"teams">) => ({
       value: team.id,
-      label: team.name,
+      label: team.type === "player" ? `${team.name} (Player)` : `${team.name} (Team)`,
     }));
   });
 

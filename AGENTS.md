@@ -17,6 +17,10 @@
 - Format: `npx pnpm@10 format`
 - Regenerate Supabase DB types: `npx pnpm@10 db-types`
 
+## Figma Design
+
+- Design file: https://www.figma.com/design/FNBuLTXbRtAAweZuF1nrxi/FoosBall-Tracker
+
 ## Repo Structure
 
 - `src/routes`: route definitions and page entry points
@@ -25,6 +29,26 @@
 - `src/store`: local application/game state
 - `src/types`: shared types, including generated database types
 - `.github/workflows`: CI configuration
+
+## SolidJS Guidelines
+
+**USE SOLIDJS AS IMPLEMENTED IN THIS EXISTING PROJECT.**
+
+Before changing SolidJS code, consult the official Solid docs via:
+https://docs.solidjs.com/llms.txt
+
+Prefer official Solid patterns over React-like patterns.
+
+Important rules:
+
+- Do not use React dependency arrays with `createEffect`/`createMemo`.
+- Access signals as functions, for example `count()`, not `count`.
+- Use `onCleanup` for subscriptions, timers, event listeners, and WebSocket cleanup.
+- Prefer `createMemo` for derived reactive values.
+- Avoid destructuring props in a way that loses reactivity.
+- Follow the existing project style, folder structure, routing setup, and component patterns.
+- Do not introduce a new UI library or state library unless the project already uses it.
+- If unsure, search the Solid docs first and cite the relevant doc section in your reasoning.
 
 ## Working Rules
 
