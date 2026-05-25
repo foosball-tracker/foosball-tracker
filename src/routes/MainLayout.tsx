@@ -7,10 +7,10 @@ import { SupabaseBanner } from "../components/SupabaseBanner.tsx";
 export const MainLayout: ParentComponent = (props) => {
   return (
     <div class={"flex h-screen flex-col"}>
-      <div class="navbar bg-base-100 h-20 shadow-sm">
-        <div class="navbar-start">
+      <div class="navbar bg-base-100 h-20 gap-2 px-2 shadow-sm sm:px-4">
+        <div class="navbar-start min-w-0 gap-1">
           {/* Mobile hamburger */}
-          <details class="dropdown lg:hidden">
+          <details class="dropdown shrink-0 lg:hidden">
             <summary class="btn btn-ghost btn-circle list-none">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -41,10 +41,13 @@ export const MainLayout: ParentComponent = (props) => {
             </ul>
           </details>
 
-          <A class="btn btn-ghost text-xl" href={"/"}>
+          <A
+            class="btn btn-ghost min-w-0 flex-1 truncate px-2 text-lg sm:flex-none sm:text-xl"
+            href={"/"}
+          >
             Foosball Tracker
           </A>
-          <div class="flex gap-2">
+          <div class="shrink-0">
             <ThemeSwitch />
           </div>
         </div>
@@ -65,7 +68,7 @@ export const MainLayout: ParentComponent = (props) => {
           </ul>
         </div>
 
-        <div class="navbar-end">
+        <div class="navbar-end flex-none">
           <Login />
         </div>
       </div>

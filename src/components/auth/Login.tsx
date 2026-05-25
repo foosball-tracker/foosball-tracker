@@ -45,9 +45,9 @@ export function Login() {
     <Show
       when={!hasSupabaseConfig() || session() === null}
       fallback={
-        <div class="flex items-center gap-2">
-          <p>{session()?.user.email}</p>
-          <button class="btn btn-secondary" onClick={signOut}>
+        <div class="flex min-w-0 items-center gap-2">
+          <p class="hidden max-w-40 truncate text-sm sm:block">{session()?.user.email}</p>
+          <button class="btn btn-secondary btn-sm sm:btn-md" onClick={signOut}>
             Logout
           </button>
         </div>
@@ -58,7 +58,7 @@ export function Login() {
         fallback={<span class="text-base-content/60 text-sm">Sign in unavailable</span>}
       >
         <button
-          class="btn"
+          class="btn btn-sm sm:btn-md"
           onClick={() => {
             const modal = document.getElementById("login-modal");
             if (modal instanceof HTMLDialogElement) {
@@ -66,7 +66,7 @@ export function Login() {
             }
           }}
         >
-          open modal
+          Sign in
         </button>
         <dialog id="login-modal" class="modal">
           <div class="modal-box">
