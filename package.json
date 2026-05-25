@@ -15,10 +15,12 @@
     "db-types": "supabase gen types typescript --project-id eucjxbcicejyinubzgwh --schema public > src/types/database.ts"
   },
   "lint-staged": {
-    "*": [
-      "prettier --write",
-      "eslint"
-    ]
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,html,json,md,toml,yaml,yml}": "prettier --write",
+    ".prettierrc": "prettier --write"
   },
   "dependencies": {
     "@solid-primitives/scheduled": "^1.5.3",
