@@ -214,6 +214,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      delete_player_with_linked_team: {
+        Args: { target_player_id: number };
+        Returns: undefined;
+      };
       is_admin: { Args: never; Returns: boolean };
     };
     Enums: {

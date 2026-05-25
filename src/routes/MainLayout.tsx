@@ -10,8 +10,8 @@ export const MainLayout: ParentComponent = (props) => {
       <div class="navbar bg-base-100 h-20 shadow-sm">
         <div class="navbar-start">
           {/* Mobile hamburger */}
-          <div class="dropdown lg:hidden">
-            <button type="button" class="btn btn-ghost btn-circle">
+          <details class="dropdown lg:hidden">
+            <summary class="btn btn-ghost btn-circle list-none">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-6 w-6"
@@ -26,7 +26,7 @@ export const MainLayout: ParentComponent = (props) => {
                   d="M4 6h16M4 12h16M4 18h16"
                 />
               </svg>
-            </button>
+            </summary>
             <ul class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
               <li>
                 <A href={"/players"} activeClass={"menu-active"}>
@@ -39,7 +39,7 @@ export const MainLayout: ParentComponent = (props) => {
                 </A>
               </li>
             </ul>
-          </div>
+          </details>
 
           <A class="btn btn-ghost text-xl" href={"/"}>
             Foosball Tracker

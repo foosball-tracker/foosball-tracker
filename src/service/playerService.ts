@@ -66,33 +66,12 @@ export const getPlayers = async () => {
 
 export const deletePlayer = async (id: number) => {
   const client = requireSupabase();
-  const { data: playerTeams, error: playerTeamFetchError } = await client
-    .from("teams")
-    .select("id")
-    .eq("player_id", id)
-    .eq("type", "player");
-
-  if (playerTeamFetchError) {
-    console.log("error fetching player teams", playerTeamFetchError);
-    throw new Error(playerTeamFetchError.message);
-  }
-
-  for (const playerTeam of playerTeams ?? []) {
-    const { error: deletePlayerTeamError } = await client
-      .from("teams")
-      .delete()
-      .eq("id", playerTeam.id);
-
-    if (deletePlayerTeamError) {
-      console.log("error deleting player team", deletePlayerTeamError);
-      throw new Error(deletePlayerTeamError.message);
-    }
-  }
-
-  const { error } = await client.from("players").delete().eq("id", id);
+  const { error } = await client.rpc("delete_player_with_linked_team", {
+    target_player_id: id,
+  });
 
   if (error) {
-    console.log("error deleting", error);
+    console.log("error deleting player with linked team", error);
     throw new Error(error.message);
   }
 };
