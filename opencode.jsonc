@@ -10,37 +10,27 @@
         "Authorization": "Bearer {env:SONARQUBE_TOKEN}",
         "SONARQUBE_ORG": "foosball-tracker",
         "SONARQUBE_PROJECT_KEY": "foosball-tracker_foosball-tracker",
-        "SONARQUBE_READ_ONLY": "true"
-      }
+        "SONARQUBE_READ_ONLY": "true",
+      },
     },
     "supabase": {
       "type": "remote",
       "url": "https://mcp.supabase.com/mcp?project_ref=eucjxbcicejyinubzgwh&features=docs%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching%2Cstorage",
-      "enabled": true
+      "enabled": true,
     },
     "figma": {
       "type": "remote",
-      "url": "https://mcp.figma.com/mcp"
+      "url": "https://mcp.figma.com/mcp",
     },
     "playwright": {
       "type": "local",
       "enabled": true,
-      "command": [
-        "npx",
-        "-y",
-        "@playwright/mcp@latest",
-        "--headless",
-        "--isolated"
-      ]
+      "command": ["node", ".codex/playwright-mcp-launcher.mjs"],
     },
     "context7": {
       "type": "local",
       "enabled": true,
-      "command": [
-        "npx",
-        "-y",
-        "@upstash/context7-mcp@latest"
-      ]
-    }
-  }
+      "command": ["npx", "-y", "@upstash/context7-mcp@latest"],
+    },
+  },
 }

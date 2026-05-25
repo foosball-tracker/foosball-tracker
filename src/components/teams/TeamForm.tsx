@@ -29,8 +29,9 @@ export default function TeamForm() {
   const teamId = () => {
     const id = params.id;
     if (!id) return undefined;
+    if (!/^\d+$/.test(id)) return undefined;
 
-    const parsedId = Number.parseInt(id);
+    const parsedId = Number(id);
     return Number.isNaN(parsedId) ? undefined : parsedId;
   };
   const isEditing = () => params.id !== undefined;

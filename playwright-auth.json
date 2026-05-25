@@ -1,0 +1,18 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:5173",
+      "localStorage": [
+        {
+          "name": "gameState",
+          "value": "{\"timer\":0,\"gameRunning\":false,\"goalHistory\":[]}"
+        },
+        {
+          "name": "settings",
+          "value": "{\"yellowTeam\":{\"name\":\"Gelbes Team\"},\"blackTeam\":{\"name\":\"Schwarzes Team\"},\"goalsToWin\":10}"
+        }
+      ]
+    }
+  ]
+}

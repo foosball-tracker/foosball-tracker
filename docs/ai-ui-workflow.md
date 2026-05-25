@@ -10,7 +10,7 @@ The dev server runs at **http://localhost:5173**.
 
 ## Playwright MCP
 
-Playwright MCP is configured in `opencode.jsonc` and `.codex/config.toml`. It runs headless in isolated mode so each session starts clean.
+Playwright MCP is configured in `opencode.jsonc` and `.codex/config.toml`. It runs through `.codex/playwright-mcp-launcher.mjs`, which resolves the locally installed Chromium path from the `playwright` package at runtime instead of hardcoding a cache version. The MCP runs headless in isolated mode so each session starts clean.
 
 - **Desktop viewport**: 1280×720 (default)
 - **Mobile viewport**: use `--viewport` flag or resize via tool commands to 375×812

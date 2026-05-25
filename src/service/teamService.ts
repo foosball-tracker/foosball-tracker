@@ -39,7 +39,7 @@ export const getTeamWithMembers = async (teamId: number): Promise<TeamWithMember
     .from("teams")
     .select("*, team_members(player_id, players(name))")
     .eq("id", teamId)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error("Error fetching team with members:", error);
