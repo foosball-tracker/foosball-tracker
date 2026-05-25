@@ -58,6 +58,10 @@ Important rules:
 - Run lint and build before opening a PR.
 - Avoid editing generated types manually unless the generation flow is broken.
 
+## Workflow
+
+For the full end-to-end guide (branch naming, PR creation, preview deploys, Codex review, SonarQube checks, merge), see [`WORKFLOW.md`](./WORKFLOW.md).
+
 ## Environment Notes
 
 - The app expects Supabase environment variables in local development.
@@ -73,17 +77,10 @@ Important rules:
 - Organization: `foosball-tracker`.
 - Read-only mode is enabled (`SONARQUBE_READ_ONLY: true`).
 
-### Workflow after pushing / creating a PR
+### SonarQube checks after pushing
 
-1. Push your branch and open (or update) a PR on GitHub.
-2. Wait a few minutes for the SonarCloud CI analysis to complete.
-3. Use the SonarQube MCP tools to check the PR:
-   - `sonarqube_list_pull_requests` to find the PR key.
-   - `sonarqube_search_sonar_issues_in_projects` with `pullRequestId` to see new issues introduced by the PR.
-   - `sonarqube_get_project_quality_gate_status` with `pullRequest` to verify the quality gate passes.
-   - `sonarqube_search_security_hotspots` with `pullRequest` to review any security hotspots on the PR.
-4. Fix any issues that block the quality gate or are significant, then push again.
-5. Ignore issues in generated files (e.g. `src/types/database.ts`) unless the generation flow is broken.
+- Wait for SonarCloud CI analysis, then use the MCP tools to check new issues and the quality gate.
+- See [`WORKFLOW.md`](./WORKFLOW.md) for the detailed SonarQube checklist.
 
 ## Supabase MCP & Skills
 
