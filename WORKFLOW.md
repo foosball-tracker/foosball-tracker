@@ -114,6 +114,9 @@ The PR body should reference the issue:
 Closes #16
 ```
 
+If later pushes introduce larger new behavior, migrations, workflow changes, or other meaningful scope changes, update the PR description so it still matches the actual contents of the branch.
+Small follow-up fixes do not need a PR description update unless they materially change scope or rollout considerations.
+
 ---
 
 ## 9. Automated Deploys & Checks
