@@ -1,4 +1,4 @@
-import { Database, TablesInsert } from "~/types/database";
+import { TablesInsert } from "~/types/database";
 import { requireSupabase, supabase } from "./supabaseService";
 
 interface CreatePlayerParams {
@@ -31,7 +31,7 @@ export const createPlayer = async (params: CreatePlayerParams) => {
       name: player.name,
       player_id: player.id,
       type: "player",
-    } as Database["public"]["Tables"]["teams"]["Insert"]);
+    });
 
     if (teamError) {
       await client.from("players").delete().eq("id", player.id);
