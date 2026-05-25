@@ -66,6 +66,7 @@ export const getPlayers = async () => {
 
 export const deletePlayer = async (id: number) => {
   const client = requireSupabase();
+  // Keep the player row and its auto-created pseudo-team in one transaction.
   const { error } = await client.rpc("delete_player_with_linked_team", {
     target_player_id: id,
   });

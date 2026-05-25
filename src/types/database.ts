@@ -219,6 +219,14 @@ export type Database = {
         Returns: undefined;
       };
       is_admin: { Args: never; Returns: boolean };
+      update_team_with_members: {
+        Args: {
+          target_name: string;
+          target_player_ids: number[];
+          target_team_id: number;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       team_type: "player" | "team";

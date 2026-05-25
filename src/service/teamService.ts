@@ -95,35 +95,16 @@ export const createTeam = async (params: CreateTeamParams) => {
 export const updateTeam = async (teamId: number, params: CreateTeamParams) => {
   const client = requireSupabase();
 
-  const { error: updateError } = await client
-    .from("teams")
-    .update({ name: params.name })
-    .eq("id", teamId);
+  // The RPC enforces `type = 'team'` and replaces memberships transactionally.
+  const { error } = await client.rpc("update_team_with_members", {
+    target_name: params.name,
+    target_player_ids: params.playerIds,
+    target_team_id: teamId,
+  });
 
-  if (updateError) {
-    console.error("Error updating team:", updateError);
-    throw new Error(updateError.message);
-  }
-
-  const { error: deleteError } = await client.from("team_members").delete().eq("team_id", teamId);
-
-  if (deleteError) {
-    console.error("Error deleting old team members:", deleteError);
-    throw new Error(deleteError.message);
-  }
-
-  const teamMembers = params.playerIds.map((player_id) => ({
-    player_id,
-    team_id: teamId,
-  }));
-
-  if (teamMembers.length > 0) {
-    const { error: insertError } = await client.from("team_members").insert(teamMembers);
-
-    if (insertError) {
-      console.error("Error adding team members", insertError);
-      throw new Error(insertError.message);
-    }
+  if (error) {
+    console.error("Error updating team:", error);
+    throw new Error(error.message);
   }
 
   return { id: teamId, name: params.name };
