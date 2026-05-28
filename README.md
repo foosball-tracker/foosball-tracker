@@ -158,7 +158,7 @@ node scripts/screenshot-auth.mjs
 
 Saves authenticated desktop and mobile screenshots to `e2e/screenshots/<branch-name>/`. Use these as proof of UI fixes in PR descriptions.
 
-For PR automation, CI also generates anonymous screenshots under `e2e/screenshots/pr-proof/`, uploads them as the `e2e-screenshots` artifact, and comments the artifact link on the pull request.
+For PR automation, CI also generates anonymous screenshots under `e2e/screenshots/pr-proof/`, publishes the latest set for each PR to the public `pr-proof-assets` branch, and comments inline desktop previews plus direct image links on the pull request. The `e2e-screenshots` artifact is kept as a fallback.
 
 ### Troubleshooting
 

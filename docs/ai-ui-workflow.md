@@ -33,7 +33,7 @@ The MCP browser starts each session clean. To inspect pages that require authent
    ```
    Screenshots are saved to `e2e/screenshots/<branch-name>/`.
 3. Or run `pnpm test:e2e` to execute authenticated tests. Playwright uses the same dedicated fixed port, `4174`, so the saved auth state and manual inspection stay on the same origin.
-4. CI also generates anonymous proof screenshots automatically and posts the `e2e-screenshots` artifact link back to the PR.
+4. CI also generates anonymous proof screenshots automatically and posts inline desktop previews plus direct screenshot links back to the PR. The zip artifact remains as a fallback.
 
 ## Preferred order
 
@@ -73,7 +73,7 @@ You should see `playwright` with status `connected`.
 - `pnpm ui:inspect:start` fails fast if port `4174` is occupied by some other process. Resolve that conflict instead of letting Vite drift to another port.
 - `pnpm test:e2e` uses strict port `4174`. If that port is occupied, fix the conflict rather than reusing an unknown server.
 - CI does not provide `playwright/.auth/user.json`. Authenticated tests should skip cleanly there, while anonymous smoke coverage still runs.
-- PR screenshot proof is published through GitHub Actions artifacts and a PR comment, not by attaching local PNG files directly from an agent session.
+- PR screenshot proof is published from CI to the `pr-proof-assets` branch so GitHub comments can render inline previews. The artifact upload remains as a fallback, not the primary review path.
 
 ## Checklist for every UI change
 
