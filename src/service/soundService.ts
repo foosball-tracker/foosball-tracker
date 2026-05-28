@@ -35,8 +35,10 @@ class SoundService {
       available = Array.from({ length: total }, (_, i) => i);
     }
 
-    // Choose a random index from available ones.
-    const chosenIndex = available[Math.floor(Math.random() * available.length)];
+    // Choose a random index from available ones using a CSPRNG.
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    const chosenIndex = available[array[0] % available.length];
 
     // Update recent picks (max last 5).
     this.recentPicks[type].push(chosenIndex);

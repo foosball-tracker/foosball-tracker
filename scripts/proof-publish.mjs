@@ -6,10 +6,13 @@ import { execFileSync } from "node:child_process";
 const COMMENT_MARKER = "<!-- pr-proof-local-screenshots -->";
 const PROOF_BRANCH = "pr-proof-assets";
 
+const SAFE_ENV = { ...process.env, PATH: "/usr/bin:/usr/local/bin:/bin" };
+
 function run(command, args, options = {}) {
   return execFileSync(command, args, {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
+    env: SAFE_ENV,
     ...options,
   }).trim();
 }
@@ -85,7 +88,7 @@ let commentUrl = "";
 try {
   let hasRemoteBranch = true;
   try {
-    execFileSync("git", ["ls-remote", "--exit-code", "--heads", "origin", PROOF_BRANCH], {
+    run("git", ["ls-remote", "--exit-code", "--heads", "origin", PROOF_BRANCH], {
       stdio: "ignore",
     });
   } catch {
@@ -118,7 +121,7 @@ try {
 
   let worktreeHasChanges = false;
   try {
-    execFileSync("git", ["diff", "--cached", "--quiet"], { cwd: worktreeDir, stdio: "ignore" });
+    run("git", ["diff", "--cached", "--quiet"], { cwd: worktreeDir, stdio: "ignore" });
   } catch {
     worktreeHasChanges = true;
   }
@@ -158,7 +161,7 @@ try {
   console.log(`Updated PR comment: ${commentUrl}`);
 } finally {
   try {
-    execFileSync("git", ["worktree", "remove", worktreeDir, "--force"], { stdio: "ignore" });
+    run("git", ["worktree", "remove", worktreeDir, "--force"], { stdio: "ignore" });
   } catch {
     // Ignore cleanup failures.
   }
