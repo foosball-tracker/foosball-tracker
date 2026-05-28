@@ -7,14 +7,14 @@ import { SupabaseBanner } from "../components/SupabaseBanner.tsx";
 export const MainLayout: ParentComponent = (props) => {
   return (
     <div class={"flex h-screen flex-col"}>
-      <div class="navbar bg-base-100 h-20 gap-2 px-2 shadow-sm sm:px-4">
-        <div class="navbar-start min-w-0 gap-1">
+      <div class="navbar bg-base-100 min-h-16 gap-2 px-3 shadow-sm sm:px-4">
+        <div class="navbar-start min-w-0 gap-2">
           {/* Mobile hamburger */}
           <details class="dropdown shrink-0 lg:hidden">
-            <summary class="btn btn-ghost btn-circle list-none">
+            <summary class="btn btn-ghost btn-circle btn-sm list-none">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
+                class="h-5 w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -42,7 +42,7 @@ export const MainLayout: ParentComponent = (props) => {
           </details>
 
           <A
-            class="btn btn-ghost min-w-0 flex-1 truncate px-2 text-lg sm:flex-none sm:text-xl"
+            class="btn btn-ghost justify-start truncate px-1 text-base sm:flex-none sm:px-2 sm:text-xl"
             href={"/"}
           >
             Foosball Tracker
