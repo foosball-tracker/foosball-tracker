@@ -124,3 +124,38 @@ These are used in:
 - Database operations - Managing match data and player statistics
 
 Make sure these match the types defined in `src/vite-env.d.ts`.
+
+## E2E Testing
+
+Playwright is used for authenticated end-to-end tests against the local dev server.
+
+### Setup (one-time)
+
+1. Create a dedicated low-privilege Supabase test user in the Supabase Dashboard (Authentication > Users).
+2. Start the dev server: `pnpm dev`
+3. Run the interactive auth script: `pnpm auth:local`
+4. Enter the test user email and password when prompted.
+5. The script saves the browser session to `playwright/.auth/user.json`.
+
+The script auto-detects whether a display is available. In headless environments (SSH, CI, containers), it runs headless automatically. To force headless mode: `pnpm auth:local -- --headless`. For a headed browser in a headless environment, use `xvfb-run pnpm auth:local`.
+
+### Running tests
+
+```bash
+pnpm test:e2e
+```
+
+Playwright reuses the saved session and starts the dev server automatically.
+
+### Screenshots for PR proof
+
+```bash
+node scripts/screenshot-auth.mjs
+```
+
+Saves authenticated desktop and mobile screenshots to `e2e/screenshots/<branch-name>/`. Use these as proof of UI fixes in PR descriptions.
+
+### Troubleshooting
+
+- If tests redirect to login or fail with auth errors, the session has expired. Rerun `pnpm auth:local`.
+- Never store the test user password in `.env` or commit `playwright/.auth/user.json`.

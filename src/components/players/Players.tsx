@@ -62,7 +62,7 @@ function Players(props: RouteSectionProps) {
       }
     >
       <PlayerListContext.Provider value={{ refetchPlayers: refetch }}>
-        <div class="h-full p-2">
+        <div class="h-full px-4 py-2">
           <Show
             when={data()}
             keyed
@@ -74,9 +74,11 @@ function Players(props: RouteSectionProps) {
           >
             {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
           </Show>
-          <A class="btn btn-primary mx-auto mt-4 inline-block" href="/players/new">
-            Create New Player
-          </A>
+          <div class="mt-4 text-center">
+            <A class="btn btn-primary" href="/players/new">
+              Create New Player
+            </A>
+          </div>
         </div>
 
         {props.children}

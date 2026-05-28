@@ -19,6 +19,18 @@ The MCP runs headless in isolated mode so each session starts clean.
 
 Agent must inspect both desktop and mobile layouts for every UI change.
 
+## Authenticated browser inspection
+
+The MCP browser starts each session clean. To inspect pages that require authentication:
+
+1. Ensure `playwright/.auth/user.json` exists (run `pnpm auth:local` if not).
+2. Use `scripts/screenshot-auth.mjs` to capture authenticated screenshots:
+   ```sh
+   node scripts/screenshot-auth.mjs
+   ```
+   Screenshots are saved to `e2e/screenshots/<branch-name>/`.
+3. Or run `pnpm test:e2e` to execute authenticated tests.
+
 ## Verify the MCP before UI work
 
 1. Confirm Chromium is installed locally:
