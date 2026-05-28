@@ -3,10 +3,13 @@
 ## Starting the app
 
 ```sh
-npx pnpm@10 dev --host 0.0.0.0
+npx pnpm@10 ui:inspect:start
 ```
 
-The dev server runs at **http://localhost:5173**.
+The inspection server runs at **http://localhost:4174**.
+
+For routine local development, `npx pnpm@10 dev` still uses Vite's default port (`5173`).
+Keep that separate from UI inspection so agent tooling does not collide with a manually started dev server.
 
 ## Playwright MCP
 
@@ -29,7 +32,18 @@ The MCP browser starts each session clean. To inspect pages that require authent
    node scripts/screenshot-auth.mjs
    ```
    Screenshots are saved to `e2e/screenshots/<branch-name>/`.
-3. Or run `pnpm test:e2e` to execute authenticated tests.
+3. Or run `pnpm test:e2e` to execute authenticated tests. Playwright uses the same dedicated fixed port, `4174`, so the saved auth state and manual inspection stay on the same origin.
+
+## Preferred order
+
+1. Run `npx pnpm@10 test:e2e` first.
+2. If you need manual browser inspection, start `npx pnpm@10 ui:inspect:start`.
+3. When finished with manual inspection, stop it with:
+   ```sh
+   npx pnpm@10 ui:inspect:stop
+   ```
+
+Do not start `pnpm dev` in the background with `&` from an agent shell tool. Shell timeouts can tear down the parent process and leave the port state ambiguous.
 
 ## Verify the MCP before UI work
 
@@ -55,6 +69,9 @@ You should see `playwright` with status `connected`.
 - If the configured browser path changed after a Playwright browser update, do not hardcode the new cache directory. Keep using `.codex/playwright-mcp-launcher.mjs`.
 - If the MCP was broken in a previous session, restart the session after fixing config instead of trying to revive stale server processes manually.
 - Prefer MCP browser tools over ad hoc root-level helper scripts for routine UI inspection.
+- `pnpm ui:inspect:start` fails fast if port `4174` is occupied by some other process. Resolve that conflict instead of letting Vite drift to another port.
+- `pnpm test:e2e` uses strict port `4174`. If that port is occupied, fix the conflict rather than reusing an unknown server.
+- CI does not provide `playwright/.auth/user.json`. Authenticated tests should skip cleanly there, while anonymous smoke coverage still runs.
 
 ## Checklist for every UI change
 

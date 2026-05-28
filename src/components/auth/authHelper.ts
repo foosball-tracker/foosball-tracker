@@ -7,6 +7,6 @@ export const getRedirectUrl = () => {
     case "deploy-preview":
       return `https://${import.meta.env.VITE_DEPLOY_PRIME_URL}`;
     case "local":
-      return "http://localhost:5173";
+      return typeof window !== "undefined" ? window.location.origin : "http://localhost:4174";
   }
 };

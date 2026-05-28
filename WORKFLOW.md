@@ -45,6 +45,7 @@ git checkout -b feat/16-team-management-crud
    opencode mcp list
    ```
    Confirm `playwright` is connected, then follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md).
+   Use `npx pnpm@10 ui:inspect:start` for manual inspection rather than backgrounding `pnpm dev`. This keeps agent-driven UI work on `4174` instead of colliding with normal local dev on `5173`.
 4. Implement the feature. Follow the guidelines in `AGENTS.md` (SolidJS patterns, service/store split, etc.).
 
 ---

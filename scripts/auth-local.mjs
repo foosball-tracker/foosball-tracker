@@ -2,9 +2,10 @@ import { chromium } from "playwright";
 import readline from "node:readline";
 import { mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
+import { INSPECT_BASE_URL, ensureInspectServer } from "./ui-inspect-server.mjs";
 
 const AUTH_STATE_PATH = "playwright/.auth/user.json";
-const BASE_URL = "http://localhost:5173";
+const BASE_URL = INSPECT_BASE_URL;
 
 function ask(question) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -60,6 +61,8 @@ function askPassword(question) {
 }
 
 async function main() {
+  await ensureInspectServer();
+
   console.log("Supabase Auth — interactive login for Playwright");
   console.log(`Target: ${BASE_URL}\n`);
 

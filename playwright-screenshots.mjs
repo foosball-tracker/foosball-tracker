@@ -1,15 +1,15 @@
 /* global document */
 import { chromium } from "playwright";
+import { INSPECT_BASE_URL, ensureInspectServer } from "./scripts/ui-inspect-server.mjs";
 
-const browser = await chromium.launch({
-  headless: true,
-  executablePath: "/home/josh/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome",
-});
+await ensureInspectServer();
+
+const browser = await chromium.launch({ headless: true });
 
 // Mobile viewport
 const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
 const page = await context.newPage();
-await page.goto("http://localhost:5173");
+await page.goto(INSPECT_BASE_URL);
 await page.waitForTimeout(1500);
 
 // Inject logged-in state into header
@@ -33,7 +33,7 @@ await page.screenshot({
 // Also desktop
 const desktopContext = await browser.newContext({ viewport: { width: 1280, height: 720 } });
 const desktopPage = await desktopContext.newPage();
-await desktopPage.goto("http://localhost:5173");
+await desktopPage.goto(INSPECT_BASE_URL);
 await desktopPage.waitForTimeout(1500);
 await desktopPage.evaluate((html) => {
   const end = document.querySelector(".navbar-end");

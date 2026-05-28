@@ -127,12 +127,13 @@ Make sure these match the types defined in `src/vite-env.d.ts`.
 
 ## E2E Testing
 
-Playwright is used for authenticated end-to-end tests against the local dev server.
+Playwright is used for authenticated end-to-end tests against a dedicated local test server on port `4174`.
+Manual UI inspection uses that same dedicated port, while routine local development stays on `5173`.
 
 ### Setup (one-time)
 
 1. Create a dedicated low-privilege Supabase test user in the Supabase Dashboard (Authentication > Users).
-2. Start the dev server: `pnpm dev`
+2. Start the inspection server: `pnpm ui:inspect:start`
 3. Run the interactive auth script: `pnpm auth:local`
 4. Enter the test user email and password when prompted.
 5. The script saves the browser session to `playwright/.auth/user.json`.
@@ -145,11 +146,13 @@ The script auto-detects whether a display is available. In headless environments
 pnpm test:e2e
 ```
 
-Playwright reuses the saved session and starts the dev server automatically.
+Playwright reuses the saved session when it exists and starts its own strict-port server automatically on `4174`.
+If the auth state file is missing, authenticated tests skip and anonymous smoke coverage still runs.
 
 ### Screenshots for PR proof
 
 ```bash
+pnpm ui:inspect:start
 node scripts/screenshot-auth.mjs
 ```
 
@@ -158,4 +161,6 @@ Saves authenticated desktop and mobile screenshots to `e2e/screenshots/<branch-n
 ### Troubleshooting
 
 - If tests redirect to login or fail with auth errors, the session has expired. Rerun `pnpm auth:local`.
+- If manual inspection fails to start, check whether port `4174` is occupied by another process.
+- If e2e startup fails, check whether port `4174` is occupied by another process.
 - Never store the test user password in `.env` or commit `playwright/.auth/user.json`.
