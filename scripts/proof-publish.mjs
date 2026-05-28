@@ -22,46 +22,16 @@ function collectScreenshots(branch) {
   const rootDir = "e2e/screenshots";
   const branchDir = join(rootDir, branch);
   const entries = [];
-  const usedNames = new Set();
-
-  function allocateName(fileName) {
-    if (!usedNames.has(fileName)) {
-      usedNames.add(fileName);
-      return fileName;
-    }
-
-    const dotIndex = fileName.lastIndexOf(".");
-    const stem = dotIndex === -1 ? fileName : fileName.slice(0, dotIndex);
-    const ext = dotIndex === -1 ? "" : fileName.slice(dotIndex);
-    let index = 2;
-
-    while (usedNames.has(`${stem}-${index}${ext}`)) {
-      index += 1;
-    }
-
-    const candidate = `${stem}-${index}${ext}`;
-    usedNames.add(candidate);
-    return candidate;
-  }
 
   if (existsSync(branchDir)) {
     for (const fileName of readdirSync(branchDir, { withFileTypes: true })) {
       if (!fileName.isFile() || !fileName.name.endsWith(".png")) continue;
       entries.push({
         sourcePath: join(branchDir, fileName.name),
-        destName: allocateName(fileName.name),
+        destName: fileName.name,
         label: fileName.name.replace(/\.png$/i, ""),
       });
     }
-  }
-
-  for (const fileName of readdirSync(rootDir, { withFileTypes: true })) {
-    if (!fileName.isFile() || !fileName.name.endsWith(".png")) continue;
-    entries.push({
-      sourcePath: join(rootDir, fileName.name),
-      destName: allocateName(fileName.name),
-      label: fileName.name.replace(/\.png$/i, ""),
-    });
   }
 
   return entries.sort((left, right) => left.destName.localeCompare(right.destName));
@@ -104,9 +74,7 @@ const screenshots = collectScreenshots(branch);
 
 if (screenshots.length === 0) {
   console.error(`No local screenshots found for branch ${branch}.`);
-  console.error(
-    `Capture proof into e2e/screenshots/${branch}/ or e2e/screenshots/*.png before publishing.`
-  );
+  console.error(`Capture proof into e2e/screenshots/${branch}/ before publishing.`);
   process.exit(1);
 }
 
@@ -181,7 +149,7 @@ try {
     "Direct screenshot links:",
     ...previewLines,
     "",
-    `Source folder: \`e2e/screenshots/${branch}\` plus any root-level \`e2e/screenshots/*.png\` captures`,
+    `Source folder: \`e2e/screenshots/${branch}\``,
   ].join("\n");
 
   commentUrl = upsertComment({ repo, prNumber: pr.number, body });

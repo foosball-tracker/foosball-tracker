@@ -36,7 +36,7 @@ The MCP browser starts each session clean. To inspect pages that require authent
    ```sh
    pnpm proof:publish
    ```
-   This uploads every PNG under `e2e/screenshots/<branch-name>/` plus any root-level `e2e/screenshots/*.png` captures and refreshes the PR comment with inline previews.
+   This uploads every PNG under `e2e/screenshots/<branch-name>/` and refreshes the PR comment with inline previews.
 4. Or run `pnpm test:e2e` to execute authenticated tests. Playwright uses the same dedicated fixed port, `4174`, so the saved auth state and manual inspection stay on the same origin.
 
 ## Preferred order
