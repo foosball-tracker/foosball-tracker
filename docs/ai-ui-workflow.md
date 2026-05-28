@@ -27,13 +27,17 @@ Agent must inspect both desktop and mobile layouts for every UI change.
 The MCP browser starts each session clean. To inspect pages that require authentication:
 
 1. Ensure `playwright/.auth/user.json` exists (run `pnpm auth:local` if not).
-2. Use `scripts/screenshot-auth.mjs` to capture authenticated screenshots:
+2. Use `pnpm proof:capture` to capture authenticated screenshots with descriptive names:
    ```sh
-   node scripts/screenshot-auth.mjs
+   pnpm proof:capture -- --name header-before --route /
    ```
-   Screenshots are saved to `e2e/screenshots/<branch-name>/`.
-3. Or run `pnpm test:e2e` to execute authenticated tests. Playwright uses the same dedicated fixed port, `4174`, so the saved auth state and manual inspection stay on the same origin.
-4. CI also generates anonymous proof screenshots automatically and posts inline desktop previews plus direct screenshot links back to the PR. The zip artifact remains as a fallback.
+   Screenshots are saved to `e2e/screenshots/<branch-name>/` as `<name>-desktop.png` and `<name>-mobile.png`.
+3. Publish the local proof set back to the open PR:
+   ```sh
+   pnpm proof:publish
+   ```
+   This uploads every PNG under `e2e/screenshots/<branch-name>/` plus any root-level `e2e/screenshots/*.png` captures and refreshes the PR comment with inline previews.
+4. Or run `pnpm test:e2e` to execute authenticated tests. Playwright uses the same dedicated fixed port, `4174`, so the saved auth state and manual inspection stay on the same origin.
 
 ## Preferred order
 
@@ -72,8 +76,7 @@ You should see `playwright` with status `connected`.
 - Prefer MCP browser tools over ad hoc root-level helper scripts for routine UI inspection.
 - `pnpm ui:inspect:start` fails fast if port `4174` is occupied by some other process. Resolve that conflict instead of letting Vite drift to another port.
 - `pnpm test:e2e` uses strict port `4174`. If that port is occupied, fix the conflict rather than reusing an unknown server.
-- CI does not provide `playwright/.auth/user.json`. Authenticated tests should skip cleanly there, while anonymous smoke coverage still runs.
-- PR screenshot proof is published from CI to the `pr-proof-assets` branch so GitHub comments can render inline previews. The artifact upload remains as a fallback, not the primary review path.
+- Local agent screenshots are the primary PR proof. Publish them with `pnpm proof:publish`, which copies them to the `pr-proof-assets` branch so GitHub comments can render inline previews.
 
 ## Checklist for every UI change
 

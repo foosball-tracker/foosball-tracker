@@ -17,7 +17,8 @@
     "ui:inspect:stop": "node scripts/ui-inspect-stop.mjs",
     "ui:inspect:status": "node scripts/ui-inspect-status.mjs",
     "auth:local": "node scripts/auth-local.mjs",
-    "proof:screenshots": "node scripts/screenshot-public.mjs",
+    "proof:capture": "node scripts/screenshot-auth.mjs",
+    "proof:publish": "node scripts/proof-publish.mjs",
     "test:e2e": "playwright test"
   },
   "lint-staged": {

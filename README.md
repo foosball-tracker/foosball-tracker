@@ -153,12 +153,14 @@ If the auth state file is missing, authenticated tests skip and anonymous smoke 
 
 ```bash
 pnpm ui:inspect:start
-node scripts/screenshot-auth.mjs
+pnpm proof:capture -- --name header-before --route /
+pnpm proof:capture -- --name header-after --route /
+pnpm proof:publish
 ```
 
-Saves authenticated desktop and mobile screenshots to `e2e/screenshots/<branch-name>/`. Use these as proof of UI fixes in PR descriptions.
+Saves authenticated desktop and mobile screenshots to `e2e/screenshots/<branch-name>/` with descriptive names, then publishes them to the open PR as inline proof.
 
-For PR automation, CI also generates anonymous screenshots under `e2e/screenshots/pr-proof/`, publishes the latest set for each PR to the public `pr-proof-assets` branch, and comments inline desktop previews plus direct image links on the pull request. The `e2e-screenshots` artifact is kept as a fallback.
+Local agent screenshots are the PR proof path. CI does not generate or publish proof screenshots.
 
 ### Troubleshooting
 
