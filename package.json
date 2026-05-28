@@ -12,7 +12,14 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
-    "db-types": "supabase gen types typescript --project-id eucjxbcicejyinubzgwh --schema public > src/types/database.ts"
+    "db-types": "supabase gen types typescript --project-id eucjxbcicejyinubzgwh --schema public > src/types/database.ts",
+    "ui:inspect:start": "node scripts/ui-inspect-start.mjs",
+    "ui:inspect:stop": "node scripts/ui-inspect-stop.mjs",
+    "ui:inspect:status": "node scripts/ui-inspect-status.mjs",
+    "auth:local": "node scripts/auth-local.mjs",
+    "proof:capture": "node scripts/screenshot-auth.mjs",
+    "proof:publish": "node scripts/proof-publish.mjs",
+    "test:e2e": "playwright test"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [
@@ -41,6 +48,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^9.39.4",
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/vite": "^4.3.0",
     "@typescript-eslint/eslint-plugin": "^8.59.3",
     "@typescript-eslint/parser": "^8.59.3",

@@ -124,3 +124,47 @@ These are used in:
 - Database operations - Managing match data and player statistics
 
 Make sure these match the types defined in `src/vite-env.d.ts`.
+
+## E2E Testing
+
+Playwright is used for authenticated end-to-end tests against a dedicated local test server on port `4174`.
+Manual UI inspection uses that same dedicated port, while routine local development stays on `5173`.
+
+### Setup (one-time)
+
+1. Create a dedicated low-privilege Supabase test user in the Supabase Dashboard (Authentication > Users).
+2. Start the inspection server: `pnpm ui:inspect:start`
+3. Run the interactive auth script: `pnpm auth:local`
+4. Enter the test user email and password when prompted.
+5. The script saves the browser session to `playwright/.auth/user.json`.
+
+The script auto-detects whether a display is available. In headless environments (SSH, CI, containers), it runs headless automatically. To force headless mode: `pnpm auth:local -- --headless`. For a headed browser in a headless environment, use `xvfb-run pnpm auth:local`.
+
+### Running tests
+
+```bash
+pnpm test:e2e
+```
+
+Playwright reuses the saved session when it exists and starts its own strict-port server automatically on `4174`.
+If the auth state file is missing, authenticated tests skip and anonymous smoke coverage still runs.
+
+### Screenshots for PR proof
+
+```bash
+pnpm ui:inspect:start
+pnpm proof:capture -- --name header-before --route /
+pnpm proof:capture -- --name header-after --route /
+pnpm proof:publish
+```
+
+Saves authenticated desktop and mobile screenshots to `e2e/screenshots/<branch-name>/` with descriptive names, then publishes them to the open PR as inline proof.
+
+Local agent screenshots are the PR proof path. CI does not generate or publish proof screenshots.
+
+### Troubleshooting
+
+- If tests redirect to login or fail with auth errors, the session has expired. Rerun `pnpm auth:local`.
+- If manual inspection fails to start, check whether port `4174` is occupied by another process.
+- If e2e startup fails, check whether port `4174` is occupied by another process.
+- Never store the test user password in `.env` or commit `playwright/.auth/user.json`.

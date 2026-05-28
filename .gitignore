@@ -31,8 +31,11 @@ dist-ssr
 
 # Playwright / browser automation
 .playwright-mcp/
+playwright/.auth/
 playwright/.cache/
+playwright-report/
 test-results/
+e2e/screenshots/
 screenshots/
 playwright-auth.json
 playwright-script.mjs
