@@ -1,4 +1,9 @@
+import { existsSync } from "node:fs";
+
 import { defineConfig } from "@playwright/test";
+
+const authStatePath = "playwright/.auth/user.json";
+const hasAuthState = existsSync(authStatePath);
 
 export default defineConfig({
   testDir: "./e2e",
@@ -14,7 +19,7 @@ export default defineConfig({
       name: "chromium",
       use: {
         browserName: "chromium",
-        storageState: "playwright/.auth/user.json",
+        storageState: hasAuthState ? authStatePath : undefined,
       },
     },
   ],
