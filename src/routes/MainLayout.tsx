@@ -42,7 +42,7 @@ export const MainLayout: ParentComponent = (props) => {
           </details>
 
           <A
-            class="btn btn-ghost justify-start truncate px-1 text-base sm:flex-none sm:px-2 sm:text-xl"
+            class="btn btn-ghost min-w-0 flex-1 justify-start truncate px-1 text-base sm:flex-none sm:px-2 sm:text-xl"
             href={"/"}
           >
             Foosball Tracker
