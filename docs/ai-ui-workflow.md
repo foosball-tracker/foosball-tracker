@@ -1,103 +1,93 @@
-# AI UI Inspection Workflow
+# AI UI Workflow
 
-## Starting the app
+Use this exact flow for every UI change.
 
-```sh
-npx pnpm@10 ui:inspect:start
-```
+## Happy Path
 
-The inspection server runs at **http://localhost:4174**.
-
-For routine local development, `npx pnpm@10 dev` still uses Vite's default port (`5173`).
-Keep that separate from UI inspection so agent tooling does not collide with a manually started dev server.
-
-## Playwright MCP
-
-Playwright MCP is configured in `opencode.jsonc` and `.codex/config.toml`. Both Codex and OpenCode use `.codex/playwright-mcp-launcher.mjs`, which resolves the locally installed Chromium path from the `playwright` package at runtime instead of hardcoding a cache version.
-
-The MCP runs headless in isolated mode so each session starts clean.
-
-- **Desktop viewport**: 1280×720 (default)
-- **Mobile viewport**: use `--viewport` flag or resize via tool commands to 375×812
-
-Agent must inspect both desktop and mobile layouts for every UI change.
-
-## Authenticated browser inspection
-
-The MCP browser starts each session clean. To inspect pages that require authentication:
-
-1. Ensure `playwright/.auth/user.json` exists (run `pnpm auth:local` if not).
-2. Use `pnpm proof:capture` to capture authenticated screenshots with descriptive names:
+1. Run automated UI coverage first:
    ```sh
-   pnpm proof:capture -- --name header-before --route /
+   npx pnpm@10 test:e2e
    ```
-   Screenshots are saved to `e2e/screenshots/<branch-name>/` as `<name>-desktop.png` and `<name>-mobile.png`.
-3. Publish the local proof set back to the open PR:
+2. Start the dedicated inspection server:
    ```sh
-   pnpm proof:publish
+   npx pnpm@10 ui:inspect:start
    ```
-   This uploads every PNG under `e2e/screenshots/<branch-name>/` and refreshes the PR comment with inline previews.
-4. Or run `pnpm test:e2e` to execute authenticated tests. Playwright uses the same dedicated fixed port, `4174`, so the saved auth state and manual inspection stay on the same origin.
-
-## Preferred order
-
-1. Run `npx pnpm@10 test:e2e` first.
-2. If you need manual browser inspection, start `npx pnpm@10 ui:inspect:start`.
-3. When finished with manual inspection, stop it with:
+3. Inspect the changed route in Playwright MCP at both viewports:
+   - Desktop: `1280x720`
+   - Mobile: `375x812`
+4. Capture proof screenshots with descriptive names:
+   ```sh
+   npx pnpm@10 proof:capture -- --name header-before --route /
+   npx pnpm@10 proof:capture -- --name header-after --route /
+   ```
+5. Publish the proof set back to the open PR:
+   ```sh
+   npx pnpm@10 proof:publish
+   ```
+6. Open the PR comment and confirm the screenshot previews and direct links work.
+7. Run the final checks:
+   ```sh
+   npx pnpm@10 format:check
+   npx pnpm@10 lint
+   npx pnpm@10 build
+   ```
+8. Stop the inspection server when done:
    ```sh
    npx pnpm@10 ui:inspect:stop
    ```
 
-Do not start `pnpm dev` in the background with `&` from an agent shell tool. Shell timeouts can tear down the parent process and leave the port state ambiguous.
+## Required Checks
 
-## Verify the MCP before UI work
+Every UI change must be checked for:
 
-1. Confirm Chromium is installed locally:
+1. Before/after screenshots
+2. Desktop layout
+3. Mobile layout
+4. Console errors
+5. Failed network requests
+6. Horizontal overflow or clipping
+7. Loading states
+8. Empty states
+9. Error states
+
+## Commands
+
+Inspection server:
 
 ```sh
-npx playwright install chromium
+npx pnpm@10 ui:inspect:start
+npx pnpm@10 ui:inspect:status
+npx pnpm@10 ui:inspect:stop
 ```
 
-2. Confirm OpenCode sees the server:
+Proof capture and publish:
 
 ```sh
-opencode mcp list
+npx pnpm@10 proof:capture -- --name <name> --route <route>
+npx pnpm@10 proof:publish
 ```
 
-You should see `playwright` with status `connected`.
+Authenticated local browser state:
 
-3. If you changed `opencode.jsonc` or `.codex/config.toml`, restart the agent session before testing again. Local MCP server config is not hot-reloaded reliably mid-session.
+```sh
+npx pnpm@10 auth:local
+```
+
+## Output Locations
+
+- Local screenshots: `e2e/screenshots/<branch-name>/`
+- Published proof branch: `pr-proof-assets`
+- PR proof comment: updated by `proof:publish`
+
+## Rules
+
+- Do not skip proof publishing for UI PRs.
+- Do not mark a UI PR ready for review until the screenshot comment is published and verified.
+- Do not use ad hoc screenshot scripts when `proof:capture` and `proof:publish` are available.
+- Do not use `pnpm dev` as the inspection server. Use `ui:inspect:start`.
 
 ## Troubleshooting
 
-- If Playwright fails with a missing Chrome or Chromium binary, rerun `npx playwright install chromium`.
-- If the configured browser path changed after a Playwright browser update, do not hardcode the new cache directory. Keep using `.codex/playwright-mcp-launcher.mjs`.
-- If the MCP was broken in a previous session, restart the session after fixing config instead of trying to revive stale server processes manually.
-- Prefer MCP browser tools over ad hoc root-level helper scripts for routine UI inspection.
-- `pnpm ui:inspect:start` fails fast if port `4174` is occupied by some other process. Resolve that conflict instead of letting Vite drift to another port.
-- `pnpm test:e2e` uses strict port `4174`. If that port is occupied, fix the conflict rather than reusing an unknown server.
-- Local agent screenshots are the primary PR proof. Publish them with `pnpm proof:publish`, which copies them to the `pr-proof-assets` branch so GitHub comments can render inline previews.
-
-## Checklist for every UI change
-
-1. **Screenshots** — take before/after screenshots at desktop and mobile widths
-2. **Console errors** — verify no JS errors in the browser console
-3. **Network errors** — check for failed requests (4xx/5xx)
-4. **Overflow** — look for horizontal scroll or clipped content
-5. **Spacing** — verify padding, margins, and alignment match the Figma design
-6. **Loading states** — confirm skeleton/spinner renders while data loads
-7. **Empty states** — confirm friendly message when no data exists
-8. **Error states** — confirm graceful handling of failed API calls
-
-## Before finishing
-
-```sh
-npx pnpm@10 lint
-npx pnpm@10 build
-```
-
-Fix any lint or type errors before submitting.
-
-## Gitignore
-
-Screenshots, browser caches, auth state, and test artifacts are excluded via `.gitignore`. Never commit `*.png`, `*.webm`, `test-results/`, `.playwright-mcp/`, or `playwright-auth.json`.
+- If Playwright auth state is missing, run `npx pnpm@10 auth:local`.
+- If the inspection server port is occupied, fix the port conflict instead of changing the port.
+- If published screenshot links are broken, rerun `proof:publish` and verify `pr-proof-assets` contains `pr-<number>/local/latest/*.png`.

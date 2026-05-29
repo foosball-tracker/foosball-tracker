@@ -55,7 +55,9 @@ Important rules:
 - Prefer small focused changes over broad refactors.
 - Keep Supabase-related changes typed and centralized in `src/service`.
 - Preserve the existing service/store split instead of moving data access into components.
-- For UI changes, follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md) and verify both desktop and mobile layouts.
+- For UI changes, follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md) exactly.
+- For UI changes, verify both desktop and mobile layouts.
+- For UI changes, publish PR proof screenshots with `npx pnpm@10 proof:capture` and `npx pnpm@10 proof:publish`, then verify the PR comment links render correctly before the PR is ready for review.
 - Run lint and build before opening a PR.
 - Avoid editing generated types manually unless the generation flow is broken.
 

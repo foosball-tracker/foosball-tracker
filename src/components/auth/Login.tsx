@@ -10,6 +10,8 @@ export function Login() {
   const [isDarkAuthTheme, setIsDarkAuthTheme] = createSignal(false);
 
   onMount(() => {
+    let subscriptionCleanup: (() => void) | undefined;
+
     const html = document.documentElement;
     const updateAuthTheme = () => {
       setIsDarkAuthTheme(html.dataset.theme === "dim");
@@ -25,8 +27,6 @@ export function Login() {
     });
 
     if (!hasSupabaseConfig()) return;
-
-    let subscriptionCleanup: () => void;
 
     (async () => {
       const {
