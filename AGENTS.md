@@ -30,6 +30,10 @@
 - `src/types`: shared types, including generated database types
 - `.github/workflows`: CI configuration
 
+## Design System
+
+For all UI work, read DESIGN.md first. Preserve the existing design system. Do not introduce new visual styles unless explicitly requested.
+
 ## SolidJS Guidelines
 
 **USE SOLIDJS AS IMPLEMENTED IN THIS EXISTING PROJECT.**
