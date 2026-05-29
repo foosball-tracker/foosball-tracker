@@ -47,10 +47,18 @@ const ConfirmDeleteModal = <T extends { id: number }>(props: ConfirmDeleteModalP
           {error() && <div class="alert alert-error mt-2">{error()}</div>}
 
           <div class="mt-2 flex justify-end gap-2">
-            <button class="btn btn-ghost" onClick={handleCancel} disabled={isDeleting()}>
+            <button
+              class="btn btn-ghost btn-sm sm:btn-md min-w-24"
+              onClick={handleCancel}
+              disabled={isDeleting()}
+            >
               Cancel
             </button>
-            <button class="btn btn-soft btn-error" onClick={handleConfirm} disabled={isDeleting()}>
+            <button
+              class="btn btn-soft btn-error btn-sm sm:btn-md min-w-24"
+              onClick={handleConfirm}
+              disabled={isDeleting()}
+            >
               {isDeleting() ? <Spinner /> : "Delete"}
             </button>
           </div>

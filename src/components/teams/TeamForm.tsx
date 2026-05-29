@@ -190,16 +190,20 @@ export default function TeamForm() {
             </Switch>
           </div>
 
-          <div class="card-actions mt-4 justify-end">
+          <div class="card-actions mt-4 justify-end gap-2">
             <button
               type="button"
-              class="btn"
+              class="btn btn-ghost btn-sm sm:btn-md min-w-28"
               onClick={() => navigate("/teams")}
               disabled={isSubmitting()}
             >
               Cancel
             </button>
-            <button type="submit" class="btn btn-primary" disabled={isSubmitting()}>
+            <button
+              type="submit"
+              class="btn btn-primary btn-sm sm:btn-md min-w-28"
+              disabled={isSubmitting()}
+            >
               <Show when={isSubmitting()} fallback={isEditing() ? "Update Team" : "Create Team"}>
                 <Spinner />
               </Show>

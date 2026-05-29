@@ -7,8 +7,8 @@ import { SupabaseBanner } from "../components/SupabaseBanner.tsx";
 export const MainLayout: ParentComponent = (props) => {
   return (
     <div class="bg-base-200 text-base-content flex h-screen flex-col">
-      <div class="navbar border-base-300/80 bg-base-100/95 sticky top-0 z-30 min-h-16 gap-2 border-b px-3 shadow-sm backdrop-blur sm:px-4">
-        <div class="navbar-start min-w-0 gap-2">
+      <div class="navbar border-base-300/80 bg-base-100/95 sticky top-0 z-30 min-h-16 gap-1 border-b px-2 shadow-sm backdrop-blur sm:gap-2 sm:px-4">
+        <div class="navbar-start min-w-0 flex-1 gap-1 sm:gap-2">
           {/* Mobile hamburger */}
           <details class="dropdown shrink-0 lg:hidden">
             <summary class="btn btn-ghost btn-circle btn-sm list-none">
@@ -42,14 +42,11 @@ export const MainLayout: ParentComponent = (props) => {
           </details>
 
           <A
-            class="btn btn-ghost min-w-0 flex-1 justify-start truncate px-1 text-base sm:flex-none sm:px-2 sm:text-xl"
+            class="btn btn-ghost min-w-0 flex-1 justify-start truncate px-1 text-sm leading-tight font-semibold sm:flex-none sm:px-2 sm:text-xl"
             href={"/"}
           >
             Foosball Tracker
           </A>
-          <div class="shrink-0">
-            <ThemeSwitch />
-          </div>
         </div>
 
         {/* Desktop nav */}
@@ -68,7 +65,10 @@ export const MainLayout: ParentComponent = (props) => {
           </ul>
         </div>
 
-        <div class="navbar-end flex-none">
+        <div class="navbar-end ml-1 flex-none items-center gap-1 sm:ml-0 sm:gap-2">
+          <div class="shrink-0">
+            <ThemeSwitch />
+          </div>
           <Login />
         </div>
       </div>

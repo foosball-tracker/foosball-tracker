@@ -58,7 +58,7 @@ export function Login() {
       fallback={
         <div class="flex min-w-0 items-center gap-2">
           <p class="hidden max-w-40 truncate text-sm sm:block">{session()?.user.email}</p>
-          <button class="btn btn-ghost btn-sm sm:btn-md" onClick={signOut}>
+          <button class="btn btn-ghost btn-sm sm:btn-md px-3" onClick={signOut}>
             Logout
           </button>
         </div>
@@ -69,7 +69,7 @@ export function Login() {
         fallback={<span class="text-base-content/60 text-sm">Sign in unavailable</span>}
       >
         <button
-          class="btn btn-outline btn-sm sm:btn-md"
+          class="btn btn-outline btn-sm sm:btn-md px-3"
           onClick={() => {
             const modal = document.getElementById("login-modal");
             if (modal instanceof HTMLDialogElement) {
@@ -95,7 +95,7 @@ export function Login() {
             />
             <div class="modal-action">
               <form method="dialog">
-                <button class="btn">Close</button>
+                <button class="btn btn-ghost btn-sm sm:btn-md">Close</button>
               </form>
             </div>
           </div>

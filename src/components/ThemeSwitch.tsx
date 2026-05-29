@@ -5,7 +5,7 @@ export function ThemeSwitch() {
         <input type="checkbox" class="theme-controller" value="winter" />
 
         <svg
-          class="swap-off h-8 w-8 fill-current"
+          class="swap-off h-6 w-6 fill-current sm:h-8 sm:w-8"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
         >
@@ -13,7 +13,7 @@ export function ThemeSwitch() {
         </svg>
 
         <svg
-          class="swap-on h-8 w-8 fill-current"
+          class="swap-on h-6 w-6 fill-current sm:h-8 sm:w-8"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
         >
