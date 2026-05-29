@@ -119,7 +119,7 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
   });
 
   return (
-    <div class="card card-border bg-base-300 max-w-3xl">
+    <div class="card card-border border-base-300 bg-base-100 max-w-3xl shadow-sm">
       <div class="card-body">
         <div class="flex items-center justify-between">
           <h2 class="card-title text-2xl">Score</h2>
@@ -129,7 +129,7 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
                 Start Game
               </button>
             )}
-            <button class="btn btn-sm btn-error" onClick={resetScores}>
+            <button class="btn btn-sm btn-soft btn-error" onClick={resetScores}>
               Reset Game
             </button>
           </div>

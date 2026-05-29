@@ -13,7 +13,7 @@ export default function ProtectedApp() {
   });
 
   return (
-    <div class="flex h-full flex-col p-4">
+    <div class="bg-base-200 flex h-full flex-col p-3 sm:p-4">
       <div class="flex flex-wrap gap-4">
         <div class="flex min-w-[250px] flex-1 flex-col gap-4">
           <ScoreBoard settings={settings} />

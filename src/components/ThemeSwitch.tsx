@@ -2,7 +2,7 @@ export function ThemeSwitch() {
   return (
     <>
       <label class="swap swap-rotate">
-        <input type="checkbox" class="theme-controller" value="light" />
+        <input type="checkbox" class="theme-controller" value="winter" />
 
         <svg
           class="swap-off h-8 w-8 fill-current"

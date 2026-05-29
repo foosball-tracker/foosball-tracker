@@ -162,11 +162,11 @@ export default function TeamForm() {
                   () => players()?.find((p) => p.id === id)?.name ?? "Unknown"
                 );
                 return (
-                  <div class="badge badge-primary gap-2 p-3">
+                  <div class="badge badge-primary badge-soft gap-2 p-3">
                     {playerName()}
                     <button
                       type="button"
-                      class="btn btn-xs btn-circle btn-error ml-2"
+                      class="btn btn-xs btn-circle btn-ghost ml-2"
                       onClick={() => removePlayer(id)}
                     >
                       ✕

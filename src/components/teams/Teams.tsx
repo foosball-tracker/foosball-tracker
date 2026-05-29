@@ -18,11 +18,11 @@ const columns: ColumnDef<TeamWithMembers>[] = [
       const team = info.row.original;
       return (
         <div class="flex gap-2">
-          <A class="btn btn-info btn-sm" href={`/teams/edit/${team.id}`}>
+          <A class="btn btn-outline btn-sm" href={`/teams/edit/${team.id}`}>
             Edit
           </A>
           <button
-            class="btn btn-error btn-sm"
+            class="btn btn-soft btn-error btn-sm"
             onClick={() => {
               setTeamToDelete(team);
               setShowConfirm(true);
@@ -47,9 +47,7 @@ const columns: ColumnDef<TeamWithMembers>[] = [
         <div class="flex flex-wrap gap-1">
           <For each={members}>
             {(member) => (
-              <span class="badge badge-sm badge-secondary">
-                {member.players?.name ?? "Unknown"}
-              </span>
+              <span class="badge badge-sm badge-outline">{member.players?.name ?? "Unknown"}</span>
             )}
           </For>
         </div>

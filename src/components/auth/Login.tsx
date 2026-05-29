@@ -7,15 +7,26 @@ import { getRedirectUrl } from "~/components/auth/authHelper.ts";
 
 export function Login() {
   const [session, setSession] = createSignal<Session | null>(null);
+  const [isDarkAuthTheme, setIsDarkAuthTheme] = createSignal(false);
 
   onMount(() => {
+    const html = document.documentElement;
+    const updateAuthTheme = () => {
+      setIsDarkAuthTheme(html.getAttribute("data-theme") === "dim");
+    };
+    updateAuthTheme();
+
+    const themeObserver = new MutationObserver(updateAuthTheme);
+    themeObserver.observe(html, { attributes: true, attributeFilter: ["data-theme"] });
+
+    onCleanup(() => {
+      themeObserver.disconnect();
+      if (subscriptionCleanup) subscriptionCleanup();
+    });
+
     if (!hasSupabaseConfig()) return;
 
     let subscriptionCleanup: () => void;
-
-    onCleanup(() => {
-      if (subscriptionCleanup) subscriptionCleanup();
-    });
 
     (async () => {
       const {
@@ -47,7 +58,7 @@ export function Login() {
       fallback={
         <div class="flex min-w-0 items-center gap-2">
           <p class="hidden max-w-40 truncate text-sm sm:block">{session()?.user.email}</p>
-          <button class="btn btn-secondary btn-sm sm:btn-md" onClick={signOut}>
+          <button class="btn btn-ghost btn-sm sm:btn-md" onClick={signOut}>
             Logout
           </button>
         </div>
@@ -58,7 +69,7 @@ export function Login() {
         fallback={<span class="text-base-content/60 text-sm">Sign in unavailable</span>}
       >
         <button
-          class="btn btn-sm sm:btn-md"
+          class="btn btn-outline btn-sm sm:btn-md"
           onClick={() => {
             const modal = document.getElementById("login-modal");
             if (modal instanceof HTMLDialogElement) {
@@ -78,7 +89,8 @@ export function Login() {
               }}
               providers={["google"]}
               socialLayout={"horizontal"}
-              theme={"dark"}
+              theme="default"
+              dark={isDarkAuthTheme()}
               redirectTo={getRedirectUrl()}
             />
             <div class="modal-action">

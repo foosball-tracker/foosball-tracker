@@ -22,7 +22,7 @@ const columns: ColumnDef<Player>[] = [
       const player = info.row.original;
       return (
         <button
-          class="btn btn-error btn-sm"
+          class="btn btn-soft btn-error btn-sm"
           onClick={() => {
             setPlayerToDelete(player);
             setShowConfirm(true);
