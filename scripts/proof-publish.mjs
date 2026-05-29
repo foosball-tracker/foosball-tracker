@@ -88,9 +88,7 @@ let commentUrl = "";
 try {
   let hasRemoteBranch = true;
   try {
-    run("git", ["ls-remote", "--exit-code", "--heads", "origin", PROOF_BRANCH], {
-      stdio: "ignore",
-    });
+    run("git", ["ls-remote", "--exit-code", "--heads", "origin", PROOF_BRANCH]);
   } catch {
     hasRemoteBranch = false;
   }
@@ -102,6 +100,8 @@ try {
   } else {
     run("git", ["worktree", "add", "--detach", worktreeDir]);
     run("git", ["checkout", "--orphan", PROOF_BRANCH], { cwd: worktreeDir });
+    run("git", ["rm", "-rf", "--ignore-unmatch", "."], { cwd: worktreeDir });
+    run("git", ["clean", "-fdx"], { cwd: worktreeDir });
   }
 
   const targetDir = join(worktreeDir, publishDir);
@@ -117,14 +117,9 @@ try {
 
   run("git", ["config", "user.name", "Joshua Lehmann"], { cwd: worktreeDir });
   run("git", ["config", "user.email", "joshua.le1999@gmail.com"], { cwd: worktreeDir });
-  run("git", ["add", publishDir], { cwd: worktreeDir });
+  run("git", ["add", "-f", publishDir], { cwd: worktreeDir });
 
-  let worktreeHasChanges = false;
-  try {
-    run("git", ["diff", "--cached", "--quiet"], { cwd: worktreeDir, stdio: "ignore" });
-  } catch {
-    worktreeHasChanges = true;
-  }
+  const worktreeHasChanges = run("git", ["status", "--short"], { cwd: worktreeDir }).length > 0;
 
   if (worktreeHasChanges) {
     run("git", ["commit", "-m", `chore: update PR ${pr.number} local proof screenshots`], {
@@ -133,7 +128,7 @@ try {
     run("git", ["push", "origin", `HEAD:${PROOF_BRANCH}`], { cwd: worktreeDir });
   }
 
-  const rawBase = `https://raw.githubusercontent.com/${repo}/${PROOF_BRANCH}/${publishDir}`;
+  const rawBase = `https://github.com/${repo}/raw/${PROOF_BRANCH}/${publishDir}`;
   const blobBase = `https://github.com/${repo}/blob/${PROOF_BRANCH}/${publishDir}`;
   const previewLines = screenshots.map(
     ({ label, destName }) => `- [${label}](${blobBase}/${destName})`

@@ -22,7 +22,7 @@ const columns: ColumnDef<Player>[] = [
       const player = info.row.original;
       return (
         <button
-          class="btn btn-error btn-sm"
+          class="btn btn-soft btn-error btn-sm"
           onClick={() => {
             setPlayerToDelete(player);
             setShowConfirm(true);
@@ -75,7 +75,7 @@ function Players(props: RouteSectionProps) {
             {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
           </Show>
           <div class="mt-4 text-center">
-            <A class="btn btn-primary" href="/players/new">
+            <A class="btn btn-primary btn-sm sm:btn-md min-w-40" href="/players/new">
               Create New Player
             </A>
           </div>

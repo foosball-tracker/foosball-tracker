@@ -13,7 +13,7 @@ export function ScoreButton(props: Readonly<ScoreButtonProps>): JSX.Element {
 
   return (
     <button
-      class={`btn btn-circle ${props.direction === -1 ? "btn-error" : "btn-primary"}`}
+      class={`btn btn-circle ${props.direction === -1 ? "btn-soft" : "btn-primary"}`}
       disabled={!gameState.gameRunning}
       onClick={handleClick}
     >

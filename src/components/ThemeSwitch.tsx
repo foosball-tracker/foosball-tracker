@@ -1,11 +1,43 @@
+import { createSignal, onMount } from "solid-js";
+
+const LIGHT_THEME = "winter";
+const DARK_THEME = "dim";
+const STORAGE_KEY = "theme";
+
 export function ThemeSwitch() {
+  const [isLightTheme, setIsLightTheme] = createSignal(true);
+
+  const applyTheme = (theme: string) => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem(STORAGE_KEY, theme);
+    setIsLightTheme(theme === LIGHT_THEME);
+  };
+
+  onMount(() => {
+    const storedTheme = localStorage.getItem(STORAGE_KEY);
+    const prefersDark = globalThis.matchMedia("(prefers-color-scheme: dark)").matches;
+    let initialTheme = LIGHT_THEME;
+
+    if (storedTheme === LIGHT_THEME || storedTheme === DARK_THEME) {
+      initialTheme = storedTheme;
+    } else if (prefersDark) {
+      initialTheme = DARK_THEME;
+    }
+
+    applyTheme(initialTheme);
+  });
+
   return (
     <>
       <label class="swap swap-rotate">
-        <input type="checkbox" class="theme-controller" value="light" />
+        <input
+          type="checkbox"
+          checked={isLightTheme()}
+          onInput={(event) => applyTheme(event.currentTarget.checked ? LIGHT_THEME : DARK_THEME)}
+        />
 
         <svg
-          class="swap-off h-8 w-8 fill-current"
+          class="swap-off h-6 w-6 fill-current sm:h-8 sm:w-8"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
         >
@@ -13,7 +45,7 @@ export function ThemeSwitch() {
         </svg>
 
         <svg
-          class="swap-on h-8 w-8 fill-current"
+          class="swap-on h-6 w-6 fill-current sm:h-8 sm:w-8"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
         >

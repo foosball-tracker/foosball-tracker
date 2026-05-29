@@ -8,7 +8,7 @@ import { cn } from "~/lib/utils";
 export const Table: ParentComponent<ComponentProps<"table">> = (rawProps) => {
   const [local, others] = splitProps(rawProps, ["class", "children"]);
   return (
-    <div class="rounded-box border-base-content/10 bg-base-300 overflow-x-auto border shadow-sm">
+    <div class="rounded-box border-base-300 bg-base-100 overflow-x-auto border shadow-sm">
       {/* DaisyUI "table" plus "table-compact" for a clean modern look. */}
       <table class={cn("table-compact table w-full", local.class)} {...others}>
         {local.children}
@@ -28,7 +28,7 @@ export const TableHeader: ParentComponent<JSX.HTMLAttributes<HTMLTableSectionEle
   return (
     /* Give the header a subtle background.
        "bg-base-200" is typically lighter, you can tweak to taste. */
-    <thead class={cn("bg-base-200", local.class)} {...others}>
+    <thead class={cn("bg-base-200/80", local.class)} {...others}>
       {local.children}
     </thead>
   );

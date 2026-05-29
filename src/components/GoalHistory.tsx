@@ -14,7 +14,7 @@ export function GoalHistory(props: Readonly<GoalHistoryProps>) {
   };
 
   return (
-    <div class="card card-bordered bg-base-300 max-w-3xl">
+    <div class="card card-bordered border-base-300 bg-base-100 max-w-3xl shadow-sm">
       <div class="card-body">
         <h2 class="card-title">Goal History</h2>
         {/* Timeline container */}
@@ -27,7 +27,7 @@ export function GoalHistory(props: Readonly<GoalHistoryProps>) {
                 <div class="relative mb-3 flex items-center space-x-4 pl-6">
                   {/* Timeline marker */}
                   <div
-                    class={`absolute -left-6 h-3 w-3 ${dotColor} border-base-300 top-1/2 -translate-y-1/2 transform rounded-full border-2`}
+                    class={`absolute -left-6 h-3 w-3 ${dotColor} border-base-100 top-1/2 -translate-y-1/2 transform rounded-full border-2`}
                   />
                   {/* Team name in fixed width for alignment */}
                   <span class="w-64 truncate font-semibold">

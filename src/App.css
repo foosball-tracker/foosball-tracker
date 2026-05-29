@@ -4,6 +4,6 @@
 
 @plugin "daisyui" {
   themes:
-    light --default,
-    night --prefersdark;
+    winter --default,
+    dim --prefersdark;
 }

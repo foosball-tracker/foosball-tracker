@@ -18,11 +18,11 @@ const columns: ColumnDef<TeamWithMembers>[] = [
       const team = info.row.original;
       return (
         <div class="flex gap-2">
-          <A class="btn btn-info btn-sm" href={`/teams/edit/${team.id}`}>
+          <A class="btn btn-outline btn-sm min-w-20" href={`/teams/edit/${team.id}`}>
             Edit
           </A>
           <button
-            class="btn btn-error btn-sm"
+            class="btn btn-soft btn-error btn-sm min-w-20"
             onClick={() => {
               setTeamToDelete(team);
               setShowConfirm(true);
@@ -47,9 +47,7 @@ const columns: ColumnDef<TeamWithMembers>[] = [
         <div class="flex flex-wrap gap-1">
           <For each={members}>
             {(member) => (
-              <span class="badge badge-sm badge-secondary">
-                {member.players?.name ?? "Unknown"}
-              </span>
+              <span class="badge badge-sm badge-outline">{member.players?.name ?? "Unknown"}</span>
             )}
           </For>
         </div>
@@ -71,7 +69,7 @@ export default function Teams(props: RouteSectionProps) {
       }
     >
       <TeamListContext.Provider value={{ refetchTeams: refetch }}>
-        <div class="p-2">
+        <div class="px-4 py-2">
           <div class="text-lg">Teams</div>
           <div class="mx-auto w-full">
             <Show
@@ -86,9 +84,11 @@ export default function Teams(props: RouteSectionProps) {
               {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
             </Show>
           </div>
-          <A class="btn btn-primary mx-auto mt-4 inline-block" href="/teams/new">
-            Create New Team
-          </A>
+          <div class="mt-4 text-center">
+            <A class="btn btn-primary btn-sm sm:btn-md min-w-40" href="/teams/new">
+              Create New Team
+            </A>
+          </div>
         </div>
 
         {props.children}

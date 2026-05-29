@@ -12,7 +12,7 @@ export interface SettingsProps {
 // The parent renders the card and header immediately.
 export function Settings(props: Readonly<SettingsProps>) {
   return (
-    <div class="card card-border bg-base-300">
+    <div class="card card-border border-base-300 bg-base-100 shadow-sm">
       <div class="card-body">
         <h2 class="card-title text-2xl">Settings</h2>
         {/* Only the content that needs the resource is wrapped in Suspense */}

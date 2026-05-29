@@ -119,17 +119,17 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
   });
 
   return (
-    <div class="card card-border bg-base-300 max-w-3xl">
+    <div class="card card-border border-base-300 bg-base-100 max-w-3xl shadow-sm">
       <div class="card-body">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 class="card-title text-2xl">Score</h2>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap justify-end gap-2">
             {!gameState.gameRunning && (
-              <button class="btn btn-sm btn-primary" onClick={startGame}>
+              <button class="btn btn-primary btn-sm sm:btn-md min-w-28" onClick={startGame}>
                 Start Game
               </button>
             )}
-            <button class="btn btn-sm btn-error" onClick={resetScores}>
+            <button class="btn btn-soft btn-error btn-sm sm:btn-md min-w-28" onClick={resetScores}>
               Reset Game
             </button>
           </div>
