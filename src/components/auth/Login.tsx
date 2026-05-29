@@ -12,7 +12,7 @@ export function Login() {
   onMount(() => {
     const html = document.documentElement;
     const updateAuthTheme = () => {
-      setIsDarkAuthTheme(html.getAttribute("data-theme") === "dim");
+      setIsDarkAuthTheme(html.dataset.theme === "dim");
     };
     updateAuthTheme();
 
