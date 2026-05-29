@@ -15,13 +15,14 @@ export function ThemeSwitch() {
 
   onMount(() => {
     const storedTheme = localStorage.getItem(STORAGE_KEY);
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initialTheme =
-      storedTheme === LIGHT_THEME || storedTheme === DARK_THEME
-        ? storedTheme
-        : prefersDark
-          ? DARK_THEME
-          : LIGHT_THEME;
+    const prefersDark = globalThis.matchMedia("(prefers-color-scheme: dark)").matches;
+    let initialTheme = LIGHT_THEME;
+
+    if (storedTheme === LIGHT_THEME || storedTheme === DARK_THEME) {
+      initialTheme = storedTheme;
+    } else if (prefersDark) {
+      initialTheme = DARK_THEME;
+    }
 
     applyTheme(initialTheme);
   });

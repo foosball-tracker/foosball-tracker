@@ -100,11 +100,8 @@ try {
   } else {
     run("git", ["worktree", "add", "--detach", worktreeDir]);
     run("git", ["checkout", "--orphan", PROOF_BRANCH], { cwd: worktreeDir });
-
-    for (const entry of readdirSync(worktreeDir, { withFileTypes: true })) {
-      if (entry.name === ".git") continue;
-      rmSync(join(worktreeDir, entry.name), { recursive: true, force: true });
-    }
+    run("git", ["rm", "-rf", "--ignore-unmatch", "."], { cwd: worktreeDir });
+    run("git", ["clean", "-fdx"], { cwd: worktreeDir });
   }
 
   const targetDir = join(worktreeDir, publishDir);
