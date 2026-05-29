@@ -32,7 +32,11 @@
 
 ## Design System
 
-For all UI work, read DESIGN.md first. Preserve the existing design system. Do not introduce new visual styles unless explicitly requested.
+For all UI/design work, read DESIGN.md first. Use Impeccable for planning, critique, polish, and design quality checks. Preserve the existing DaisyUI/Tailwind design system. Do not introduce new visual styles, colours, spacing, shadows, fonts, or UI libraries unless explicitly requested.
+
+When implementing a new screen, component, layout, or visual design, use the Impeccable workflow together with DESIGN.md. Start by inspecting similar existing UI, then plan the UI, implement it with existing components and DaisyUI semantic classes, critique it, polish it, and check desktop/mobile screenshots where possible.
+
+Impeccable skills are installed at `.agents/skills/impeccable/` (for OpenCode/local agents) and `.github/skills/impeccable/` (for Codex). Run `node .agents/skills/impeccable/scripts/context.mjs` at the start of any design session to load PRODUCT.md and DESIGN.md context.
 
 ## SolidJS Guidelines
 
