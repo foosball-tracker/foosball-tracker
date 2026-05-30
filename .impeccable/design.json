@@ -1,0 +1,360 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-29T12:00:00Z",
+  "title": "Design System: Foosball Tracker",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Electric Blue",
+        "canonical": "oklch(56.86% 0.255 257.57)",
+        "tonalRamp": [
+          "#001A4D",
+          "#003399",
+          "#004DE6",
+          "#0069FF",
+          "#4D94FF",
+          "#99C2FF",
+          "#CCE0FF",
+          "#E6F0FF"
+        ]
+      },
+      "base-100": {
+        "role": "neutral",
+        "displayName": "Pure White",
+        "canonical": "oklch(100% 0 0)",
+        "tonalRamp": [
+          "#1A1A1A",
+          "#333333",
+          "#666666",
+          "#999999",
+          "#CCCCCC",
+          "#E6E6E6",
+          "#F2F2F2",
+          "#FFFFFF"
+        ]
+      },
+      "base-200": {
+        "role": "neutral",
+        "displayName": "Ice Blue",
+        "canonical": "oklch(97.466% 0.011 259.822)",
+        "tonalRamp": [
+          "#1A1D24",
+          "#333A48",
+          "#667490",
+          "#99AAC8",
+          "#CCD5E4",
+          "#E3E9F4",
+          "#F2F7FE",
+          "#FFFFFF"
+        ]
+      },
+      "base-300": {
+        "role": "neutral",
+        "displayName": "Pale Steel",
+        "canonical": "oklch(93.268% 0.016 262.751)",
+        "tonalRamp": [
+          "#1A1D24",
+          "#333A48",
+          "#667490",
+          "#99AAC8",
+          "#CCD5E4",
+          "#E3E9F4",
+          "#F2F7FE",
+          "#FFFFFF"
+        ]
+      },
+      "base-content": {
+        "role": "neutral",
+        "displayName": "Slate Blue",
+        "canonical": "oklch(41.886% 0.053 255.824)",
+        "tonalRamp": [
+          "#0A0F1A",
+          "#1A2433",
+          "#2A394D",
+          "#394E6A",
+          "#5A7A9E",
+          "#8BA8CC",
+          "#BBD0E4",
+          "#E6EEF7"
+        ]
+      },
+      "error": {
+        "role": "error",
+        "displayName": "Soft Rose",
+        "canonical": "oklch(73.092% 0.11 20.076)",
+        "tonalRamp": [
+          "#3D0A0A",
+          "#7A1414",
+          "#B82020",
+          "#E58B8B",
+          "#F0B0B0",
+          "#F5D0D0",
+          "#FAE8E8",
+          "#FDF5F5"
+        ]
+      },
+      "warning": {
+        "role": "warning",
+        "displayName": "Warm Sand",
+        "canonical": "oklch(89.172% 0.045 71.47)",
+        "tonalRamp": [
+          "#3D2A0A",
+          "#7A5414",
+          "#B87E20",
+          "#EFD7BC",
+          "#F5E4D0",
+          "#F8EDE0",
+          "#FBF5F0",
+          "#FDFBF8"
+        ]
+      },
+      "success": {
+        "role": "success",
+        "displayName": "Soft Teal",
+        "canonical": "oklch(80.494% 0.077 197.823)",
+        "tonalRamp": [
+          "#0A2D2D",
+          "#145A5A",
+          "#208787",
+          "#81CFD1",
+          "#A8DEDF",
+          "#C8ECEE",
+          "#E0F5F6",
+          "#F0FAFB"
+        ]
+      },
+      "info": {
+        "role": "info",
+        "displayName": "Sky Cyan",
+        "canonical": "oklch(88.127% 0.085 214.515)",
+        "tonalRamp": [
+          "#0A2D3D",
+          "#145A7A",
+          "#2087B8",
+          "#94E7FB",
+          "#B8EFFC",
+          "#D4F5FD",
+          "#E8FAFE",
+          "#F5FDFF"
+        ]
+      },
+      "neutral": {
+        "role": "neutral",
+        "displayName": "Midnight Navy",
+        "canonical": "oklch(19.616% 0.063 257.651)",
+        "tonalRamp": [
+          "#020A1A",
+          "#021431",
+          "#052062",
+          "#0A3093",
+          "#1050C4",
+          "#4080E0",
+          "#80B0F0",
+          "#C0D8FA"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline-lg": {
+        "displayName": "Headline LG",
+        "purpose": "Card titles, the largest heading on any screen."
+      },
+      "headline-md": {
+        "displayName": "Headline MD",
+        "purpose": "Section headings, modal titles."
+      },
+      "headline-sm": {
+        "displayName": "Headline SM",
+        "purpose": "Sub-section headings, confirm dialog titles."
+      },
+      "body-md": {
+        "displayName": "Body MD",
+        "purpose": "Default body text, form inputs, alert messages."
+      },
+      "body-sm": {
+        "displayName": "Body SM",
+        "purpose": "Secondary text, navbar brand on mobile."
+      },
+      "label-md": {
+        "displayName": "Label MD",
+        "purpose": "Fieldset legends, bold labels."
+      },
+      "label-sm": {
+        "displayName": "Label SM",
+        "purpose": "Small labels, badge text."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card",
+        "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "purpose": "Subtle elevation for cards above the page background."
+      },
+      {
+        "name": "navbar",
+        "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "purpose": "Frosted glass effect separating sticky navbar from scrolling content. Combined with backdrop-blur."
+      },
+      {
+        "name": "dropdown",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+        "purpose": "Floating menu content in mobile hamburger dropdown."
+      },
+      {
+        "name": "modal",
+        "value": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+        "purpose": "Prominent overlay elevation for confirmation dialogs."
+      }
+    ],
+    "motion": [
+      {
+        "name": "theme-transition",
+        "value": "color 0.2s ease, background-color 0.2s ease",
+        "purpose": "Smooth transition when switching between winter and dim themes."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1536px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action button. Start Game, Create Player, Create New Player.",
+      "html": "<button class=\"ds-btn-primary\">Start Game</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; background: #0069FF; color: #CEE4FF; padding: 8px 24px; font-weight: 600; font-size: 0.875rem; border: none; border-radius: 0.5rem; cursor: pointer; transition: opacity 0.15s ease; min-width: 7rem; } .ds-btn-primary:hover { opacity: 0.9; } .ds-btn-primary:focus-visible { outline: 2px solid #0069FF; outline-offset: 2px; } @media (min-width: 640px) { .ds-btn-primary { padding: 10px 28px; font-size: 1rem; } }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action. Cancel, Close, Dismiss.",
+      "html": "<button class=\"ds-btn-ghost\">Cancel</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; background: transparent; color: #394E6A; padding: 8px 24px; font-weight: 600; font-size: 0.875rem; border: none; border-radius: 0.5rem; cursor: pointer; transition: background 0.15s ease; min-width: 7rem; } .ds-btn-ghost:hover { background: rgba(57, 78, 106, 0.08); } .ds-btn-ghost:focus-visible { outline: 2px solid #394E6A; outline-offset: 2px; } @media (min-width: 640px) { .ds-btn-ghost { padding: 10px 28px; font-size: 1rem; } }"
+    },
+    {
+      "name": "Soft Error Button",
+      "kind": "button",
+      "refersTo": "button-soft-error",
+      "description": "Destructive action. Reset Game, Delete.",
+      "html": "<button class=\"ds-btn-soft-error\">Reset Game</button>",
+      "css": ".ds-btn-soft-error { display: inline-flex; align-items: center; justify-content: center; background: #FEE2E2; color: #E58B8B; padding: 8px 24px; font-weight: 600; font-size: 0.875rem; border: none; border-radius: 0.5rem; cursor: pointer; transition: background 0.15s ease; min-width: 7rem; } .ds-btn-soft-error:hover { background: #FECACA; } .ds-btn-soft-error:focus-visible { outline: 2px solid #E58B8B; outline-offset: 2px; } @media (min-width: 640px) { .ds-btn-soft-error { padding: 10px 28px; font-size: 1rem; } }"
+    },
+    {
+      "name": "Score Button (+)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Circular primary button for incrementing score.",
+      "html": "<button class=\"ds-btn-score-plus\">+</button>",
+      "css": ".ds-btn-score-plus { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; background: #0069FF; color: #CEE4FF; font-weight: 700; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; transition: opacity 0.15s ease; } .ds-btn-score-plus:hover { opacity: 0.9; } .ds-btn-score-plus:focus-visible { outline: 2px solid #0069FF; outline-offset: 2px; }"
+    },
+    {
+      "name": "Score Button (-)",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Circular soft button for decrementing score.",
+      "html": "<button class=\"ds-btn-score-minus\">&minus;</button>",
+      "css": ".ds-btn-score-minus { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; background: rgba(57, 78, 106, 0.08); color: #394E6A; font-weight: 700; font-size: 1.25rem; border: none; border-radius: 9999px; cursor: pointer; transition: background 0.15s ease; } .ds-btn-score-minus:hover { background: rgba(57, 78, 106, 0.15); } .ds-btn-score-minus:focus-visible { outline: 2px solid #394E6A; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Standard text input with visible border.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Enter player name\" />",
+      "css": ".ds-input { width: 100%; padding: 8px 12px; background: #FFFFFF; color: #394E6A; font-size: 1rem; line-height: 1.5; border: 1px solid #E3E9F4; border-radius: 0.5rem; transition: border-color 0.15s ease; } .ds-input:focus { border-color: #0069FF; outline: none; box-shadow: 0 0 0 2px rgba(0, 105, 255, 0.2); } .ds-input::placeholder { color: #99AAC8; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Content container with consistent padding, border, and elevation.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-body\"><h2 class=\"ds-card-title\">Score</h2><p>Card content goes here.</p></div></div>",
+      "css": ".ds-card { background: #FFFFFF; border: 1px solid #E3E9F4; border-radius: 1rem; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); max-width: 48rem; } .ds-card-body { padding: 1.5rem; } .ds-card-title { font-size: 1.5rem; font-weight: 700; line-height: 1.3; color: #394E6A; margin: 0 0 0.5rem 0; }"
+    },
+    {
+      "name": "Alert Warning",
+      "kind": "custom",
+      "refersTo": "alert-warning",
+      "description": "Warning banner for configuration issues.",
+      "html": "<div class=\"ds-alert-warning\"><span>Supabase not configured. Set environment variables to enable online features.</span></div>",
+      "css": ".ds-alert-warning { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: #EFD7BC; color: #394E6A; border-radius: 0; font-size: 0.875rem; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Scoreboard with Memory",
+    "overview": "Foosball Tracker is a SolidJS single-page application for tracking foosball matches, scores, players, and teams. The visual identity is entirely derived from DaisyUI 5 component classes and Tailwind CSS v4 utility classes. No custom fonts, custom color palettes, or bespoke CSS exist beyond what DaisyUI and Tailwind provide. The app uses two built-in DaisyUI themes: winter (light, the default) and dim (dark, activated via prefers-color-scheme or toggled manually). All colours are semantic DaisyUI tokens, so they adapt automatically when the theme changes.",
+    "keyCharacteristics": [
+      "Zero custom CSS. Every visual decision lives in DaisyUI classes or Tailwind utilities.",
+      "Semantic colour tokens only. No hard-coded hex in component code.",
+      "Both themes are first-class. Every UI change must work in winter and dim.",
+      "Consistency over surprise. Same button shape, same card structure, same form vocabulary on every screen.",
+      "Touch-friendly. Responsive button sizing and minimum widths for one-handed use."
+    ],
+    "rules": [
+      {
+        "name": "The Semantic Colour Rule",
+        "body": "Every colour in component code is a DaisyUI semantic token. Hard-coded Tailwind colour names are prohibited.",
+        "section": "colors"
+      },
+      {
+        "name": "The Team Colour Rule",
+        "body": "Yellow team uses status-warning (amber dot), black team uses status-neutral (dark dot). No other colours identify teams.",
+        "section": "colors"
+      },
+      {
+        "name": "The System Font Rule",
+        "body": "No custom web fonts. The system font stack is the entire typography system.",
+        "section": "typography"
+      },
+      {
+        "name": "The Scale Ratio Rule",
+        "body": "Typography hierarchy uses a tight scale ratio (1.125-1.25 between steps). Do not introduce sizes outside the established scale.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Surfaces are flat at rest. Shadows appear only as a response to state.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Backdrop Rule",
+        "body": "The navbar uses backdrop-blur for visual separation during scroll. Modals use bg-black/50 for overlay dimming. No glassmorphism.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use DaisyUI semantic colour tokens for every colour in component code.",
+      "Do use responsive button sizing (btn-sm sm:btn-md) for touch-friendly mobile layouts.",
+      "Do wrap content sections in card components with card-body.",
+      "Do use alert components for all user-facing status messages.",
+      "Do test both the winter (light) and dim (dark) themes when making any UI change.",
+      "Do use fieldset and fieldset-legend for form field labelling.",
+      "Do keep maximum content width at max-w-3xl (48rem) for readability.",
+      "Do use the system font stack. No custom web fonts.",
+      "Do use backdrop-blur on the navbar for visual separation during scroll.",
+      "Do use minimum widths on buttons for consistent sizing."
+    ],
+    "donts": [
+      "Don't use hard-coded Tailwind colour names (bg-blue-500, text-gray-800).",
+      "Don't add custom CSS when DaisyUI component classes or Tailwind utilities suffice.",
+      "Don't introduce new border-radius values outside the theme's --radius-field (0.5rem) and --radius-box (1rem).",
+      "Don't load custom web fonts.",
+      "Don't remove the backdrop-blur from the navbar.",
+      "Don't bypass the card component for content sections.",
+      "Don't use glassmorphism, frosted glass cards, or decorative blur.",
+      "Don't use gradient text.",
+      "Don't use side-stripe borders.",
+      "Don't add decorative motion that doesn't convey state.",
+      "Don't use gamification cliches.",
+      "Don't use arcade-themed or retro game styling."
+    ]
+  }
+}

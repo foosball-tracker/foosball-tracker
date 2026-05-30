@@ -19,7 +19,11 @@
     "auth:local": "node scripts/auth-local.mjs",
     "proof:capture": "node scripts/screenshot-auth.mjs",
     "proof:publish": "node scripts/proof-publish.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "design:lint": "npx @google/design.md lint DESIGN.md",
+    "design:spec": "npx @google/design.md spec --rules",
+    "design:export": "npx @google/design.md export --format tailwind DESIGN.md",
+    "design:detect": "npx impeccable detect src/"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [
