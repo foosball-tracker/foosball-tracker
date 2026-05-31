@@ -32,5 +32,13 @@
       "enabled": true,
       "command": ["npx", "-y", "@upstash/context7-mcp@latest"],
     },
+    "zeplin": {
+      "type": "local",
+      "enabled": true,
+      "command": ["npx", "@zeplin/mcp-server@latest"],
+      "environment": {
+        "ZEPLIN_ACCESS_TOKEN": "{env:ZEPLIN_ACCESS_TOKEN}",
+      },
+    },
   },
 }
