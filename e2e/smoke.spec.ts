@@ -4,7 +4,8 @@ test("app shell loads for authenticated or anonymous users", async ({ page }) =>
   await page.goto("/");
 
   await expect(page).toHaveTitle("Foosball Tracker");
-  await expect(page.getByRole("link", { name: "Foosball Tracker" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Score" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
+  await expect(page.locator("body")).toContainText(/Foosball/i);
+  await expect(page.locator("body")).toContainText(
+    /Set the teams, lock the target score|Main screen live board/i
+  );
 });

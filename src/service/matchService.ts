@@ -5,6 +5,12 @@ import type { Tables } from "~/types/database";
 type GoalsRow = Tables<"goals">;
 type MatchesRow = Tables<"matches">;
 
+export function formatGoalTime(seconds: number) {
+  const minutes = Math.floor(seconds / 60);
+  const remainder = seconds % 60;
+  return `00:${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+}
+
 export async function createMatch(
   homeTeamId: number,
   awayTeamId: number,
@@ -27,10 +33,10 @@ export async function recordGoal(
   matchId: number,
   teamId: number,
   timer: number,
-  formatTime: (sec: number) => string
+  formatTime: (seconds: number) => string
 ) {
   const client = requireSupabase();
-  const goalTime = `00:${formatTime(timer)}`;
+  const goalTime = formatTime(timer);
   const { error } = await client.from("goals").insert({
     match_id: matchId,
     team_id: teamId,
