@@ -1,4 +1,4 @@
-import { createEffect, createResource, createSignal, onCleanup, onMount } from "solid-js";
+import { createEffect, createResource, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { createLocalStorageStore } from "../hooks/createLocalStorageStore.tsx";
 import { useGameTimer } from "~/hooks/useGamerTimer.ts";
 import { useMatchSubscription } from "~/hooks/useMatchSubscription.ts";
@@ -57,7 +57,7 @@ export default function ProtectedApp() {
   };
 
   const handleGoalInsert = (newGoal: GoalRow) => {
-    setGoals((prev) => (prev.find((goal) => goal.id === newGoal.id) ? prev : [...prev, newGoal]));
+    setGoals((prev) => (prev.some((goal) => goal.id === newGoal.id) ? prev : [...prev, newGoal]));
     playSound("goal");
   };
 
@@ -159,28 +159,39 @@ export default function ProtectedApp() {
     });
   });
 
+  const activeMatch = () => {
+    const match = currentMatch();
+    return match?.in_progress ? match : null;
+  };
+
   return (
     <HomeShell>
-      {currentMatch()?.in_progress ? (
-        <MatchDashboard
-          currentMatch={currentMatch()!}
-          elapsedTime={elapsedTime()}
-          goals={goals()}
-          isPaused={isPaused()}
-          leaderboardRefreshKey={leaderboardRefreshKey()}
-          onAdjustGoal={adjustGoal}
-          onResetGame={resetGame}
-          onTogglePause={togglePause}
-          settings={settings}
-        />
-      ) : (
-        <MatchSetupPanel
-          onStartGame={startGame}
-          settings={settings}
-          setSettings={setSettings}
-          teamOptions={availableTeams() ?? []}
-        />
-      )}
+      <Show
+        when={activeMatch()}
+        keyed
+        fallback={
+          <MatchSetupPanel
+            onStartGame={startGame}
+            settings={settings}
+            setSettings={setSettings}
+            teamOptions={availableTeams() ?? []}
+          />
+        }
+      >
+        {(match) => (
+          <MatchDashboard
+            currentMatch={match}
+            elapsedTime={elapsedTime()}
+            goals={goals()}
+            isPaused={isPaused()}
+            leaderboardRefreshKey={leaderboardRefreshKey()}
+            onAdjustGoal={adjustGoal}
+            onResetGame={resetGame}
+            onTogglePause={togglePause}
+            settings={settings}
+          />
+        )}
+      </Show>
     </HomeShell>
   );
 }

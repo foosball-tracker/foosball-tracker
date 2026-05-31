@@ -6,10 +6,17 @@ interface TeamScoreProps {
 }
 
 export function TeamScore(props: Readonly<TeamScoreProps>) {
-  const displayName = () => props.teamName.replace(/\s*\([^)]*\)\s*/g, " ").trim();
+  const displayName = () => {
+    const trimmedName = props.teamName.trim();
+    if (!trimmedName.endsWith(")")) return trimmedName;
+
+    const suffixStart = trimmedName.lastIndexOf(" (");
+    return suffixStart > -1 ? trimmedName.slice(0, suffixStart).trim() : trimmedName;
+  };
   const initials = () =>
     displayName()
-      .split(/\s+/)
+      .split(" ")
+      .filter(Boolean)
       .slice(0, 2)
       .map((part) => part[0]?.toUpperCase() ?? "")
       .join("")

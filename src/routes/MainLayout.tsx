@@ -1,6 +1,5 @@
 import { useLocation, useNavigate } from "@solidjs/router";
-import { ParentComponent } from "solid-js";
-import { createEffect, Match, Show, Switch } from "solid-js";
+import { createEffect, Match, type ParentComponent, Show, Switch } from "solid-js";
 import { AppHeader } from "~/components/AppHeader.tsx";
 import Spinner from "~/components/shared/Spinner.tsx";
 import { SupabaseBanner } from "../components/SupabaseBanner.tsx";
