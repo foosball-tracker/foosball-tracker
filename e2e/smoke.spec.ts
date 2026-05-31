@@ -5,7 +5,5 @@ test("app shell loads for authenticated or anonymous users", async ({ page }) =>
 
   await expect(page).toHaveTitle("Foosball Tracker");
   await expect(page.locator("body")).toContainText(/Foosball/i);
-  await expect(page.locator("body")).toContainText(
-    /Set the teams, lock the target score|Main screen live board/i
-  );
+  await expect(page.locator("body")).toContainText(/Scoreboard|Main screen live board/i);
 });

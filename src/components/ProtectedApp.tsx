@@ -17,7 +17,7 @@ type MatchRow = Tables<"matches">;
 type GoalRow = Tables<"goals">;
 
 export default function ProtectedApp() {
-  const { loading, session, signOut } = useAuthSession();
+  useAuthSession();
   const [settings, setSettings] = createLocalStorageStore<ISettings>("settings", {
     yellowTeam: { id: undefined, name: "Yellow Team" },
     blackTeam: { id: undefined, name: "Black Team" },
@@ -159,7 +159,7 @@ export default function ProtectedApp() {
   });
 
   return (
-    <HomeShell loadingSession={loading} onSignOut={signOut} session={session}>
+    <HomeShell>
       {currentMatch()?.in_progress ? (
         <MatchDashboard
           currentMatch={currentMatch()!}
