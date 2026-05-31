@@ -83,6 +83,7 @@ function buildLeaderboardSnapshot(input: {
   }
 
   const teams = input.teams
+    .filter((team) => team.type === "team")
     .map((team) => ({
       id: team.id,
       name: team.name,

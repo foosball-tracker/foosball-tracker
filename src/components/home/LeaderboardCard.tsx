@@ -1,4 +1,4 @@
-import { createResource, createSignal, For, Show } from "solid-js";
+import { createMemo, createResource, createSignal, For, Show } from "solid-js";
 import { Trophy } from "lucide-solid";
 import {
   getLeaderboardSnapshot,
@@ -14,8 +14,9 @@ export function LeaderboardCard(props: Readonly<LeaderboardCardProps>) {
   const [activeTab, setActiveTab] = createSignal<"teams" | "players">("teams");
   const [snapshot] = createResource(() => props.refreshKey, getLeaderboardSnapshot);
 
-  const rows = () =>
-    activeTab() === "teams" ? (snapshot()?.teams ?? []) : (snapshot()?.players ?? []);
+  const rows = createMemo(() =>
+    activeTab() === "teams" ? (snapshot()?.teams ?? []) : (snapshot()?.players ?? [])
+  );
 
   return (
     <section class="card border-base-300 bg-base-100 text-base-content [html[data-theme=dim]_&]:bg-neutral [html[data-theme=dim]_&]:text-neutral-content h-full shadow-sm">

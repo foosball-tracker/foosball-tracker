@@ -10,6 +10,7 @@ import {
   Timer,
 } from "lucide-solid";
 import { createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { GoalHistoryCard } from "~/components/home/GoalHistoryCard.tsx";
 import { TeamScore } from "~/components/TeamScore";
 import { formatTime } from "~/lib/utils.ts";
 import type { ISettings } from "~/types/Settings";
@@ -112,6 +113,8 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
   const gameStatusClasses = () =>
     props.isPaused ? "badge badge-warning gap-2" : "badge badge-success gap-2";
 
+  const recentGoalLimit = () => (isFullscreen() ? 4 : 0);
+
   const centerScore = () => (
     <div class="border-base-300 bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content rounded-box border px-3 py-2 shadow-sm sm:px-6 sm:py-4">
       <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1 sm:gap-4">
@@ -210,6 +213,35 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
             </button>
           </div>
         </div>
+
+        {isFullscreen() && (
+          <div class="border-base-300 bg-base-200 rounded-box [html[data-theme=dim]_&]:bg-base-100/10 border p-3 sm:p-4">
+            <div class="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <p class="text-base-content/70 [html[data-theme=dim]_&]:text-neutral-content/70 text-xs font-black tracking-[0.18em] uppercase">
+                  Recent Goals
+                </p>
+                <p class="text-base-content/80 [html[data-theme=dim]_&]:text-neutral-content/85 text-sm font-semibold">
+                  Latest score changes
+                </p>
+              </div>
+              <span class="badge badge-outline badge-sm border-base-300 bg-base-100 [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content">
+                {Math.min(props.goals.length, recentGoalLimit())} shown
+              </span>
+            </div>
+            <div class="max-h-64 overflow-y-auto pr-1">
+              <GoalHistoryCard
+                blackTeamId={props.settings.blackTeam.id}
+                blackTeamName={blackTeamName()}
+                goals={props.goals}
+                maxItems={recentGoalLimit()}
+                showHeader={false}
+                yellowTeamId={props.settings.yellowTeam.id}
+                yellowTeamName={yellowTeamName()}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
