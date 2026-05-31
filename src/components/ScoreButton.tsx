@@ -1,7 +1,7 @@
-import { JSX } from "solid-js";
-import { gameState } from "../store/gameStore.ts";
+import type { JSX } from "solid-js";
 
 interface ScoreButtonProps {
+  disabled?: boolean;
   direction: number;
   updateScore: (inc: number) => void;
 }
@@ -14,8 +14,10 @@ export function ScoreButton(props: Readonly<ScoreButtonProps>): JSX.Element {
   return (
     <button
       class={`btn btn-circle ${props.direction === -1 ? "btn-soft" : "btn-primary"}`}
-      disabled={!gameState.gameRunning}
+      aria-label={props.direction === -1 ? "Remove goal" : "Add goal"}
+      disabled={props.disabled}
       onClick={handleClick}
+      type="button"
     >
       {props.direction === -1 ? "-" : "+"}
     </button>

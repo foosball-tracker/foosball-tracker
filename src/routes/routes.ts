@@ -12,6 +12,10 @@ export const routes = [
     component: lazy(() => import("../App.tsx")),
   },
   {
+    path: "/login",
+    component: lazy(() => import("../components/auth/LoginPage.tsx")),
+  },
+  {
     path: "/players",
     component: lazy(() => import("../components/players/Players.tsx")),
     children: [

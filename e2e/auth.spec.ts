@@ -7,13 +7,15 @@ test("authenticated user sees the app, not the login screen", async ({ page }) =
   test.skip(!hasAuth, "No auth state found. Run `pnpm auth:local` first.");
 
   await page.goto("/");
+  await expect(page.locator("body")).toContainText(/Foosball/i);
 
   const logoutButton = page.getByRole("button", { name: "Logout" });
   const signInButton = page.getByRole("button", { name: /^sign in$/i });
-  const hasLogout = await logoutButton.isVisible().catch(() => false);
+  await expect(page.getByRole("button", { name: /logout|sign in/i }).first()).toBeVisible();
 
   test.skip(
-    !hasLogout && (await signInButton.isVisible().catch(() => false)),
+    !(await logoutButton.isVisible().catch(() => false)) &&
+      (await signInButton.isVisible().catch(() => false)),
     "Auth state is missing, expired, or tied to another local origin. Run `pnpm auth:local` again."
   );
 

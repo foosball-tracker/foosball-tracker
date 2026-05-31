@@ -1,171 +1,248 @@
-// src/components/ScoreBoard.tsx
-import { createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import {
+  ChevronDown,
+  ChevronUp,
+  Goal,
+  Maximize2,
+  Minimize2,
+  Pause,
+  Play,
+  RotateCcw,
+  Timer,
+} from "lucide-solid";
+import { createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { GoalHistoryCard } from "~/components/home/GoalHistoryCard.tsx";
 import { TeamScore } from "~/components/TeamScore";
-import { playSound } from "../service/soundService";
-import { gameState, setGameState } from "../store/gameStore";
-import { useMatchSubscription } from "../hooks/useMatchSubscription";
-import type { ISettings } from "../types/Settings";
-import type { Tables } from "~/types/database";
-import { useGameTimer } from "~/hooks/useGamerTimer";
 import { formatTime } from "~/lib/utils.ts";
-import * as matchService from "../service/matchService";
+import type { ISettings } from "~/types/Settings";
+import type { Tables } from "~/types/database";
 
-type GoalsRow = Tables<"goals">;
-type MatchesRow = Tables<"matches">;
+type GoalRow = Tables<"goals">;
+type MatchRow = Tables<"matches">;
 
 interface ScoreBoardProps {
+  currentMatch: MatchRow;
+  elapsedTime: number;
+  goals: GoalRow[];
+  isPaused: boolean;
+  onAdjustGoal: (teamId: number, increment: number) => Promise<void>;
+  onResetGame: () => Promise<void>;
+  onTogglePause: () => void;
   settings: Readonly<ISettings>;
 }
 
 export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
-  // Track current match
-  const [currentMatch, setCurrentMatch] = createSignal<MatchesRow | null>(null);
-  // Supabase goals for this match
-  const [goals, setGoals] = createSignal<GoalsRow[]>([]);
+  const [isFullscreen, setIsFullscreen] = createSignal(false);
+  let scoreboardElement: HTMLElement | undefined;
 
-  // Timer hook
-  const { elapsedTime, start, stop, reset } = useGameTimer();
-
-  // Derived scores
   const yellowScore = createMemo(
-    () => goals().filter((g) => g.team_id === props.settings.yellowTeam.id).length
+    () => props.goals.filter((goal) => goal.team_id === props.settings.yellowTeam.id).length
   );
   const blackScore = createMemo(
-    () => goals().filter((g) => g.team_id === props.settings.blackTeam.id).length
+    () => props.goals.filter((goal) => goal.team_id === props.settings.blackTeam.id).length
   );
 
-  const handleGoalInsert = (newGoal: GoalsRow) => {
-    setGoals((prev) => (prev.find((g) => g.id === newGoal.id) ? prev : [...prev, newGoal]));
-    playSound("goal");
+  const scoreboardDisabled = () => props.isPaused;
+  const yellowTeamName = () => props.settings.yellowTeam.name ?? "Yellow Team";
+  const blackTeamName = () => props.settings.blackTeam.name ?? "Black Team";
+  const goalsToWin = () => props.settings.goalsToWin || props.currentMatch.goals_to_win;
+
+  const syncFullscreenState = () => {
+    setIsFullscreen(document.fullscreenElement === scoreboardElement);
   };
 
-  const handleGoalDelete = (oldGoalId: number) => {
-    setGoals((prev) => prev.filter((g) => g.id !== oldGoalId));
-    playSound("no-goal");
-  };
+  onMount(() => {
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+    onCleanup(() => document.removeEventListener("fullscreenchange", syncFullscreenState));
+  });
 
-  const adjustGoal = async (teamId: number, inc: number) => {
-    if (!gameState.gameRunning || !currentMatch()) return;
-    if (inc > 0) {
-      await matchService.recordGoal(currentMatch()!.id, teamId, gameState.timer, formatTime);
-    } else {
-      await matchService.removeLastGoal(currentMatch()!.id, teamId);
-    }
-  };
+  const toggleFullscreen = async () => {
+    if (!document.fullscreenEnabled) return;
 
-  const startGame = async () => {
-    const { blackTeam, yellowTeam } = props.settings;
-    if (!blackTeam.id || !yellowTeam.id) {
-      alert("Please select both teams before starting the game.");
+    if (document.fullscreenElement === scoreboardElement) {
+      await document.exitFullscreen();
       return;
     }
-    const match = await matchService.createMatch(
-      yellowTeam.id,
-      blackTeam.id,
-      props.settings.goalsToWin
-    );
-    if (!match) return;
 
-    setCurrentMatch(match);
-    setGoals([]);
-    setGameState({ timer: 0, gameRunning: true, goalHistory: [] });
-    start();
+    await scoreboardElement?.requestFullscreen();
   };
 
-  const resetScores = () => {
-    setCurrentMatch(null);
-    setGoals([]);
-    setGameState({ timer: 0, gameRunning: false, goalHistory: [] });
-    reset();
+  const adjustScore = async (teamId: number | null | undefined, increment: number) => {
+    if (!teamId || scoreboardDisabled()) return;
+    await props.onAdjustGoal(teamId, increment);
   };
 
-  const endCurrentGame = async () => {
-    const match = currentMatch();
-    if (!match) return;
-    if (await matchService.endGame(match.id)) {
-      playSound("win");
-      setGameState("gameRunning", false);
-      stop();
-    }
-  };
+  const scoreControlButton = (
+    teamId: number | null | undefined,
+    increment: number,
+    label: string
+  ) => (
+    <button
+      aria-label={label}
+      class="btn btn-ghost btn-circle btn-sm text-base-content h-10 min-h-10 w-10 sm:h-11 sm:w-11"
+      disabled={scoreboardDisabled() || !teamId}
+      onClick={() => void adjustScore(teamId, increment)}
+      type="button"
+    >
+      {increment > 0 ? (
+        <ChevronUp size={24} strokeWidth={3} />
+      ) : (
+        <ChevronDown size={24} strokeWidth={3} />
+      )}
+    </button>
+  );
 
-  onMount(async () => {
-    const match = await matchService.getLatestMatch();
-    if (match) {
-      setCurrentMatch(match);
-      setGameState("gameRunning", true);
-      const existingGoals = await matchService.fetchGoalsForMatch(match.id);
-      setGoals(existingGoals);
-      start();
-    }
-    // Ensure timer stops on unmount
-    onCleanup(() => stop());
-  });
+  const scoreColumn = (score: number, teamId: number | null | undefined, teamName: string) => (
+    <div class="flex min-w-20 flex-col items-center gap-1 sm:min-w-28 sm:gap-2">
+      {scoreControlButton(teamId, 1, `Add goal for ${teamName}`)}
+      <span class="text-5xl leading-none font-black tabular-nums sm:text-7xl">{score}</span>
+      {scoreControlButton(teamId, -1, `Remove goal for ${teamName}`)}
+    </div>
+  );
 
-  // Subscribe to real-time updates if a match is active
-  createEffect(() => {
-    const match = currentMatch();
-    if (match) {
-      useMatchSubscription(match.id, handleGoalInsert, handleGoalDelete);
-    }
-  });
+  const shellClasses = () =>
+    [
+      "card border-base-300 bg-base-100 text-base-content shadow-sm [html[data-theme=dim]_&]:bg-neutral [html[data-theme=dim]_&]:text-neutral-content",
+      isFullscreen() ? "min-h-screen rounded-none" : "",
+    ].join(" ");
 
-  // Check for game end condition
-  createEffect(() => {
-    if (!gameState.gameRunning) return;
-    if (blackScore() >= props.settings.goalsToWin || yellowScore() >= props.settings.goalsToWin) {
-      endCurrentGame().then(() => console.log("Game ended"));
-    }
-  });
+  const fullscreenLabel = () =>
+    isFullscreen() ? "Exit scoreboard fullscreen" : "Enter scoreboard fullscreen";
+
+  const fullscreenIcon = () => (isFullscreen() ? <Minimize2 size={18} /> : <Maximize2 size={18} />);
+
+  const gameStatusClasses = () =>
+    props.isPaused ? "badge badge-warning gap-2" : "badge badge-success gap-2";
+
+  const recentGoalLimit = () => (isFullscreen() ? 4 : 0);
+
+  const centerScore = () => (
+    <div class="border-base-300 bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content rounded-box border px-3 py-2 shadow-sm sm:px-6 sm:py-4">
+      <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1 sm:gap-4">
+        {scoreColumn(yellowScore(), props.settings.yellowTeam.id, yellowTeamName())}
+        <span class="text-base-content/40 [html[data-theme=dim]_&]:text-neutral-content/45 px-1 text-4xl font-black sm:text-5xl">
+          -
+        </span>
+        {scoreColumn(blackScore(), props.settings.blackTeam.id, blackTeamName())}
+      </div>
+    </div>
+  );
 
   return (
-    <div class="card card-border border-base-300 bg-base-100 max-w-3xl shadow-sm">
-      <div class="card-body">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="card-title text-2xl">Score</h2>
-          <div class="flex flex-wrap justify-end gap-2">
-            {!gameState.gameRunning && (
-              <button class="btn btn-primary btn-sm sm:btn-md min-w-28" onClick={startGame}>
-                Start Game
-              </button>
-            )}
-            <button class="btn btn-soft btn-error btn-sm sm:btn-md min-w-28" onClick={resetScores}>
-              Reset Game
+    <section
+      class={shellClasses()}
+      ref={(element) => {
+        scoreboardElement = element;
+      }}
+    >
+      <div class="card-body gap-4 p-4 sm:gap-6 sm:p-6 lg:p-8">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content flex h-9 w-9 items-center justify-center rounded-full">
+              <Goal size={20} />
+            </div>
+            <div>
+              <p class="text-base-content/70 [html[data-theme=dim]_&]:text-neutral-content/70 text-xs font-black tracking-[0.24em] uppercase">
+                Scoreboard
+              </p>
+              <p class="text-base-content/75 [html[data-theme=dim]_&]:text-neutral-content/75 text-sm font-bold">
+                Target: first to {goalsToWin()} goals
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class={gameStatusClasses()}>
+              <span class="h-2 w-2 rounded-full bg-current" />
+              {props.isPaused ? "Paused" : "Live"}
+            </span>
+            <button
+              aria-label={fullscreenLabel()}
+              class="btn btn-ghost btn-square btn-sm"
+              disabled={!document.fullscreenEnabled}
+              onClick={() => void toggleFullscreen()}
+              type="button"
+            >
+              {fullscreenIcon()}
             </button>
           </div>
         </div>
 
-        <div class="flex-col">
-          <div class="flex justify-center">
-            <span class="text-center text-xl">Time: {formatTime(elapsedTime())}</span>
+        <div class="grid items-center gap-4 sm:gap-5">
+          <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-2 sm:gap-5">
+            <TeamScore team="yellow" teamName={yellowTeamName()} />
+            <div class="bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content rounded-full px-3 py-2 text-xs font-black tracking-[0.18em] uppercase">
+              VS
+            </div>
+            <TeamScore team="black" teamName={blackTeamName()} />
           </div>
 
-          {/* Teams side by side */}
-          <div class="mt-4 flex w-full items-center justify-center gap-4">
-            {/* Yellow side */}
-            <div class="flex flex-1 justify-end">
-              <TeamScore
-                team="yellow"
-                teamName={props.settings.yellowTeam.name ?? "Yellow Team"}
-                score={yellowScore()}
-                updateScore={(inc) => adjustGoal(props.settings.yellowTeam.id!, inc)}
-              />
-            </div>
+          <div class="mx-auto w-full max-w-lg">{centerScore()}</div>
+        </div>
 
-            <div class="text-3xl font-bold">:</div>
-
-            {/* Black side */}
-            <div class="flex flex-1 justify-start">
-              <TeamScore
-                team="black"
-                teamName={props.settings.blackTeam.name ?? "Black Team"}
-                score={blackScore()}
-                updateScore={(inc) => adjustGoal(props.settings.blackTeam.id!, inc)}
-              />
+        <div class="border-base-300 bg-base-200 [html[data-theme=dim]_&]:bg-base-100/10 rounded-box flex flex-col items-center justify-between gap-3 border p-3 sm:flex-row sm:p-4">
+          <div class="flex items-center gap-3">
+            <div class="bg-base-100 text-base-content flex h-10 w-10 items-center justify-center rounded-full">
+              <Timer size={20} />
             </div>
+            <div>
+              <p class="text-base-content/70 [html[data-theme=dim]_&]:text-neutral-content/70 text-xs font-black tracking-[0.18em] uppercase">
+                Match Time
+              </p>
+              <p class="text-2xl leading-none font-black tabular-nums sm:text-3xl">
+                {formatTime(props.elapsedTime)}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap justify-center gap-2">
+            <button
+              class="btn btn-primary btn-sm sm:btn-md rounded-full"
+              onClick={() => props.onTogglePause()}
+              type="button"
+            >
+              {props.isPaused ? <Play size={18} /> : <Pause size={18} />}
+              {props.isPaused ? "Resume" : "Pause"}
+            </button>
+            <button
+              class="btn btn-ghost btn-sm sm:btn-md rounded-full"
+              onClick={() => void props.onResetGame()}
+              type="button"
+            >
+              <RotateCcw size={18} />
+              Reset
+            </button>
           </div>
         </div>
+
+        {isFullscreen() && (
+          <div class="border-base-300 bg-base-200 rounded-box [html[data-theme=dim]_&]:bg-base-100/10 border p-3 sm:p-4">
+            <div class="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <p class="text-base-content/70 [html[data-theme=dim]_&]:text-neutral-content/70 text-xs font-black tracking-[0.18em] uppercase">
+                  Recent Goals
+                </p>
+                <p class="text-base-content/80 [html[data-theme=dim]_&]:text-neutral-content/85 text-sm font-semibold">
+                  Latest score changes
+                </p>
+              </div>
+              <span class="badge badge-outline badge-sm border-base-300 bg-base-100 [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content">
+                {Math.min(props.goals.length, recentGoalLimit())} shown
+              </span>
+            </div>
+            <div class="max-h-64 overflow-y-auto pr-1">
+              <GoalHistoryCard
+                blackTeamId={props.settings.blackTeam.id}
+                blackTeamName={blackTeamName()}
+                goals={props.goals}
+                maxItems={recentGoalLimit()}
+                showHeader={false}
+                yellowTeamId={props.settings.yellowTeam.id}
+                yellowTeamName={yellowTeamName()}
+              />
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </section>
   );
 }

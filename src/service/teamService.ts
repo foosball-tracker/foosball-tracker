@@ -1,4 +1,5 @@
 import { requireSupabase, supabase } from "./supabaseService";
+import type { Tables } from "~/types/database";
 
 export interface TeamMember {
   player_id: number;
@@ -55,6 +56,19 @@ export const getAllTeams = async () => {
 
   if (error) {
     console.error("Error fetching all teams:", error);
+    throw new Error(error.message);
+  }
+
+  return data ?? [];
+};
+
+export const getTeamsByIds = async (teamIds: number[]): Promise<Tables<"teams">[]> => {
+  if (!supabase || teamIds.length === 0) return [];
+
+  const { data, error } = await supabase.from("teams").select("*").in("id", teamIds);
+
+  if (error) {
+    console.error("Error fetching selected teams:", error);
     throw new Error(error.message);
   }
 
