@@ -136,8 +136,9 @@ function getWinnerId(match: MatchRow, matchGoals: GoalRow[]) {
 
   const homeScore = scoreByTeam.get(match.home_team_id) ?? 0;
   const awayScore = scoreByTeam.get(match.away_team_id) ?? 0;
+  const winningScore = Math.max(homeScore, awayScore);
 
-  if (homeScore === awayScore) return null;
+  if (homeScore === awayScore || winningScore < match.goals_to_win) return null;
   return homeScore > awayScore ? match.home_team_id : match.away_team_id;
 }
 

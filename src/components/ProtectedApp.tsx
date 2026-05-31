@@ -112,9 +112,12 @@ export default function ProtectedApp() {
   const resetGame = async () => {
     const match = currentMatch();
     if (match?.in_progress) {
-      await finalizeCurrentMatch(match.id);
+      const didAbandon = await matchService.abandonMatch(match.id);
+      if (!didAbandon) return;
     }
 
+    stop();
+    setIsPaused(false);
     reset();
     setGoals([]);
     setCurrentMatch(null);

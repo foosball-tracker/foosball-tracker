@@ -100,3 +100,21 @@ export async function endGame(matchId: number) {
   }
   return true;
 }
+
+export async function abandonMatch(matchId: number) {
+  const client = requireSupabase();
+
+  const { error: goalsError } = await client.from("goals").delete().eq("match_id", matchId);
+  if (goalsError) {
+    console.error("Error deleting abandoned match goals:", goalsError);
+    return false;
+  }
+
+  const { error: matchError } = await client.from("matches").delete().eq("id", matchId);
+  if (matchError) {
+    console.error("Error deleting abandoned match:", matchError);
+    return false;
+  }
+
+  return true;
+}
