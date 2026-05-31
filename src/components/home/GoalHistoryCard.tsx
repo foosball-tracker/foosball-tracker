@@ -45,44 +45,56 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
   });
 
   return (
-    <section class="card border-base-300 bg-base-100 shadow-sm">
-      <div class="card-body gap-5 p-5 sm:p-6">
+    <section class="card border-base-300 bg-base-100 text-base-content [html[data-theme=dim]_&]:bg-neutral [html[data-theme=dim]_&]:text-neutral-content shadow-sm">
+      <div class="card-body gap-4 p-4 sm:gap-5 sm:p-6">
         <div class="flex items-center justify-between gap-3">
           <div class="flex items-center gap-3">
-            <div class="bg-neutral text-neutral-content rounded-full p-2">
+            <div class="bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content rounded-full p-2">
               <History class="h-4 w-4" />
             </div>
             <div>
-              <h3 class="text-xl font-black tracking-tight">Goal history</h3>
-              <p class="text-base-content/60 text-sm">Every goal, with live score progression</p>
+              <h3 class="text-lg font-black tracking-tight sm:text-xl">Goal history</h3>
+              <p class="text-base-content/75 [html[data-theme=dim]_&]:text-neutral-content/75 text-sm">
+                Every goal, with live score progression
+              </p>
             </div>
           </div>
-          <span class="badge badge-outline">{rows().length} events</span>
+          <span class="badge badge-neutral [html[data-theme=dim]_&]:bg-neutral-content [html[data-theme=dim]_&]:text-neutral">
+            {rows().length} events
+          </span>
         </div>
 
-        <div class="rounded-box bg-neutral text-neutral-content hidden grid-cols-[minmax(0,1.4fr)_auto_auto] gap-4 px-5 py-4 text-xs font-semibold tracking-[0.24em] uppercase md:grid">
+        <div class="rounded-box bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content hidden grid-cols-[minmax(0,1.4fr)_auto_auto] gap-4 px-4 py-3 text-xs font-semibold tracking-[0.18em] uppercase md:grid">
           <span>Scoring side</span>
           <span>Clock</span>
           <span>Score</span>
         </div>
 
-        <div class="space-y-3">
+        <div class="space-y-2 sm:space-y-3">
           <For
             each={rows()}
             fallback={
-              <div class="rounded-box bg-base-200 text-base-content/70 p-6 text-sm">
+              <div class="rounded-box bg-base-200 text-base-content/75 [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content/80 p-4 text-sm">
                 No goals recorded yet. Start the match and the timeline will build itself from the
                 live score feed.
               </div>
             }
           >
             {(row) => (
-              <div class="rounded-box bg-base-200 grid gap-3 px-4 py-4 md:grid-cols-[minmax(0,1.4fr)_auto_auto] md:items-center md:gap-4">
-                <div class="flex items-center gap-3">
-                  <span class={`badge ${row.teamTone} badge-outline`}>{row.teamLabel}</span>
+              <div class="rounded-box border-base-300 bg-base-200 [html[data-theme=dim]_&]:bg-base-100/10 grid gap-2 border px-3 py-3 sm:px-4 md:grid-cols-[minmax(0,1.4fr)_auto_auto] md:items-center md:gap-4">
+                <div class="min-w-0">
+                  <span
+                    class={`badge ${row.teamTone} max-w-full justify-start truncate border-transparent font-bold`}
+                  >
+                    {row.teamLabel}
+                  </span>
                 </div>
-                <span class="text-base-content/70 text-sm font-medium">{row.timeLabel}</span>
-                <span class="text-lg font-black tracking-tight">{row.scoreLabel}</span>
+                <span class="text-base-content/80 [html[data-theme=dim]_&]:text-neutral-content/85 text-sm font-bold tabular-nums">
+                  {row.timeLabel}
+                </span>
+                <span class="text-xl leading-none font-black tracking-tight tabular-nums">
+                  {row.scoreLabel}
+                </span>
               </div>
             )}
           </For>

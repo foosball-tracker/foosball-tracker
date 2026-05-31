@@ -18,19 +18,24 @@ export function LeaderboardCard(props: Readonly<LeaderboardCardProps>) {
     activeTab() === "teams" ? (snapshot()?.teams ?? []) : (snapshot()?.players ?? []);
 
   return (
-    <section class="card border-base-300 bg-base-100 h-full shadow-sm">
-      <div class="card-body gap-5 p-5 sm:p-6">
+    <section class="card border-base-300 bg-base-100 text-base-content [html[data-theme=dim]_&]:bg-neutral [html[data-theme=dim]_&]:text-neutral-content h-full shadow-sm">
+      <div class="card-body gap-4 p-4 sm:gap-5 sm:p-6">
         <div class="flex items-center gap-3">
-          <div class="bg-neutral text-neutral-content rounded-full p-2">
+          <div class="bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content rounded-full p-2">
             <Trophy class="h-4 w-4" />
           </div>
           <div>
-            <h3 class="text-xl font-black tracking-tight">Leaderboard</h3>
-            <p class="text-base-content/60 text-sm">Wins from completed matches</p>
+            <h3 class="text-lg font-black tracking-tight sm:text-xl">Leaderboard</h3>
+            <p class="text-base-content/75 [html[data-theme=dim]_&]:text-neutral-content/75 text-sm">
+              Wins from completed matches
+            </p>
           </div>
         </div>
 
-        <div role="tablist" class="tabs tabs-box bg-base-200 w-full max-w-xs">
+        <div
+          role="tablist"
+          class="tabs tabs-box bg-base-200 [html[data-theme=dim]_&]:bg-base-100/10 w-full max-w-xs"
+        >
           <button
             class={`tab flex-1 ${activeTab() === "teams" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("teams")}
@@ -60,7 +65,7 @@ export function LeaderboardCard(props: Readonly<LeaderboardCardProps>) {
           }
         >
           <div class="space-y-3">
-            <div class="text-base-content/60 hidden grid-cols-[minmax(0,1fr)_auto] gap-4 px-4 text-xs font-semibold tracking-[0.24em] uppercase sm:grid">
+            <div class="text-base-content/70 [html[data-theme=dim]_&]:text-neutral-content/75 hidden grid-cols-[minmax(0,1fr)_auto] gap-4 px-3 text-xs font-semibold tracking-[0.18em] uppercase sm:grid">
               <span>Name</span>
               <span>Wins</span>
             </div>
@@ -68,20 +73,20 @@ export function LeaderboardCard(props: Readonly<LeaderboardCardProps>) {
             <For
               each={rows() as (TeamLeaderboardRow | PlayerLeaderboardRow)[]}
               fallback={
-                <div class="rounded-box bg-base-200 text-base-content/70 p-5 text-sm">
+                <div class="rounded-box bg-base-200 text-base-content/75 [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content/80 p-4 text-sm">
                   No completed matches yet. Finish a game to populate the rankings.
                 </div>
               }
             >
               {(row, index) => (
-                <div class="rounded-box bg-base-200 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-4">
+                <div class="rounded-box border-base-300 bg-base-200 [html[data-theme=dim]_&]:bg-base-100/10 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border px-3 py-3 sm:px-4">
                   <div class="bg-base-100 text-base-content flex h-9 w-9 items-center justify-center rounded-full text-sm font-black">
                     {index() + 1}
                   </div>
                   <div class="min-w-0">
                     <p class="truncate font-semibold">{row.name}</p>
                     {"type" in row && (
-                      <p class="text-base-content/60 text-xs tracking-[0.18em] uppercase">
+                      <p class="text-base-content/70 [html[data-theme=dim]_&]:text-neutral-content/75 text-xs tracking-[0.18em] uppercase">
                         {row.type}
                       </p>
                     )}

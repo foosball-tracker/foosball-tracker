@@ -77,30 +77,30 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
   ) => (
     <button
       aria-label={label}
-      class="btn btn-ghost btn-circle btn-sm text-base-content"
+      class="btn btn-ghost btn-circle btn-sm text-base-content h-10 min-h-10 w-10 sm:h-11 sm:w-11"
       disabled={scoreboardDisabled() || !teamId}
       onClick={() => void adjustScore(teamId, increment)}
       type="button"
     >
       {increment > 0 ? (
-        <ChevronUp size={28} strokeWidth={3} />
+        <ChevronUp size={24} strokeWidth={3} />
       ) : (
-        <ChevronDown size={28} strokeWidth={3} />
+        <ChevronDown size={24} strokeWidth={3} />
       )}
     </button>
   );
 
   const scoreColumn = (score: number, teamId: number | null | undefined, teamName: string) => (
-    <div class="flex min-w-24 flex-col items-center gap-2 sm:min-w-32">
+    <div class="flex min-w-20 flex-col items-center gap-1 sm:min-w-28 sm:gap-2">
       {scoreControlButton(teamId, 1, `Add goal for ${teamName}`)}
-      <span class="text-7xl leading-none font-black sm:text-8xl">{score}</span>
+      <span class="text-5xl leading-none font-black tabular-nums sm:text-7xl">{score}</span>
       {scoreControlButton(teamId, -1, `Remove goal for ${teamName}`)}
     </div>
   );
 
   const shellClasses = () =>
     [
-      "card border-base-300 bg-base-300 text-base-content shadow-sm",
+      "card border-base-300 bg-base-100 text-base-content shadow-sm [html[data-theme=dim]_&]:bg-neutral [html[data-theme=dim]_&]:text-neutral-content",
       isFullscreen() ? "min-h-screen rounded-none" : "",
     ].join(" ");
 
@@ -113,10 +113,12 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
     props.isPaused ? "badge badge-warning gap-2" : "badge badge-success gap-2";
 
   const centerScore = () => (
-    <div class="border-base-300 bg-base-100 text-base-content rounded-[2rem] border px-5 py-4 shadow-xl sm:px-8 sm:py-6">
-      <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-5">
+    <div class="border-base-300 bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content rounded-box border px-3 py-2 shadow-sm sm:px-6 sm:py-4">
+      <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1 sm:gap-4">
         {scoreColumn(yellowScore(), props.settings.yellowTeam.id, yellowTeamName())}
-        <span class="px-1 text-5xl font-black opacity-40 sm:text-6xl">-</span>
+        <span class="text-base-content/40 [html[data-theme=dim]_&]:text-neutral-content/45 px-1 text-4xl font-black sm:text-5xl">
+          -
+        </span>
         {scoreColumn(blackScore(), props.settings.blackTeam.id, blackTeamName())}
       </div>
     </div>
@@ -129,15 +131,19 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
         scoreboardElement = element;
       }}
     >
-      <div class="card-body gap-8 p-4 sm:p-6 lg:p-8">
+      <div class="card-body gap-4 p-4 sm:gap-6 sm:p-6 lg:p-8">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-3">
-            <div class="bg-base-100 text-base-content flex h-10 w-10 items-center justify-center rounded-full shadow-sm">
+            <div class="bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content flex h-9 w-9 items-center justify-center rounded-full">
               <Goal size={20} />
             </div>
             <div>
-              <p class="text-xs font-black tracking-[0.28em] uppercase opacity-60">Scoreboard</p>
-              <p class="text-sm font-bold opacity-70">Target: first to {goalsToWin()} goals</p>
+              <p class="text-base-content/70 [html[data-theme=dim]_&]:text-neutral-content/70 text-xs font-black tracking-[0.24em] uppercase">
+                Scoreboard
+              </p>
+              <p class="text-base-content/75 [html[data-theme=dim]_&]:text-neutral-content/75 text-sm font-bold">
+                Target: first to {goalsToWin()} goals
+              </p>
             </div>
           </div>
 
@@ -158,32 +164,36 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
           </div>
         </div>
 
-        <div class="grid items-center gap-6">
-          <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-6">
+        <div class="grid items-center gap-4 sm:gap-5">
+          <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-2 sm:gap-5">
             <TeamScore team="yellow" teamName={yellowTeamName()} />
-            <div class="bg-base-100 rounded-full px-3 py-2 text-xs font-black tracking-[0.22em] uppercase shadow-sm">
+            <div class="bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content rounded-full px-3 py-2 text-xs font-black tracking-[0.18em] uppercase">
               VS
             </div>
             <TeamScore team="black" teamName={blackTeamName()} />
           </div>
 
-          <div class="mx-auto w-full max-w-xl">{centerScore()}</div>
+          <div class="mx-auto w-full max-w-lg">{centerScore()}</div>
         </div>
 
-        <div class="bg-base-100/75 flex flex-col items-center justify-between gap-4 rounded-[2rem] p-4 shadow-sm sm:flex-row">
+        <div class="border-base-300 bg-base-200 [html[data-theme=dim]_&]:bg-base-100/10 rounded-box flex flex-col items-center justify-between gap-3 border p-3 sm:flex-row sm:p-4">
           <div class="flex items-center gap-3">
-            <div class="bg-base-200 flex h-12 w-12 items-center justify-center rounded-full">
-              <Timer size={22} />
+            <div class="bg-base-100 text-base-content flex h-10 w-10 items-center justify-center rounded-full">
+              <Timer size={20} />
             </div>
             <div>
-              <p class="text-xs font-black tracking-[0.24em] uppercase opacity-60">Match Time</p>
-              <p class="text-3xl font-black tabular-nums">{formatTime(props.elapsedTime)}</p>
+              <p class="text-base-content/70 [html[data-theme=dim]_&]:text-neutral-content/70 text-xs font-black tracking-[0.18em] uppercase">
+                Match Time
+              </p>
+              <p class="text-2xl leading-none font-black tabular-nums sm:text-3xl">
+                {formatTime(props.elapsedTime)}
+              </p>
             </div>
           </div>
 
           <div class="flex flex-wrap justify-center gap-2">
             <button
-              class="btn btn-primary rounded-full"
+              class="btn btn-primary btn-sm sm:btn-md rounded-full"
               onClick={() => props.onTogglePause()}
               type="button"
             >
@@ -191,7 +201,7 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
               {props.isPaused ? "Resume" : "Pause"}
             </button>
             <button
-              class="btn btn-ghost rounded-full"
+              class="btn btn-ghost btn-sm sm:btn-md rounded-full"
               onClick={() => void props.onResetGame()}
               type="button"
             >

@@ -6,40 +6,46 @@ interface TeamScoreProps {
 }
 
 export function TeamScore(props: Readonly<TeamScoreProps>) {
+  const displayName = () => props.teamName.replace(/\s*\([^)]*\)\s*/g, " ").trim();
   const initials = () =>
-    props.teamName
+    displayName()
       .split(/\s+/)
       .slice(0, 2)
       .map((part) => part[0]?.toUpperCase() ?? "")
-      .join("");
+      .join("")
+      .slice(0, 2);
 
   const avatarClasses = () =>
     props.team === "black"
-      ? "border-success bg-neutral text-neutral-content"
-      : "border-success bg-warning text-warning-content";
+      ? "border-neutral text-neutral [html[data-theme=dim]_&]:bg-neutral-content bg-base-100"
+      : "border-warning text-warning-content bg-base-100 [html[data-theme=dim]_&]:bg-neutral-content";
 
   return (
-    <div class="flex min-w-0 flex-col items-center gap-3 text-center">
+    <div class="flex min-w-0 flex-col items-center gap-2 text-center">
       <div class="relative">
         <div class="avatar placeholder">
-          <div class={`w-24 rounded-full border-4 shadow-sm sm:w-28 ${avatarClasses()}`}>
-            <span class="text-2xl font-black sm:text-3xl">{initials()}</span>
+          <div
+            class={`ring-success/45 ring-offset-base-300 flex aspect-square w-20 items-center justify-center rounded-full border-[3px] shadow-sm ring-4 ring-offset-2 sm:w-24 ${avatarClasses()}`}
+          >
+            <span class="block max-w-full px-2 text-center text-2xl leading-none font-black sm:text-3xl">
+              {initials() || "?"}
+            </span>
           </div>
         </div>
-        <div class="border-base-300 bg-base-100 text-base-content absolute -bottom-1 left-1/2 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border shadow-sm">
-          <Shield size={16} strokeWidth={2.5} />
+        <div class="border-base-300 bg-base-100 text-base-content absolute -right-1 -bottom-1 flex h-7 w-7 items-center justify-center rounded-full border shadow-sm">
+          <Shield size={14} strokeWidth={2.5} />
         </div>
       </div>
 
-      <div class="pt-2">
-        <div class="text-[0.65rem] font-black tracking-[0.24em] uppercase opacity-60">
+      <div class="pt-1">
+        <div class="text-base-content/70 [html[data-theme=dim]_&]:text-neutral-content/75 text-[0.62rem] font-black tracking-[0.18em] uppercase">
           {props.team === "yellow" ? "Home Team" : "Away Team"}
         </div>
         <h3
-          class="line-clamp-2 min-h-[2rem] overflow-hidden text-base leading-tight font-black sm:text-xl"
+          class="line-clamp-2 min-h-[1.75rem] overflow-hidden text-sm leading-tight font-black sm:text-base"
           style={{ display: "-webkit-box", "-webkit-box-orient": "vertical" }}
         >
-          {props.teamName}
+          {displayName()}
         </h3>
       </div>
     </div>
