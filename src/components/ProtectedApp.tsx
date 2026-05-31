@@ -1,6 +1,5 @@
 import { createEffect, createResource, createSignal, onCleanup, onMount } from "solid-js";
 import { createLocalStorageStore } from "../hooks/createLocalStorageStore.tsx";
-import { useAuthSession } from "~/hooks/useAuthSession.ts";
 import { useGameTimer } from "~/hooks/useGamerTimer.ts";
 import { useMatchSubscription } from "~/hooks/useMatchSubscription.ts";
 import { MatchDashboard } from "~/components/home/MatchDashboard.tsx";
@@ -17,7 +16,6 @@ type MatchRow = Tables<"matches">;
 type GoalRow = Tables<"goals">;
 
 export default function ProtectedApp() {
-  useAuthSession();
   const [settings, setSettings] = createLocalStorageStore<ISettings>("settings", {
     yellowTeam: { id: undefined, name: "Yellow Team" },
     blackTeam: { id: undefined, name: "Black Team" },
@@ -76,7 +74,10 @@ export default function ProtectedApp() {
     }
 
     const match = await matchService.createMatch(yellowTeam.id, blackTeam.id, settings.goalsToWin);
-    if (!match) return;
+    if (!match) {
+      alert("Could not start the match. Please try again.");
+      return;
+    }
 
     reset();
     setCurrentMatch(match);

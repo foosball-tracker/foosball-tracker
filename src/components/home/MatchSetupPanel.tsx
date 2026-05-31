@@ -1,3 +1,4 @@
+import { createEffect } from "solid-js";
 import type { SetStoreFunction } from "solid-js/store";
 import { CirclePlay, Goal, Shield } from "lucide-solid";
 import Select from "~/components/shared/Select.tsx";
@@ -19,6 +20,32 @@ export function MatchSetupPanel(props: Readonly<MatchSetupPanelProps>) {
     }));
 
   const selectedName = (name: string) => name || "Select team";
+  const canStartMatch = () =>
+    Boolean(props.settings.yellowTeam.id && props.settings.blackTeam.id && options().length);
+  const optionById = (id: number | undefined) => options().find((option) => option.value === id);
+
+  createEffect(() => {
+    const availableOptions = options();
+    if (!availableOptions.length) return;
+
+    const yellowOption = optionById(props.settings.yellowTeam.id) ?? availableOptions[0];
+    const blackOption =
+      optionById(props.settings.blackTeam.id) ?? availableOptions[1] ?? yellowOption;
+
+    if (
+      yellowOption.value !== props.settings.yellowTeam.id ||
+      yellowOption.label !== props.settings.yellowTeam.name
+    ) {
+      props.setSettings("yellowTeam", { id: yellowOption.value, name: yellowOption.label });
+    }
+
+    if (
+      blackOption.value !== props.settings.blackTeam.id ||
+      blackOption.label !== props.settings.blackTeam.name
+    ) {
+      props.setSettings("blackTeam", { id: blackOption.value, name: blackOption.label });
+    }
+  });
 
   return (
     <section class="mx-auto w-full max-w-6xl">
@@ -88,6 +115,7 @@ export function MatchSetupPanel(props: Readonly<MatchSetupPanelProps>) {
 
               <button
                 class="btn btn-primary btn-lg w-full gap-2"
+                disabled={!canStartMatch()}
                 onClick={() => void props.onStartGame()}
               >
                 <CirclePlay class="h-5 w-5" />
