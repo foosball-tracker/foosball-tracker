@@ -47,7 +47,9 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
       };
     });
 
-    return props.maxItems ? mappedRows.slice(-props.maxItems) : mappedRows;
+    const newestFirstRows = [...mappedRows].reverse();
+
+    return props.maxItems ? newestFirstRows.slice(0, props.maxItems) : newestFirstRows;
   });
 
   const eventCountLabel = createMemo(() => {
@@ -72,14 +74,9 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
               <div class="bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content rounded-full p-2">
                 <History class="h-4 w-4" />
               </div>
-              <div>
-                <h3 class="text-lg font-black tracking-tight sm:text-xl">Goal history</h3>
-                <p class="text-base-content/80 [html[data-theme=dim]_&]:text-neutral-content/80 text-sm">
-                  Every goal, with live score progression
-                </p>
-              </div>
+              <h3 class="text-lg font-black tracking-tight sm:text-xl">Goal history</h3>
             </div>
-            <span class="badge badge-outline badge-sm border-base-300 bg-base-100 [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content px-3 py-3 text-xs font-bold tracking-[0.14em] uppercase">
+            <span class="badge badge-outline badge-sm border-base-300 bg-base-100 [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content px-3 py-3 text-[0.7rem] font-bold tracking-[0.1em] whitespace-nowrap uppercase">
               {eventCountLabel()}
             </span>
           </div>
