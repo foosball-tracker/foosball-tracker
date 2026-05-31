@@ -35,10 +35,7 @@
     "zeplin": {
       "type": "local",
       "enabled": true,
-      "command": ["npx", "@zeplin/mcp-server@latest"],
-      "environment": {
-        "ZEPLIN_ACCESS_TOKEN": "{env:ZEPLIN_ACCESS_TOKEN}",
-      },
+      "command": ["bash", ".codex/zeplin-mcp-launcher.sh"],
     },
   },
 }
