@@ -16,7 +16,6 @@ interface GoalHistoryCardProps {
 
 interface GoalHistoryRow {
   id: number;
-  eventLabel: string;
   scoreLabel: string;
   teamLabel: string;
   teamTone: "yellow" | "black";
@@ -28,7 +27,7 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
     let yellowScore = 0;
     let blackScore = 0;
 
-    const mappedRows = props.goals.map((goal, index) => {
+    const mappedRows = props.goals.map((goal) => {
       const isYellow = goal.team_id === props.yellowTeamId;
 
       if (isYellow) {
@@ -39,7 +38,6 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
 
       return {
         id: goal.id,
-        eventLabel: `#${index + 1}`,
         scoreLabel: `${yellowScore} - ${blackScore}`,
         teamLabel: isYellow ? props.yellowTeamName : props.blackTeamName,
         teamTone: isYellow ? ("yellow" as const) : ("black" as const),
@@ -83,11 +81,10 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
         </Show>
 
         <Show when={rows().length > 0}>
-          <div class="rounded-box border-base-300 bg-base-200/80 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content/80 hidden grid-cols-[auto_minmax(0,1.4fr)_auto_auto] gap-3 border px-3 py-2 text-[0.68rem] font-black tracking-[0.18em] uppercase sm:grid">
-            <span>Event</span>
+          <div class="rounded-box border-base-300 bg-base-200/80 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content/80 hidden grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border px-3 py-2 text-[0.68rem] font-black tracking-[0.18em] uppercase sm:grid">
             <span>Scoring side</span>
-            <span>Clock</span>
             <span>Score</span>
+            <span>Clock</span>
           </div>
         </Show>
 
@@ -102,10 +99,7 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
             }
           >
             {(row) => (
-              <div class="rounded-box border-base-300 bg-base-200 [html[data-theme=dim]_&]:bg-base-100/10 grid grid-cols-[auto_minmax(0,1fr)_auto] gap-3 border px-3 py-3 shadow-sm sm:grid-cols-[auto_minmax(0,1.4fr)_auto_auto] sm:items-center sm:px-4">
-                <div class="bg-base-100 text-base-content [html[data-theme=dim]_&]:bg-neutral-content/10 [html[data-theme=dim]_&]:text-neutral-content flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-[0.7rem] font-black tracking-[0.14em] uppercase tabular-nums shadow-sm">
-                  {row.eventLabel}
-                </div>
+              <div class="rounded-box border-base-300 bg-base-200 [html[data-theme=dim]_&]:bg-base-100/10 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border px-3 py-2.5 shadow-sm sm:px-4">
                 <div class="flex min-w-0 items-center gap-2">
                   <span
                     class={`h-3 w-3 shrink-0 rounded-full border ${
@@ -124,11 +118,11 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
                     {row.teamLabel}
                   </span>
                 </div>
-                <span class="text-base-content/85 [html[data-theme=dim]_&]:text-neutral-content/90 text-right text-sm font-bold tabular-nums sm:text-left">
-                  {row.timeLabel}
-                </span>
-                <span class="[html[data-theme=dim]_&]:text-neutral-content col-start-2 text-lg leading-none font-black tracking-tight tabular-nums sm:col-start-auto sm:text-xl">
+                <span class="[html[data-theme=dim]_&]:text-neutral-content text-base leading-none font-black tracking-tight tabular-nums sm:text-lg">
                   {row.scoreLabel}
+                </span>
+                <span class="text-base-content/85 [html[data-theme=dim]_&]:text-neutral-content/90 text-sm font-bold tabular-nums">
+                  {row.timeLabel}
                 </span>
               </div>
             )}
