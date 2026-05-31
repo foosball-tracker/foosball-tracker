@@ -43,3 +43,5 @@ playwright-signup.mjs
 signup-api.mjs
 *.png
 *.webm
+
+.codex/secrets.env

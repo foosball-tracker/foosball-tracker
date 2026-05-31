@@ -32,5 +32,10 @@
       "enabled": true,
       "command": ["npx", "-y", "@upstash/context7-mcp@latest"],
     },
+    "zeplin": {
+      "type": "local",
+      "enabled": true,
+      "command": ["bash", ".codex/zeplin-mcp-launcher.sh"],
+    },
   },
 }
