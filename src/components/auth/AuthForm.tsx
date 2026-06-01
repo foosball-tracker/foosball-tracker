@@ -364,57 +364,57 @@ export function AuthForm(props: Readonly<AuthFormProps>) {
       >
         <Show when={mode() !== "reset"}>
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-semibold" for={fieldId("email")}>
-              Email address
+            <label class="flex flex-col gap-1.5 text-sm font-semibold">
+              <span>Email address</span>
+              <input
+                id={fieldId("email")}
+                type="email"
+                class="input input-bordered w-full"
+                value={email()}
+                onInput={(event) => setEmail(event.currentTarget.value)}
+                placeholder="name@example.com"
+                autocomplete="email"
+                autocapitalize="none"
+                spellcheck={false}
+                disabled={isSubmitting()}
+              />
             </label>
-            <input
-              id={fieldId("email")}
-              type="email"
-              class="input input-bordered w-full"
-              value={email()}
-              onInput={(event) => setEmail(event.currentTarget.value)}
-              placeholder="name@example.com"
-              autocomplete="email"
-              autocapitalize="none"
-              spellcheck={false}
-              disabled={isSubmitting()}
-            />
           </div>
         </Show>
 
         <Show when={showPasswordField()}>
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-semibold" for={fieldId("password")}>
-              {mode() === "reset" ? "New password" : "Password"}
+            <label class="flex flex-col gap-1.5 text-sm font-semibold">
+              <span>{mode() === "reset" ? "New password" : "Password"}</span>
+              <input
+                id={fieldId("password")}
+                type="password"
+                class="input input-bordered w-full"
+                value={password()}
+                onInput={(event) => setPassword(event.currentTarget.value)}
+                placeholder={mode() === "reset" ? "Choose a new password" : "Enter your password"}
+                autocomplete={mode() === "signin" ? "current-password" : "new-password"}
+                disabled={isSubmitting()}
+              />
             </label>
-            <input
-              id={fieldId("password")}
-              type="password"
-              class="input input-bordered w-full"
-              value={password()}
-              onInput={(event) => setPassword(event.currentTarget.value)}
-              placeholder={mode() === "reset" ? "Choose a new password" : "Enter your password"}
-              autocomplete={mode() === "signin" ? "current-password" : "new-password"}
-              disabled={isSubmitting()}
-            />
           </div>
         </Show>
 
         <Show when={showConfirmPasswordField()}>
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-semibold" for={fieldId("confirm-password")}>
-              Confirm password
+            <label class="flex flex-col gap-1.5 text-sm font-semibold">
+              <span>Confirm password</span>
+              <input
+                id={fieldId("confirm-password")}
+                type="password"
+                class="input input-bordered w-full"
+                value={confirmPassword()}
+                onInput={(event) => setConfirmPassword(event.currentTarget.value)}
+                placeholder="Repeat your password"
+                autocomplete="new-password"
+                disabled={isSubmitting()}
+              />
             </label>
-            <input
-              id={fieldId("confirm-password")}
-              type="password"
-              class="input input-bordered w-full"
-              value={confirmPassword()}
-              onInput={(event) => setConfirmPassword(event.currentTarget.value)}
-              placeholder="Repeat your password"
-              autocomplete="new-password"
-              disabled={isSubmitting()}
-            />
           </div>
         </Show>
 
