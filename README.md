@@ -41,10 +41,11 @@ See companion sensor project: [Goal Tracker Hardware](https://github.com/joshua-
 
 ## Setup
 
-This project pins its package manager via [Corepack](https://github.com/nodejs/corepack#readme) (included with Node.js 16+).
-Enable it once, then use `pnpm` for all commands:
+This project pins its local Node version in [`.nvmrc`](./.nvmrc) and its package manager via [Corepack](https://github.com/nodejs/corepack#readme) (included with Node.js 16+).
+If you use `nvm`, activate the repo version first, then enable Corepack and use `pnpm` for all commands:
 
 ```bash
+nvm use
 corepack enable
 corepack prepare pnpm@10.33.4 --activate
 pnpm install
@@ -219,6 +220,7 @@ Local agent screenshots are the PR proof path. CI does not generate or publish p
 Do not use `npx pnpm@10` for normal project commands. Enable Corepack once instead:
 
 ```bash
+nvm use
 corepack enable
 corepack prepare pnpm@10.33.4 --activate
 pnpm install

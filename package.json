@@ -56,6 +56,9 @@
     "solid-js": "^1.9.13"
   },
   "packageManager": "pnpm@10.33.4",
+  "engines": {
+    "node": ">=22.22.1"
+  },
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"
@@ -75,7 +78,7 @@
     "eslint-plugin-solid": "^0.14.5",
     "globals": "^17.6.0",
     "husky": "^9.1.7",
-    "lint-staged": "^15.2.11",
+    "lint-staged": "^17.0.5",
     "playwright": "^1.60.0",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
