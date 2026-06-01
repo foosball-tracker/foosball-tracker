@@ -114,6 +114,8 @@ This creates four confirmed test users via the Supabase Auth Admin API (using th
 
 ### Test Credentials
 
+Unless you explicitly override `LOCAL_TEST_USER_PASSWORD`, the local helper scripts use `password123`.
+
 | Email                   | Password      | Role  |
 | ----------------------- | ------------- | ----- |
 | `admin@example.local`   | `password123` | admin |
@@ -154,10 +156,8 @@ SUPABASE_SERVICE_ROLE_KEY=<local-service-role-key>
 ### Testing Workflow
 
 ```bash
-pnpm supabase:start
-pnpm db:reset
-LOCAL_TEST_USER_PASSWORD=<your-local-test-password> pnpm db:seed:auth
-pnpm dev
+pnpm local:setup
+pnpm local:dev
 ```
 
 Then log in with any of the test credentials above.
@@ -174,9 +174,11 @@ Start local Supabase, reset the database, and create auth test users — everyth
 pnpm local:setup
 ```
 
+If you want a password other than `password123`, prefix the command with `LOCAL_TEST_USER_PASSWORD=...`.
+
 ### Daily Development
 
-Start local Supabase and the dev server without wiping data:
+Start local Supabase, ensure the local auth users exist, and run Vite against the local Supabase URL/key automatically:
 
 ```bash
 pnpm local:dev

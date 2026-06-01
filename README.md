@@ -153,6 +153,16 @@ Manual UI inspection uses that same dedicated port, while routine local developm
 
 The script auto-detects whether a display is available. In headless environments (SSH, CI, containers), it runs headless automatically. To force headless mode: `pnpm auth:local -- --headless`. For a headed browser in a headless environment, use `xvfb-run pnpm auth:local`.
 
+## Local Login
+
+For a fully local app session, run:
+
+```bash
+pnpm local:dev
+```
+
+This starts local Supabase, ensures the local auth users exist, and runs Vite with the local Supabase URL/key. Log in with `admin@example.local` and `password123` by default, or set `LOCAL_TEST_USER_PASSWORD` before `pnpm local:dev` to use a different local-only password.
+
 ### Running tests
 
 ```bash
