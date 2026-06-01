@@ -64,7 +64,7 @@ The current score for a match is derived by counting valid `goal_detected` event
 SELECT * FROM get_match_score(<match_id>);
 ```
 
-This returns one row per team with their score. Only events with `type = 'goal_detected'` and `status = 'valid'` are counted.
+This returns one row per participating team (home and away) with their score. Teams with zero goals are included. Only events with `type = 'goal_detected'` and `status = 'valid'` are counted.
 
 ## Deduplication
 

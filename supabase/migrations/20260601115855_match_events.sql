@@ -104,21 +104,34 @@ CREATE INDEX match_events_match_id_created_at_idx
 -- =====================================================
 
 -- Derive the current score for a match from valid goal_detected events.
--- Returns one row per team with their valid goal count.
+-- Returns one row per participating team (home and away) with their valid goal count.
+-- Teams with zero goals are included via LEFT JOIN against the match row.
 CREATE OR REPLACE FUNCTION public.get_match_score(p_match_id bigint)
 RETURNS TABLE(team_id bigint, score bigint)
 LANGUAGE sql
 STABLE
 SET search_path TO ''
 AS $$
+  WITH match_teams AS (
+    SELECT m.home_team_id AS tid FROM public.matches m WHERE m.id = p_match_id
+    UNION
+    SELECT m.away_team_id FROM public.matches m WHERE m.id = p_match_id
+  ),
+  event_counts AS (
+    SELECT
+      me.team_id,
+      COUNT(*) AS cnt
+    FROM public.match_events me
+    WHERE me.match_id = p_match_id
+      AND me.type = 'goal_detected'
+      AND me.status = 'valid'
+    GROUP BY me.team_id
+  )
   SELECT
-    me.team_id,
-    COUNT(*) AS score
-  FROM public.match_events me
-  WHERE me.match_id = p_match_id
-    AND me.type = 'goal_detected'
-    AND me.status = 'valid'
-  GROUP BY me.team_id;
+    mt.tid AS team_id,
+    COALESCE(ec.cnt, 0) AS score
+  FROM match_teams mt
+  LEFT JOIN event_counts ec ON ec.team_id = mt.tid;
 $$;
 
 COMMENT ON FUNCTION public.get_match_score IS 'Returns the current score for a match by counting valid goal_detected events per team.';
