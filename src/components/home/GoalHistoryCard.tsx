@@ -108,7 +108,7 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
             {(row) => (
               <div
                 class={`rounded-box border-base-300 bg-base-200 [html[data-theme=dim]_&]:bg-base-100/10 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border px-3 py-2.5 shadow-sm sm:px-4 ${
-                  !row.isValid ? "opacity-50" : ""
+                  row.isValid ? "" : "opacity-50"
                 }`}
               >
                 <div class="flex min-w-0 items-center gap-2">
@@ -126,19 +126,19 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
                         : "border-neutral-content/20 bg-neutral text-neutral-content [html[data-theme=dim]_&]:border-neutral-content/30 [html[data-theme=dim]_&]:bg-neutral-content/12 [html[data-theme=dim]_&]:text-neutral-content"
                     }`}
                   >
-                    <span class={!row.isValid ? "line-through" : ""}>{row.teamLabel}</span>
+                    <span class={row.isValid ? "" : "line-through"}>{row.teamLabel}</span>
                   </span>
                 </div>
                 <span
                   class={`[html[data-theme=dim]_&]:text-neutral-content text-base leading-none font-black tracking-tight tabular-nums sm:text-lg ${
-                    !row.isValid ? "line-through" : ""
+                    row.isValid ? "" : "line-through"
                   }`}
                 >
                   {row.scoreLabel}
                 </span>
                 <span
                   class={`text-base-content/85 [html[data-theme=dim]_&]:text-neutral-content/90 text-sm font-bold tabular-nums ${
-                    !row.isValid ? "line-through" : ""
+                    row.isValid ? "" : "line-through"
                   }`}
                 >
                   {row.timeLabel}
