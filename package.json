@@ -18,6 +18,7 @@
     "db:reset": "supabase db reset",
     "db:migration:new": "supabase migration new",
     "db:types": "supabase gen types typescript --local --schema public > src/types/database.ts",
+    "db:seed:auth": "tsx scripts/seed-local-auth.ts",
     "db:push:remote": "supabase db push",
     "ui:inspect:start": "node scripts/ui-inspect-start.mjs",
     "ui:inspect:stop": "node scripts/ui-inspect-stop.mjs",

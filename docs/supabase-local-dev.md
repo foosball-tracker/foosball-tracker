@@ -101,6 +101,67 @@ The seed includes:
 - 2 completed matches with goals
 - 1 in-progress match
 
+## Local Auth Test Users
+
+The local database ships with no auth users (the app schema seed covers players, teams, and matches). To test authentication, RLS policies, and permission behaviour locally, run the auth seed script after `db:reset`:
+
+```bash
+npx pnpm@10 db:reset
+npx pnpm@10 db:seed:auth
+```
+
+This creates four confirmed test users via the Supabase Auth Admin API (using the **local service role key only**). The script is idempotent and safe to run repeatedly.
+
+### Test Credentials
+
+| Email                   | Password      | Role  |
+| ----------------------- | ------------- | ----- |
+| `admin@example.local`   | `password123` | admin |
+| `player1@example.local` | `password123` | user  |
+| `player2@example.local` | `password123` | user  |
+| `viewer@example.local`  | `password123` | user  |
+
+### How It Works
+
+The script:
+
+1. Refuses to run unless `SUPABASE_URL` points to `127.0.0.1` or `localhost`.
+2. Reads the local service role key from `SUPABASE_SERVICE_ROLE_KEY`.
+3. Creates confirmed users with fixed deterministic credentials via `supabase.auth.admin.createUser`.
+4. Upserts matching `profiles` rows (including `is_admin` for the admin user).
+5. Is idempotent — repeated runs skip already-existing users.
+
+### Environment Setup
+
+The script needs the local service role key. Get it from `supabase status`:
+
+```bash
+npx pnpm@10 supabase:status
+```
+
+Then export it before running the auth seed:
+
+```bash
+export SUPABASE_SERVICE_ROLE_KEY=<service_role-key-from-status>
+```
+
+Or create a `.env` file (which must not be committed) with:
+
+```env
+SUPABASE_SERVICE_ROLE_KEY=<local-service-role-key>
+```
+
+### Testing Workflow
+
+```bash
+npx pnpm@10 supabase:start
+npx pnpm@10 db:reset
+npx pnpm@10 db:seed:auth
+npx pnpm@10 dev
+```
+
+Then log in with any of the test credentials above.
+
 ## Pushing Migrations to Remote
 
 **This is a manual, dangerous operation.** Do not run it unless explicitly requested.
@@ -131,6 +192,7 @@ For normal development, migrations are applied to the Supabase preview branch au
 | Stop local Supabase        | `npx pnpm@10 supabase:stop`           |
 | Show local URLs/keys       | `npx pnpm@10 supabase:status`         |
 | Reset local DB             | `npx pnpm@10 db:reset`                |
+| Seed local auth users      | `npx pnpm@10 db:seed:auth`            |
 | Create migration           | `npx pnpm@10 db:migration:new <name>` |
 | Generate DB types          | `npx pnpm@10 db-types`                |
 | Push to remote (dangerous) | `npx pnpm@10 db:push:remote`          |
