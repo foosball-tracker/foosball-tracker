@@ -1,11 +1,6 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5";
-  };
   public: {
     Tables: {
       goals: {
@@ -50,6 +45,83 @@ export type Database = {
           },
           {
             foreignKeyName: "goals_team_id_fkey";
+            columns: ["team_id"];
+            isOneToOne: false;
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      match_events: {
+        Row: {
+          created_at: string;
+          dedupe_key: string | null;
+          goal_time: string | null;
+          id: number;
+          match_id: number;
+          metadata: Json | null;
+          player_id: number | null;
+          related_event_id: number | null;
+          source: Database["public"]["Enums"]["match_event_source"];
+          source_id: string | null;
+          status: Database["public"]["Enums"]["match_event_status"];
+          team_id: number;
+          type: Database["public"]["Enums"]["match_event_type"];
+        };
+        Insert: {
+          created_at?: string;
+          dedupe_key?: string | null;
+          goal_time?: string | null;
+          id?: number;
+          match_id: number;
+          metadata?: Json | null;
+          player_id?: number | null;
+          related_event_id?: number | null;
+          source: Database["public"]["Enums"]["match_event_source"];
+          source_id?: string | null;
+          status?: Database["public"]["Enums"]["match_event_status"];
+          team_id: number;
+          type: Database["public"]["Enums"]["match_event_type"];
+        };
+        Update: {
+          created_at?: string;
+          dedupe_key?: string | null;
+          goal_time?: string | null;
+          id?: number;
+          match_id?: number;
+          metadata?: Json | null;
+          player_id?: number | null;
+          related_event_id?: number | null;
+          source?: Database["public"]["Enums"]["match_event_source"];
+          source_id?: string | null;
+          status?: Database["public"]["Enums"]["match_event_status"];
+          team_id?: number;
+          type?: Database["public"]["Enums"]["match_event_type"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "match_events_match_id_fkey";
+            columns: ["match_id"];
+            isOneToOne: false;
+            referencedRelation: "matches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "match_events_player_id_fkey";
+            columns: ["player_id"];
+            isOneToOne: false;
+            referencedRelation: "players";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "match_events_related_event_id_fkey";
+            columns: ["related_event_id"];
+            isOneToOne: false;
+            referencedRelation: "match_events";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "match_events_team_id_fkey";
             columns: ["team_id"];
             isOneToOne: false;
             referencedRelation: "teams";
@@ -218,6 +290,13 @@ export type Database = {
         Args: { target_player_id: number };
         Returns: undefined;
       };
+      get_match_score: {
+        Args: { p_match_id: number };
+        Returns: {
+          score: number;
+          team_id: number;
+        }[];
+      };
       is_admin: { Args: never; Returns: boolean };
       update_team_with_members: {
         Args: {
@@ -229,6 +308,9 @@ export type Database = {
       };
     };
     Enums: {
+      match_event_source: "sensor" | "web" | "system";
+      match_event_status: "valid" | "invalid" | "removed";
+      match_event_type: "goal_detected" | "goal_removed" | "score_reset" | "manual_correction";
       team_type: "player" | "team";
     };
     CompositeTypes: {
@@ -355,6 +437,9 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      match_event_source: ["sensor", "web", "system"],
+      match_event_status: ["valid", "invalid", "removed"],
+      match_event_type: ["goal_detected", "goal_removed", "score_reset", "manual_correction"],
       team_type: ["player", "team"],
     },
   },

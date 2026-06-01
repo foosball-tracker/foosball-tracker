@@ -15,9 +15,11 @@ The system consists of:
 **Sensor-to-Web Flow**:
 
 1. Goal detected by Pico W sensor (debounced to prevent false positives)
-2. Pico W sends POST request to Supabase `goals` table via REST API
+2. Pico W sends POST request to Supabase `match_events` table via REST API
 3. Solid.js frontend listens for real-time database changes via Supabase Realtime
 4. UI updates scores and triggers sound effects through `soundService.ts`
+
+Scoring uses an event-based model where sensors and the web UI submit events and the backend derives scores from valid events. See [docs/event-based-scoring.md](./docs/event-based-scoring.md) for the full architecture.
 
 See companion sensor project: [Goal Tracker Hardware](https://github.com/joshua-lehmann/goal-tracker)
 
