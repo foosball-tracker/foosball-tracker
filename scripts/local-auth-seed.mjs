@@ -1,8 +1,11 @@
 import { spawnSync } from "node:child_process";
-import { DEFAULT_LOCAL_TEST_PASSWORD, parseStatusEnv, run } from "./lib/utils.mjs";
+import {
+  DEFAULT_LOCAL_TEST_PASSWORD,
+  createLocalAuthSeedEnv,
+  getLocalSupabaseStatus,
+} from "./lib/utils.mjs";
 
-const statusOutput = run("pnpm", ["supabase:status"]);
-const localEnv = parseStatusEnv(statusOutput);
+const { statusOutput, status: localStatus } = getLocalSupabaseStatus();
 const password = process.env.LOCAL_TEST_USER_PASSWORD ?? DEFAULT_LOCAL_TEST_PASSWORD;
 
 process.stdout.write(statusOutput);
@@ -14,9 +17,7 @@ const result = spawnSync("pnpm", ["db:seed:auth"], {
   env: {
     ...process.env,
     LOCAL_TEST_USER_PASSWORD: password,
-    SUPABASE_SERVICE_ROLE_KEY: localEnv.SERVICE_ROLE_KEY,
-    SUPABASE_URL: localEnv.API_URL,
-    VITE_SUPABASE_URL: localEnv.API_URL,
+    ...createLocalAuthSeedEnv(localStatus),
   },
 });
 

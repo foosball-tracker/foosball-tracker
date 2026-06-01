@@ -26,7 +26,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `pnpm dev --host 0.0.0.0 --port ${e2ePort} --strictPort`,
+    command: `node scripts/local-ui-server.mjs --port ${e2ePort}`,
     port: e2ePort,
     reuseExistingServer: !globalThis.process?.env.CI,
   },

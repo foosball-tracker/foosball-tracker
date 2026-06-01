@@ -91,15 +91,11 @@ export async function ensureInspectServer({ timeoutMs = 20_000 } = {}) {
   }
 
   const logFd = openSync(LOG_PATH, "a");
-  const child = spawn(
-    "pnpm",
-    ["dev", "--host", "0.0.0.0", "--port", String(INSPECT_PORT), "--strictPort"],
-    {
-      detached: true,
-      stdio: ["ignore", logFd, logFd],
-      env: process.env,
-    }
-  );
+  const child = spawn("node", ["scripts/local-ui-server.mjs", "--port", String(INSPECT_PORT)], {
+    detached: true,
+    stdio: ["ignore", logFd, logFd],
+    env: process.env,
+  });
 
   child.unref();
   await writeFile(PID_PATH, `${child.pid}\n`, "utf8");

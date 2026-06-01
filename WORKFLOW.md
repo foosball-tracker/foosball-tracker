@@ -35,20 +35,15 @@ git checkout -b feat/16-team-management-crud
 
 ## 3. Local Development
 
-1. If you need schema changes or seed data, start local Supabase first:
+1. Use the local Supabase stack for any work that touches the app, UI tests, or browser proofing. `pnpm local:setup` gives you a clean reset; `pnpm local:dev` gives you an iterative local app server with local Supabase and seeded auth users.
+2. Local UI, e2e, and proof flows must use the local API and local auth state. Do not rely on the remote `.env` values for those flows.
+3. Start the app against local Supabase with:
    ```bash
-   pnpm supabase:start
+   pnpm local:dev
    ```
-   See [`docs/supabase-local-dev.md`](./docs/supabase-local-dev.md) for full details.
-2. Ensure `.env` has `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
-   For local development, use `http://127.0.0.1:54321` and the local anon key from `pnpm supabase:status`.
-3. Start the dev server:
-   ```bash
-   pnpm dev
-   ```
+   See [`docs/supabase-local-dev.md`](./docs/supabase-local-dev.md) for the full local workflow and manual setup options.
 4. If the change touches UI, verify the browser workflow first:
-   Follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md) from start to finish.
-   This includes Playwright inspection, desktop/mobile verification, proof capture, and proof publication back to the PR.
+   Follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md) from start to finish. It covers local auth state, Playwright inspection, desktop/mobile proof capture, and proof publication back to the PR.
 5. Implement the feature. Follow the guidelines in `AGENTS.md` (SolidJS patterns, service/store split, etc.).
 
 ---
@@ -76,7 +71,7 @@ When working on schema changes, **use the local Supabase instance by default**:
    ```bash
    pnpm db-types
    ```
-6. Verify the app works against the local instance.
+6. Verify the app works against the local instance with `pnpm local:dev`.
 
 **Do not run `pnpm db:push:remote`** unless the user explicitly asks. The Supabase Git integration auto-deploys migrations to the PR preview branch on push.
 
@@ -87,6 +82,8 @@ For full details, see [`docs/supabase-local-dev.md`](./docs/supabase-local-dev.m
 ## 5. Demo Data (if needed)
 
 The local database is seeded automatically by `pnpm db:reset` from `supabase/seed.sql`.
+
+For local UI testing, mutation-based setup, and proofing, it is expected that you edit the local database freely. The local stack is disposable.
 
 For UI testing on Netlify deploy previews, demo data must be inserted directly into the **preview branch** database (not production) so the preview shows real content:
 
@@ -114,11 +111,14 @@ All three must pass before pushing.
 If the change touches UI, also complete the proof flow before pushing or before marking the PR ready:
 
 ```bash
+pnpm auth:local
+pnpm test:e2e
+pnpm test:e2e:auth
 pnpm proof:capture -- --name <descriptive-name> --route <route>
 pnpm proof:publish
 ```
 
-Then verify the PR comment contains working screenshot previews and direct links.
+Then verify the PR comment contains working screenshot previews and direct links from the local authenticated session.
 
 ---
 
@@ -266,7 +266,8 @@ Or merge via the GitHub UI.
 | DB reset        | `pnpm db:reset`                           |
 | Migration new   | `pnpm db:migration:new <name>`            |
 | DB types        | `pnpm db-types`                           |
-| Dev             | `pnpm dev`                                |
+| Dev             | `pnpm local:dev`                          |
+| Auth state      | `pnpm auth:local`                         |
 | Lint            | `pnpm lint`                               |
 | Format          | `pnpm format`                             |
 | Build           | `pnpm build`                              |

@@ -1,5 +1,10 @@
 import { spawn } from "node:child_process";
-import { DEFAULT_LOCAL_TEST_PASSWORD, parseStatusEnv, run } from "./lib/utils.mjs";
+import {
+  DEFAULT_LOCAL_TEST_PASSWORD,
+  createLocalViteEnv,
+  getLocalSupabaseStatus,
+  run,
+} from "./lib/utils.mjs";
 
 const AUTH_HEALTH_MAX_RETRIES = 30;
 const AUTH_HEALTH_RETRY_DELAY_MS = 1_000;
@@ -32,26 +37,22 @@ run("node", ["scripts/local-auth-seed.mjs"], {
   },
 });
 
-const statusOutput = run("pnpm", ["supabase:status"]);
-const localEnv = parseStatusEnv(statusOutput);
+const { status: localStatus } = getLocalSupabaseStatus();
 const password = process.env.LOCAL_TEST_USER_PASSWORD ?? DEFAULT_LOCAL_TEST_PASSWORD;
 
-await waitForAuthHealth(localEnv.API_URL);
+await waitForAuthHealth(localStatus.API_URL);
 
 console.log();
-console.log(`Starting Vite against local Supabase at ${localEnv.API_URL}`);
+console.log(`Starting Vite against local Supabase at ${localStatus.API_URL}`);
 console.log(`Log in with admin@example.local / ${password}`);
 
-const vite = spawn("pnpm", ["dev"], {
+const vite = spawn("node", ["scripts/local-ui-server.mjs", "--port", "5173"], {
   // NOSONAR - local dev script only
   stdio: "inherit",
   env: {
     ...process.env,
     LOCAL_TEST_USER_PASSWORD: password,
-    VITE_CONTEXT: "local",
-    VITE_SUPABASE_ANON_KEY: localEnv.ANON_KEY,
-    VITE_SUPABASE_PROJECT_ID: "foosball-tracker",
-    VITE_SUPABASE_URL: localEnv.API_URL,
+    ...createLocalViteEnv(localStatus),
   },
 });
 

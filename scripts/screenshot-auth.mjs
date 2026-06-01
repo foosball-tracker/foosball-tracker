@@ -1,5 +1,6 @@
 /* global document */
 import { chromium } from "playwright";
+import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { execSync } from "node:child_process";
 import { INSPECT_BASE_URL, ensureInspectServer } from "./ui-inspect-server.mjs";
@@ -34,6 +35,13 @@ function parseArgs(argv) {
 
 function sanitizeName(value) {
   return value.toLowerCase().replace(/[^a-z0-9-_]+/g, "-");
+}
+
+if (!existsSync("playwright/.auth/user.json")) {
+  console.error(
+    "Missing local Playwright auth state. Run `pnpm auth:local` against the local app before capturing proof."
+  );
+  process.exit(1);
 }
 
 const state = JSON.parse(

@@ -2,40 +2,55 @@
 
 Use this exact flow for every UI change.
 
-## Happy Path
+## Local-First Flow
 
-1. Run automated UI coverage first:
+1. Prepare the local backend:
+   ```sh
+   pnpm local:setup
+   ```
+   If Supabase is already running and you do not want a reset, use `pnpm supabase:start` instead.
+2. Keep the local app available while you work:
+   ```sh
+   pnpm local:dev
+   ```
+   This boots the app against local Supabase and seeds the local auth users.
+3. Refresh local browser auth when the change touches logged-in behavior:
+   ```sh
+   pnpm auth:local
+   ```
+   Use `pnpm auth:local -- --headless` when you need a non-interactive login flow.
+4. Run E2E coverage against the local app and local Supabase:
    ```sh
    pnpm test:e2e
+   pnpm test:e2e:auth
    ```
-   Run `pnpm test:e2e:auth` as well when your change depends on authenticated behavior or a configured Supabase auth surface.
-2. Start the dedicated inspection server:
+   The auth suite expects `playwright/.auth/user.json` from `pnpm auth:local`.
+5. Start the inspection server for Playwright screenshots:
    ```sh
    pnpm ui:inspect:start
    ```
-3. Inspect the changed route in Playwright MCP at both viewports:
+6. Inspect the changed route at both viewports:
    - Desktop: `1280x720`
    - Mobile: `375x812`
-4. Capture proof screenshots with descriptive names:
+7. Capture proof from the authenticated local session:
    ```sh
    pnpm proof:capture -- --name header-before --route /
    pnpm proof:capture -- --name header-after --route /
    ```
-5. Publish the proof set back to the open PR:
+8. Publish the proof set back to the open PR:
    ```sh
    pnpm proof:publish
    ```
-6. Open the PR comment and confirm the screenshot previews and direct links work.
-7. Run the final checks:
+9. Run the final checks:
    ```sh
    pnpm format:check
    pnpm lint
    pnpm build
    ```
-8. Stop the inspection server when done:
-   ```sh
-   pnpm ui:inspect:stop
-   ```
+10. Stop the inspection server when you are done:
+    ```sh
+    pnpm ui:inspect:stop
+    ```
 
 ## Required Checks
 
@@ -61,17 +76,17 @@ pnpm ui:inspect:status
 pnpm ui:inspect:stop
 ```
 
+Local auth state:
+
+```sh
+pnpm auth:local
+```
+
 Proof capture and publish:
 
 ```sh
 pnpm proof:capture -- --name <name> --route <route>
 pnpm proof:publish
-```
-
-Authenticated local browser state:
-
-```sh
-pnpm auth:local
 ```
 
 ## Output Locations
@@ -86,10 +101,10 @@ pnpm auth:local
 - Do not mark a UI PR ready for review until the screenshot comment is published and verified.
 - Do not use ad hoc screenshot scripts when `proof:capture` and `proof:publish` are available.
 - Do not use `pnpm dev` as the inspection server. Use `ui:inspect:start`.
+- Do not capture proof from a remote or preview environment when local Supabase is available.
 
 ## Troubleshooting
 
-- If Playwright auth state is missing, run `pnpm auth:local`.
-- Use `pnpm test:e2e` for the CI-safe anonymous smoke suite and `pnpm test:e2e:auth` for local authenticated integration coverage.
-- If the inspection server port is occupied, fix the port conflict instead of changing the port.
-- If published screenshot links are broken, rerun `proof:publish` and verify `pr-proof-assets` contains `pr-<number>/local/latest/*.png`.
+- If Playwright auth state is missing, rerun `pnpm auth:local` against the local app.
+- If the inspection server cannot start, confirm local Supabase is running and then rerun `pnpm ui:inspect:start`.
+- If published screenshot links are broken, rerun `pnpm proof:publish` and verify `pr-proof-assets` contains `pr-<number>/local/latest/*.png`.
