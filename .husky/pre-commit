@@ -1,1 +1,15 @@
-pnpm exec lint-staged
+#!/usr/bin/env sh
+
+NODE_VERSION=$(tr -d '[:space:]' < .nvmrc 2>/dev/null || true)
+NODE_BIN_DIR="$HOME/.nvm/versions/node/v${NODE_VERSION}/bin"
+
+if [ -n "$NODE_VERSION" ] && [ -d "$NODE_BIN_DIR" ]; then
+  PATH="$NODE_BIN_DIR:$PATH"
+  export PATH
+fi
+
+if command -v corepack >/dev/null 2>&1; then
+  corepack pnpm exec lint-staged
+else
+  pnpm exec lint-staged
+fi

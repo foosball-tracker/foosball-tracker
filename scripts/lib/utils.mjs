@@ -60,6 +60,12 @@ function createLocalAuthSeedEnv(localStatus) {
   };
 }
 
+function createLimitedViteEnv() {
+  return {
+    VITE_CONTEXT: "local",
+  };
+}
+
 function isLocalSupabaseUrl(value) {
   return /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?(\/|$)/.test(value ?? "");
 }
@@ -77,6 +83,10 @@ function resolveLocalViteEnv() {
     };
   }
 
+  if (process.env.CI === "true") {
+    return createLimitedViteEnv();
+  }
+
   const { status } = getLocalSupabaseStatus();
   return createLocalViteEnv(status);
 }
@@ -84,6 +94,7 @@ function resolveLocalViteEnv() {
 export {
   DEFAULT_LOCAL_TEST_PASSWORD,
   createLocalAuthSeedEnv,
+  createLimitedViteEnv,
   createLocalViteEnv,
   getLocalSupabaseStatus,
   parseStatusEnv,
