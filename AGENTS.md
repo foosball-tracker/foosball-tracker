@@ -22,6 +22,8 @@ For UI changes, also follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md)
 - Format check: `npx pnpm@10 format:check`
 - Format: `npx pnpm@10 format`
 - Regenerate Supabase DB types: `npx pnpm@10 db-types`
+- Start local Supabase: `npx pnpm@10 supabase:start`
+- Reset local DB (re-runs migrations + seed): `npx pnpm@10 db:reset`
 - UI proof capture: `npx pnpm@10 proof:capture -- --name <name> --route <route>`
 - UI proof publish: `npx pnpm@10 proof:publish`
 
@@ -53,6 +55,17 @@ Impeccable skills are installed at `.agents/skills/impeccable/` (for OpenCode/lo
 - Avoid destructuring props in a way that loses reactivity.
 - Follow existing project style, folder structure, routing setup, and component patterns.
 - Do not introduce a new UI library or state library unless the project already uses it.
+
+## Supabase Local-First Workflow
+
+- Use the local Supabase instance by default (start with `npx pnpm@10 supabase:start`).
+- Connect to `http://127.0.0.1:54321` with the local anon key from `npx pnpm@10 supabase:status`.
+- Never use production service role keys.
+- Test migration changes with `npx pnpm@10 db:reset`.
+- Regenerate types after schema changes with `npx pnpm@10 db:types`.
+- Avoid remote writes unless explicitly requested by the user.
+- Do not run `supabase db push` unless the user explicitly asks.
+- All Supabase MCP queries should target the local instance when it is running.
 
 ## Working Rules
 

@@ -35,15 +35,21 @@ git checkout -b feat/16-team-management-crud
 
 ## 3. Local Development
 
-1. Ensure `.env` has `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_SUPABASE_PROJECT_ID`.
-2. Start the dev server:
+1. If you need schema changes or seed data, start local Supabase first:
+   ```bash
+   npx pnpm@10 supabase:start
+   ```
+   See [`docs/supabase-local-dev.md`](./docs/supabase-local-dev.md) for full details.
+2. Ensure `.env` has `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+   For local development, use `http://127.0.0.1:54321` and the local anon key from `npx pnpm@10 supabase:status`.
+3. Start the dev server:
    ```bash
    npx pnpm@10 dev
    ```
-3. If the change touches UI, verify the browser workflow first:
+4. If the change touches UI, verify the browser workflow first:
    Follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md) from start to finish.
    This includes Playwright inspection, desktop/mobile verification, proof capture, and proof publication back to the PR.
-4. Implement the feature. Follow the guidelines in `AGENTS.md` (SolidJS patterns, service/store split, etc.).
+5. Implement the feature. Follow the guidelines in `AGENTS.md` (SolidJS patterns, service/store split, etc.).
 
 ---
 
@@ -51,22 +57,38 @@ git checkout -b feat/16-team-management-crud
 
 **Ask the user before making any schema change.**
 
-If a schema change is required:
+When working on schema changes, **use the local Supabase instance by default**:
 
-1. Use Supabase MCP `execute_sql` to iterate on the database directly.
-2. When the schema is stable, create a clean migration:
+1. Start local Supabase:
    ```bash
-   supabase migration new <descriptive-name>
-   supabase db pull --local --yes
+   npx pnpm@10 supabase:start
    ```
-3. Review the generated migration file in `supabase/migrations/`.
-4. The Supabase Git integration will auto-deploy the migration to the PR preview branch on push.
+2. Create a migration:
+   ```bash
+   npx pnpm@10 db:migration:new <descriptive-name>
+   ```
+3. Write the SQL migration in the generated file under `supabase/migrations/`.
+4. Test the migration locally:
+   ```bash
+   npx pnpm@10 db:reset
+   ```
+5. Regenerate database types:
+   ```bash
+   npx pnpm@10 db-types
+   ```
+6. Verify the app works against the local instance.
+
+**Do not run `npx pnpm@10 db:push:remote`** unless the user explicitly asks. The Supabase Git integration auto-deploys migrations to the PR preview branch on push.
+
+For full details, see [`docs/supabase-local-dev.md`](./docs/supabase-local-dev.md).
 
 ---
 
 ## 5. Demo Data (if needed)
 
-For UI testing, insert demo data into the **preview branch** (not production) so the Netlify deploy preview shows real content:
+The local database is seeded automatically by `npx pnpm@10 db:reset` from `supabase/seed.sql`.
+
+For UI testing on Netlify deploy previews, demo data must be inserted directly into the **preview branch** database (not production) so the preview shows real content:
 
 ```bash
 # Use MCP execute_sql or Supabase dashboard
@@ -239,6 +261,11 @@ Or merge via the GitHub UI.
 | Step            | Command / Action                          |
 | --------------- | ----------------------------------------- |
 | Branch          | `git checkout -b feat/<nr>-description`   |
+| Supabase start  | `npx pnpm@10 supabase:start`              |
+| Supabase status | `npx pnpm@10 supabase:status`             |
+| DB reset        | `npx pnpm@10 db:reset`                    |
+| Migration new   | `npx pnpm@10 db:migration:new <name>`     |
+| DB types        | `npx pnpm@10 db-types`                    |
 | Dev             | `npx pnpm@10 dev`                         |
 | Lint            | `npx pnpm@10 lint`                        |
 | Format          | `npx pnpm@10 format`                      |
