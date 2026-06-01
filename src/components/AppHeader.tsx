@@ -1,12 +1,13 @@
 import { A, useLocation } from "@solidjs/router";
-import { Menu, Trophy, Users } from "lucide-solid";
+import { Medal, Menu, UserRound, UsersRound } from "lucide-solid";
 import { createSignal, For } from "solid-js";
 import { Login } from "~/components/auth/Login.tsx";
 import { ThemeSwitch } from "~/components/ThemeSwitch.tsx";
 
 const navItems = [
-  { href: "/players", label: "Players", icon: Users },
-  { href: "/teams", label: "Teams", icon: Trophy },
+  { href: "/players", label: "Players", icon: UserRound },
+  { href: "/teams", label: "Teams", icon: UsersRound },
+  { href: "/leaderboard", label: "Leaderboard", icon: Medal },
 ];
 
 export function AppHeader() {

@@ -47,4 +47,8 @@ export const routes = [
       },
     ],
   },
+  {
+    path: "/leaderboard",
+    component: lazy(() => import("../components/leaderboard/LeaderboardPage.tsx")),
+  },
 ];
