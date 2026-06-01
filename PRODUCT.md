@@ -1,42 +1,33 @@
-# Product: Foosball Tracker
+# Product
 
 ## Register
 
-Product. Design serves the task.
+product
 
 ## Users
 
-Foosball players and enthusiasts tracking casual matches, scores, and team rosters. Typically in a social setting: a game room, office break area, or bar. Phone in hand, glancing between the table and the screen. Ambient lighting varies from bright to dim.
+Friends, private groups, and small tournament organizers who want a simple way to track foosball matches, scores, players, and teams. They are usually using the app during casual play or lightweight tournament sessions, often on a phone near the table, so the interface needs to be fast to scan and easy to operate in the moment.
 
-## Purpose
+## Product Purpose
 
-Track foosball matches in real time: start a game, record goals, see elapsed time, view goal history, manage players and teams. Secondary use: browse player and team records outside of active play.
+Foosball Tracker helps small groups keep score, manage players and teams, and maintain a clear overview of ongoing play without adding ceremony or complexity. Success looks like people being able to open the app, understand the current state immediately, and keep a match moving without the UI getting in the way.
 
 ## Brand Personality
 
-Functional, playful, direct. The app is a scoreboard with memory, not a social network. No gamification theatre, no achievement badges, no "level up" copy. The personality lives in the score display (large, bold numerals) and the team colour indicators, not in decorative elements.
+Clean, easy to handle, modern. The product should feel calm, straightforward, and dependable. It should support a strong overview of the game state, stay approachable for non-technical users, and feel polished on mobile as well as desktop.
 
-## Voice
+## Anti-references
 
-Clear, task-oriented. Button labels say what will happen: "Start Game", "Reset Game", "Create Player", "Delete". Error messages name the problem. No marketing language, no motivational copy.
-
-## Anti-References
-
-- Gamification cliches (XP bars, streak counters, achievement unlocks).
-- SaaS dashboard aesthetics applied to a game tracker.
-- Neon or arcade-themed "retro game" styling.
-- Purple gradients, glassmorphism, glass cards.
-- Heavy custom illustrations or mascot characters.
+Do not make this feel flashy, novelty-driven, over-animated, or visually loud. Avoid interfaces that prioritize visual tricks over usability, layouts that feel cluttered or cramped, and patterns that make the product feel like a public marketing site instead of a practical private tool.
 
 ## Design Principles
 
-1. **The table is the primary interface.** The app is a companion, not the main event. Get in, record the goal, get out.
-2. **Semantic colours only.** Every colour is a DaisyUI token that adapts to both themes. No hard-coded hex values in component code.
-3. **Consistency over surprise.** The same button shape, the same card structure, the same form vocabulary on every screen.
-4. **Both themes are first-class.** Every UI change must work in winter (light) and dim (dark).
+- Prioritize overview first: users should understand the current match state at a glance.
+- Keep interactions lightweight: common actions should take minimal thought and minimal taps.
+- Preserve familiar patterns: standard controls and consistent component behavior beat cleverness.
+- Design for real use at the table: mobile ergonomics and legibility matter as much as desktop polish.
+- Stay visually quiet: the interface should support the game, not compete with it.
 
-## Accessibility Needs
+## Accessibility & Inclusion
 
-- Touch targets must be large enough for one-handed use while standing.
-- Score numerals must be legible at a glance from arm's length.
-- Theme switch must respect `prefers-color-scheme` by default.
+Target solid baseline accessibility for everyday use, including strong text contrast, support for reduced motion, and reliable usability on small screens. Favor clear labels, touch-friendly controls, and layouts that remain readable and navigable during quick in-game interactions.
