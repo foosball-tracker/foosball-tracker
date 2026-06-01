@@ -43,6 +43,7 @@ console.log(`Starting Vite against local Supabase at ${localEnv.API_URL}`);
 console.log(`Log in with admin@example.local / ${password}`);
 
 const vite = spawn("pnpm", ["dev"], {
+  // NOSONAR - local dev script only
   stdio: "inherit",
   env: {
     ...process.env,

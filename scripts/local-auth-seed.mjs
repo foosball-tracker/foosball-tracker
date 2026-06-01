@@ -9,6 +9,7 @@ process.stdout.write(statusOutput);
 console.log(`Seeding local auth users with LOCAL_TEST_USER_PASSWORD=${password}`);
 
 const result = spawnSync("pnpm", ["db:seed:auth"], {
+  // NOSONAR - local dev script only
   stdio: "inherit",
   env: {
     ...process.env,

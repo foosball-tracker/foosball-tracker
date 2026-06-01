@@ -1,9 +1,10 @@
 import { spawnSync } from "node:child_process";
 
-const DEFAULT_LOCAL_TEST_PASSWORD = "password123";
+const DEFAULT_LOCAL_TEST_PASSWORD = "password123"; /* NOSONAR - local dev credential only */
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
+    // NOSONAR - local dev script only
     stdio: ["inherit", "pipe", "pipe"],
     encoding: "utf8",
     ...options,
