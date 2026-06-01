@@ -22,9 +22,9 @@ Use the local Supabase stack for day-to-day development, schema work, E2E tests,
 
 ## Local App Environment
 
-`pnpm local:dev` resolves the local Supabase URL and anon key automatically, then launches Vite against the local stack. That means you do not need to edit `.env.local` to work locally.
+`pnpm local:dev` resolves the local Supabase URL and anon key automatically, then launches Vite against the local stack on `127.0.0.1`. That means you do not need to edit `.env.local` to work locally.
 
-If your browser is running on a different machine than the shell that started `pnpm local:dev`, `http://localhost:5173` will not work. Use the Network URL Vite prints, or set up a port forward to the machine running the dev server.
+This default is intentional because it works well with VS Code port forwarding and remote-dev setups. If you want to expose the app on your LAN instead, run `LOCAL_UI_HOST=0.0.0.0 pnpm local:dev`.
 
 If you want to run `pnpm dev` manually, put the local values in `.env.local` first. The committed [`/.env.example`](/home/josh/coding/foosball-tracker/.env.example) and [`/.env.local.example`](/home/josh/coding/foosball-tracker/.env.local.example) files show the split.
 
@@ -34,7 +34,7 @@ If you want to manually reproduce an issue against the hosted Supabase project w
 pnpm local:hosted
 ```
 
-That command reads the hosted Supabase values from `.env` and still serves the app on localhost, so the browser origin stays local.
+That command reads the hosted Supabase values from `.env` and still serves the app on localhost by default, so the browser origin stays local.
 
 `pnpm local:hosted` is for manual repro only. Do not use it for E2E, auth bootstrap, or proof capture.
 

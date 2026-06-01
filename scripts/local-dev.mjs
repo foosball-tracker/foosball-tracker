@@ -46,7 +46,7 @@ console.log();
 console.log(`Starting Vite against local Supabase at ${localStatus.API_URL}`);
 console.log(`Log in with admin@example.local / ${password}`);
 console.log(
-  "If localhost does not load in your browser, use the Network URL Vite prints or a port forward."
+  "VS Code port forwarding should work again on localhost by default. Use LOCAL_UI_HOST=0.0.0.0 only when you want direct LAN access."
 );
 
 const vite = spawn("node", ["scripts/local-ui-server.mjs", "--port", "5173"], {

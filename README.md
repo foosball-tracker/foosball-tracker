@@ -137,7 +137,7 @@ For manual bug reproduction against the hosted Supabase project:
 - Run `pnpm local:hosted`
 
 The Supabase client in `src/service/supabaseService.ts` reads the `VITE_*` variables from the active environment, and the auth helpers use `VITE_CONTEXT` to determine the app origin for redirects. Make sure the local values match the types defined in `src/vite-env.d.ts`.
-If the browser is on a different machine than the one running `pnpm local:dev`, use the Network URL Vite prints instead of `localhost`.
+`pnpm local:dev` now binds to `127.0.0.1` by default again so VS Code port forwarding and remote-dev browser flows keep working. If you want LAN access instead, run `LOCAL_UI_HOST=0.0.0.0 pnpm local:dev`.
 
 ## E2E Testing
 

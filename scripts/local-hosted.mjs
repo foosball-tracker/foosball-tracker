@@ -75,9 +75,10 @@ function readHostedEnv() {
 
 const args = parseArgs(process.argv.slice(2));
 const port = args.port ?? process.env.PORT ?? "5173";
+const host = args.host ?? process.env.LOCAL_UI_HOST ?? "127.0.0.1";
 const hostedEnv = readHostedEnv();
 
-const vite = spawn("pnpm", ["dev", "--host", "0.0.0.0", "--port", String(port), "--strictPort"], {
+const vite = spawn("pnpm", ["dev", "--host", host, "--port", String(port), "--strictPort"], {
   stdio: "inherit",
   env: {
     ...process.env,

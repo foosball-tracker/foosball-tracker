@@ -31,9 +31,10 @@ function parseArgs(argv) {
 
 const args = parseArgs(process.argv.slice(2));
 const port = args.port ?? process.env.UI_INSPECT_PORT ?? process.env.PLAYWRIGHT_PORT ?? "4174";
+const host = args.host ?? process.env.LOCAL_UI_HOST ?? "127.0.0.1";
 const localEnv = resolveLocalViteEnv();
 
-const vite = spawn("pnpm", ["dev", "--host", "0.0.0.0", "--port", String(port), "--strictPort"], {
+const vite = spawn("pnpm", ["dev", "--host", host, "--port", String(port), "--strictPort"], {
   stdio: "inherit",
   env: {
     ...process.env,
