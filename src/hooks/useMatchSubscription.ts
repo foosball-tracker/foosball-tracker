@@ -1,29 +1,36 @@
-// src/hooks/useMatchSubscription.ts
 import { onCleanup } from "solid-js";
 import { supabase } from "~/service/supabaseService";
 import type { Tables } from "~/types/database";
 
-type GoalsRow = Tables<"goals">;
+type MatchEventRow = Tables<"match_events">;
 
 export function useMatchSubscription(
   matchId: number,
-  onGoalInsert: (goal: GoalsRow) => void,
-  onGoalDelete: (goalId: number) => void
+  onEventInsert: (event: MatchEventRow) => void,
+  onEventUpdate: (event: MatchEventRow) => void
 ) {
   if (!supabase) return;
   const channel = supabase
-    .channel(`match_goals_${matchId}`)
-    .on("postgres_changes", { event: "INSERT", schema: "public", table: "goals" }, (payload) => {
-      const newGoal = payload.new as GoalsRow;
-      if (newGoal.match_id === matchId) onGoalInsert(newGoal);
-    })
-    .on("postgres_changes", { event: "DELETE", schema: "public", table: "goals" }, (payload) => {
-      const oldGoalId = payload.old.id;
-      if (oldGoalId) onGoalDelete(oldGoalId);
-    })
+    .channel(`match_events_${matchId}`)
+    .on(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "match_events" },
+      (payload) => {
+        const newEvent = payload.new as MatchEventRow;
+        if (newEvent.match_id === matchId) onEventInsert(newEvent);
+      }
+    )
+    .on(
+      "postgres_changes",
+      { event: "UPDATE", schema: "public", table: "match_events" },
+      (payload) => {
+        const updatedEvent = payload.new as MatchEventRow;
+        if (updatedEvent.match_id === matchId) onEventUpdate(updatedEvent);
+      }
+    )
     .subscribe();
 
   onCleanup(() => {
-    channel.unsubscribe().then(() => console.info("Unsubscribed from match goals"));
+    channel.unsubscribe().then(() => console.info("Unsubscribed from match events"));
   });
 }

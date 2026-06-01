@@ -5,12 +5,12 @@ import type { ISettings } from "~/types/Settings";
 import type { Tables } from "~/types/database";
 
 type MatchRow = Tables<"matches">;
-type GoalRow = Tables<"goals">;
+type MatchEventRow = Tables<"match_events">;
 
 interface MatchDashboardProps {
   currentMatch: MatchRow;
   elapsedTime: number;
-  goals: GoalRow[];
+  matchEvents: MatchEventRow[];
   isPaused: boolean;
   leaderboardRefreshKey: number;
   onAdjustGoal: (teamId: number, increment: number) => Promise<void>;
@@ -26,7 +26,7 @@ export function MatchDashboard(props: Readonly<MatchDashboardProps>) {
         <ScoreBoard
           currentMatch={props.currentMatch}
           elapsedTime={props.elapsedTime}
-          goals={props.goals}
+          matchEvents={props.matchEvents}
           isPaused={props.isPaused}
           onAdjustGoal={props.onAdjustGoal}
           onResetGame={props.onResetGame}
@@ -36,7 +36,7 @@ export function MatchDashboard(props: Readonly<MatchDashboardProps>) {
         <GoalHistoryCard
           blackTeamId={props.settings.blackTeam.id}
           blackTeamName={props.settings.blackTeam.name}
-          goals={props.goals}
+          events={props.matchEvents}
           yellowTeamId={props.settings.yellowTeam.id}
           yellowTeamName={props.settings.yellowTeam.name}
         />

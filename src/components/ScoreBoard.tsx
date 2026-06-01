@@ -16,13 +16,13 @@ import { formatTime } from "~/lib/utils.ts";
 import type { ISettings } from "~/types/Settings";
 import type { Tables } from "~/types/database";
 
-type GoalRow = Tables<"goals">;
+type MatchEventRow = Tables<"match_events">;
 type MatchRow = Tables<"matches">;
 
 interface ScoreBoardProps {
   currentMatch: MatchRow;
   elapsedTime: number;
-  goals: GoalRow[];
+  matchEvents: MatchEventRow[];
   isPaused: boolean;
   onAdjustGoal: (teamId: number, increment: number) => Promise<void>;
   onResetGame: () => Promise<void>;
@@ -35,10 +35,22 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
   let scoreboardElement: HTMLElement | undefined;
 
   const yellowScore = createMemo(
-    () => props.goals.filter((goal) => goal.team_id === props.settings.yellowTeam.id).length
+    () =>
+      props.matchEvents.filter(
+        (e) =>
+          e.type === "goal_detected" &&
+          e.status === "valid" &&
+          e.team_id === props.settings.yellowTeam.id
+      ).length
   );
   const blackScore = createMemo(
-    () => props.goals.filter((goal) => goal.team_id === props.settings.blackTeam.id).length
+    () =>
+      props.matchEvents.filter(
+        (e) =>
+          e.type === "goal_detected" &&
+          e.status === "valid" &&
+          e.team_id === props.settings.blackTeam.id
+      ).length
   );
 
   const scoreboardDisabled = () => props.isPaused;
@@ -114,6 +126,8 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
     props.isPaused ? "badge badge-warning gap-2" : "badge badge-success gap-2";
 
   const recentGoalLimit = () => (isFullscreen() ? 4 : 0);
+
+  const goalEvents = createMemo(() => props.matchEvents.filter((e) => e.type === "goal_detected"));
 
   const centerScore = () => (
     <div class="border-base-300 bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content rounded-box border px-3 py-2 shadow-sm sm:px-6 sm:py-4">
@@ -226,14 +240,14 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
                 </p>
               </div>
               <span class="badge badge-outline badge-sm border-base-300 bg-base-100 [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content">
-                {Math.min(props.goals.length, recentGoalLimit())} shown
+                {Math.min(goalEvents().length, recentGoalLimit())} shown
               </span>
             </div>
             <div class="max-h-64 overflow-y-auto pr-1">
               <GoalHistoryCard
                 blackTeamId={props.settings.blackTeam.id}
                 blackTeamName={blackTeamName()}
-                goals={props.goals}
+                events={goalEvents()}
                 maxItems={recentGoalLimit()}
                 showHeader={false}
                 yellowTeamId={props.settings.yellowTeam.id}

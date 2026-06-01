@@ -2,12 +2,12 @@ import { For, Show, createMemo } from "solid-js";
 import { History } from "lucide-solid";
 import type { Tables } from "~/types/database";
 
-type GoalRow = Tables<"goals">;
+type MatchEventRow = Tables<"match_events">;
 
 interface GoalHistoryCardProps {
   blackTeamId?: number;
   blackTeamName: string;
-  goals: GoalRow[];
+  events: MatchEventRow[];
   maxItems?: number;
   showHeader?: boolean;
   yellowTeamId?: number;
@@ -20,6 +20,7 @@ interface GoalHistoryRow {
   teamLabel: string;
   teamTone: "yellow" | "black";
   timeLabel: string;
+  isValid: boolean;
 }
 
 export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
@@ -27,21 +28,27 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
     let yellowScore = 0;
     let blackScore = 0;
 
-    const mappedRows = props.goals.map((goal) => {
-      const isYellow = goal.team_id === props.yellowTeamId;
+    const goalEvents = props.events.filter((e) => e.type === "goal_detected");
 
-      if (isYellow) {
-        yellowScore += 1;
-      } else {
-        blackScore += 1;
+    const mappedRows = goalEvents.map((event) => {
+      const isYellow = event.team_id === props.yellowTeamId;
+      const isCounted = event.status === "valid";
+
+      if (isCounted) {
+        if (isYellow) {
+          yellowScore += 1;
+        } else {
+          blackScore += 1;
+        }
       }
 
       return {
-        id: goal.id,
+        id: event.id,
         scoreLabel: `${yellowScore} - ${blackScore}`,
         teamLabel: isYellow ? props.yellowTeamName : props.blackTeamName,
         teamTone: isYellow ? ("yellow" as const) : ("black" as const),
-        timeLabel: goal.goal_time.replace(/^00:/, ""),
+        timeLabel: (event.goal_time ?? "").replace(/^00:/, ""),
+        isValid: isCounted,
       };
     });
 
@@ -51,7 +58,7 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
   });
 
   const eventCountLabel = createMemo(() => {
-    const eventCount = props.goals.length;
+    const eventCount = rows().length;
     return `${eventCount} ${eventCount === 1 ? "event" : "events"}`;
   });
 
@@ -99,7 +106,11 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
             }
           >
             {(row) => (
-              <div class="rounded-box border-base-300 bg-base-200 [html[data-theme=dim]_&]:bg-base-100/10 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border px-3 py-2.5 shadow-sm sm:px-4">
+              <div
+                class={`rounded-box border-base-300 bg-base-200 [html[data-theme=dim]_&]:bg-base-100/10 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border px-3 py-2.5 shadow-sm sm:px-4 ${
+                  row.isValid ? "" : "opacity-50"
+                }`}
+              >
                 <div class="flex min-w-0 items-center gap-2">
                   <span
                     class={`h-3 w-3 shrink-0 rounded-full border ${
@@ -115,13 +126,21 @@ export function GoalHistoryCard(props: Readonly<GoalHistoryCardProps>) {
                         : "border-neutral-content/20 bg-neutral text-neutral-content [html[data-theme=dim]_&]:border-neutral-content/30 [html[data-theme=dim]_&]:bg-neutral-content/12 [html[data-theme=dim]_&]:text-neutral-content"
                     }`}
                   >
-                    {row.teamLabel}
+                    <span class={row.isValid ? "" : "line-through"}>{row.teamLabel}</span>
                   </span>
                 </div>
-                <span class="[html[data-theme=dim]_&]:text-neutral-content text-base leading-none font-black tracking-tight tabular-nums sm:text-lg">
+                <span
+                  class={`[html[data-theme=dim]_&]:text-neutral-content text-base leading-none font-black tracking-tight tabular-nums sm:text-lg ${
+                    row.isValid ? "" : "line-through"
+                  }`}
+                >
                   {row.scoreLabel}
                 </span>
-                <span class="text-base-content/85 [html[data-theme=dim]_&]:text-neutral-content/90 text-sm font-bold tabular-nums">
+                <span
+                  class={`text-base-content/85 [html[data-theme=dim]_&]:text-neutral-content/90 text-sm font-bold tabular-nums ${
+                    row.isValid ? "" : "line-through"
+                  }`}
+                >
                   {row.timeLabel}
                 </span>
               </div>

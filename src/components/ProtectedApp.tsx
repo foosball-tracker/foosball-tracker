@@ -13,7 +13,7 @@ import type { Tables } from "~/types/database.ts";
 import "../App.css";
 
 type MatchRow = Tables<"matches">;
-type GoalRow = Tables<"goals">;
+type MatchEventRow = Tables<"match_events">;
 
 export default function ProtectedApp() {
   const [settings, setSettings] = createLocalStorageStore<ISettings>("settings", {
@@ -23,7 +23,7 @@ export default function ProtectedApp() {
   });
   const [availableTeams] = createResource(getAllTeams);
   const [currentMatch, setCurrentMatch] = createSignal<MatchRow | null>(null);
-  const [goals, setGoals] = createSignal<GoalRow[]>([]);
+  const [matchEvents, setMatchEvents] = createSignal<MatchEventRow[]>([]);
   const [isPaused, setIsPaused] = createSignal(false);
   const [leaderboardRefreshKey, setLeaderboardRefreshKey] = createSignal(0);
   const { elapsedTime, reset, running, start, stop } = useGameTimer();
@@ -50,20 +50,32 @@ export default function ProtectedApp() {
     if (!match) return;
 
     setCurrentMatch(match);
-    setGoals(await matchService.fetchGoalsForMatch(match.id));
+    setMatchEvents(await matchService.fetchMatchEvents(match.id));
     await syncSettingsWithMatch(match);
     setIsPaused(false);
     start();
   };
 
-  const handleGoalInsert = (newGoal: GoalRow) => {
-    setGoals((prev) => (prev.some((goal) => goal.id === newGoal.id) ? prev : [...prev, newGoal]));
-    playSound("goal");
+  const handleEventInsert = (event: MatchEventRow) => {
+    setMatchEvents((prev) => (prev.some((e) => e.id === event.id) ? prev : [...prev, event]));
+    if (event.type === "goal_detected" && event.status === "valid") {
+      playSound("goal");
+    }
   };
 
-  const handleGoalDelete = (goalId: number) => {
-    setGoals((prev) => prev.filter((goal) => goal.id !== goalId));
-    playSound("no-goal");
+  const handleEventUpdate = (updatedEvent: MatchEventRow) => {
+    setMatchEvents((prev) => {
+      const oldEvent = prev.find((e) => e.id === updatedEvent.id);
+      const wasValidGoal = oldEvent?.type === "goal_detected" && oldEvent?.status === "valid";
+      const isNoLongerValid =
+        updatedEvent.type === "goal_detected" && updatedEvent.status !== "valid";
+
+      if (wasValidGoal && isNoLongerValid) {
+        playSound("no-goal");
+      }
+
+      return prev.map((e) => (e.id === updatedEvent.id ? updatedEvent : e));
+    });
   };
 
   const startGame = async () => {
@@ -81,7 +93,7 @@ export default function ProtectedApp() {
 
     reset();
     setCurrentMatch(match);
-    setGoals([]);
+    setMatchEvents([]);
     setIsPaused(false);
     start();
   };
@@ -91,11 +103,16 @@ export default function ProtectedApp() {
     if (!match || !running() || isPaused()) return;
 
     if (increment > 0) {
-      await matchService.recordGoal(match.id, teamId, elapsedTime(), matchService.formatGoalTime);
+      await matchService.recordGoalEvent(
+        match.id,
+        teamId,
+        elapsedTime(),
+        matchService.formatGoalTime
+      );
       return;
     }
 
-    await matchService.removeLastGoal(match.id, teamId);
+    await matchService.invalidateLastGoalForTeam(match.id, teamId, "manual correction");
   };
 
   const finalizeCurrentMatch = async (matchId: number) => {
@@ -119,7 +136,7 @@ export default function ProtectedApp() {
     stop();
     setIsPaused(false);
     reset();
-    setGoals([]);
+    setMatchEvents([]);
     setCurrentMatch(null);
   };
 
@@ -134,6 +151,13 @@ export default function ProtectedApp() {
     setIsPaused(true);
   };
 
+  const countValidGoals = (teamId: number | undefined) => {
+    if (!teamId) return 0;
+    return matchEvents().filter(
+      (e) => e.type === "goal_detected" && e.status === "valid" && e.team_id === teamId
+    ).length;
+  };
+
   onMount(() => {
     void hydrateActiveMatch();
     onCleanup(() => stop());
@@ -142,7 +166,7 @@ export default function ProtectedApp() {
   createEffect(() => {
     const match = currentMatch();
     if (match?.in_progress) {
-      useMatchSubscription(match.id, handleGoalInsert, handleGoalDelete);
+      useMatchSubscription(match.id, handleEventInsert, handleEventUpdate);
     }
   });
 
@@ -150,8 +174,8 @@ export default function ProtectedApp() {
     const match = currentMatch();
     if (!match?.in_progress || isPaused()) return;
 
-    const yellowScore = goals().filter((goal) => goal.team_id === settings.yellowTeam.id).length;
-    const blackScore = goals().filter((goal) => goal.team_id === settings.blackTeam.id).length;
+    const yellowScore = countValidGoals(settings.yellowTeam.id);
+    const blackScore = countValidGoals(settings.blackTeam.id);
 
     if (yellowScore < settings.goalsToWin && blackScore < settings.goalsToWin) return;
 
@@ -185,7 +209,7 @@ export default function ProtectedApp() {
           <MatchDashboard
             currentMatch={match}
             elapsedTime={elapsedTime()}
-            goals={goals()}
+            matchEvents={matchEvents()}
             isPaused={isPaused()}
             leaderboardRefreshKey={leaderboardRefreshKey()}
             onAdjustGoal={adjustGoal}
