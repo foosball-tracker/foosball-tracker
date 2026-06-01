@@ -8,6 +8,7 @@ Use this exact flow for every UI change.
    ```sh
    pnpm test:e2e
    ```
+   Run `pnpm test:e2e:auth` as well when your change depends on authenticated behavior or a configured Supabase auth surface.
 2. Start the dedicated inspection server:
    ```sh
    pnpm ui:inspect:start
@@ -89,5 +90,6 @@ pnpm auth:local
 ## Troubleshooting
 
 - If Playwright auth state is missing, run `pnpm auth:local`.
+- Use `pnpm test:e2e` for the CI-safe anonymous smoke suite and `pnpm test:e2e:auth` for local authenticated integration coverage.
 - If the inspection server port is occupied, fix the port conflict instead of changing the port.
 - If published screenshot links are broken, rerun `proof:publish` and verify `pr-proof-assets` contains `pr-<number>/local/latest/*.png`.

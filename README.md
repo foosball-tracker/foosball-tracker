@@ -140,7 +140,7 @@ Make sure these match the types defined in `src/vite-env.d.ts`.
 
 ## E2E Testing
 
-Playwright is used for authenticated end-to-end tests against a dedicated local test server on port `4174`.
+Playwright is split into a CI-safe anonymous smoke suite and a local authenticated integration suite, both against a dedicated test server on port `4174`.
 Manual UI inspection uses that same dedicated port, while routine local development stays on `5173`.
 
 ### Setup (one-time)
@@ -159,8 +159,21 @@ The script auto-detects whether a display is available. In headless environments
 pnpm test:e2e
 ```
 
-Playwright reuses the saved session when it exists and starts its own strict-port server automatically on `4174`.
-If the auth state file is missing, authenticated tests skip and anonymous smoke coverage still runs.
+This runs the anonymous smoke suite that CI also uses. It verifies app boot, anonymous routing, and the login/reset auth surfaces in both configured and unconfigured Supabase environments.
+
+For the authenticated local integration checks, run:
+
+```bash
+pnpm test:e2e:auth
+```
+
+To run both suites together, use:
+
+```bash
+pnpm test:e2e:all
+```
+
+Playwright starts its own strict-port server automatically on `4174`. The authenticated suite reuses the saved session when it exists and skips cleanly when it does not.
 
 ### Screenshots for PR proof
 
@@ -177,7 +190,7 @@ Local agent screenshots are the PR proof path. CI does not generate or publish p
 
 ### Troubleshooting
 
-- If tests redirect to login or fail with auth errors, the session has expired. Rerun `pnpm auth:local`.
+- If `pnpm test:e2e:auth` redirects to login or fails with auth errors, the session has expired. Rerun `pnpm auth:local`.
 - If manual inspection fails to start, check whether port `4174` is occupied by another process.
 - If e2e startup fails, check whether port `4174` is occupied by another process.
 - Never store the test user password in `.env` or commit `playwright/.auth/user.json`.
