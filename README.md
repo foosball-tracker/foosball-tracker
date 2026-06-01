@@ -73,7 +73,7 @@ Integrated with Supabase Auth for secure user management. Features include:
 Database types are automatically generated using:
 
 ```bash
-pnpm run db-types
+pnpm db-types
 ```
 
 ## Design System

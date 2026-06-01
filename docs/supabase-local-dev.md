@@ -5,7 +5,7 @@ This project supports local Supabase development so schema changes, migrations, 
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) (or a compatible runtime like Podman)
-- [Supabase CLI](https://supabase.com/docs/reference/cli) — run `npx supabase --version` or install globally
+- [Supabase CLI](https://supabase.com/docs/reference/cli) — run `supabase --version` or install it globally
 
 ## Starting Local Supabase
 
@@ -76,8 +76,8 @@ After writing the migration, test it locally:
 
 ```bash
 pnpm db:reset
-npm run db:types
-npm run dev
+pnpm db-types
+pnpm dev
 ```
 
 ## Generating Database Types

@@ -18,11 +18,10 @@
     "db:reset": "supabase db reset",
     "db:migration:new": "supabase migration new",
     "db-types": "supabase gen types typescript --local --schema public > src/types/database.ts",
-    "db:types": "supabase gen types typescript --local --schema public > src/types/database.ts",
     "db:seed:auth": "tsx scripts/seed-local-auth.ts",
-    "local:setup": "npm run supabase:start && npm run db:reset && npm run db:seed:auth",
-    "local:reset": "npm run db:reset && npm run db:seed:auth",
-    "local:dev": "npm run supabase:start && npm run dev",
+    "local:setup": "pnpm supabase:start && pnpm db:reset && pnpm db:seed:auth",
+    "local:reset": "pnpm db:reset && pnpm db:seed:auth",
+    "local:dev": "pnpm supabase:start && pnpm dev",
     "db:push:remote": "supabase db push",
     "ui:inspect:start": "node scripts/ui-inspect-start.mjs",
     "ui:inspect:stop": "node scripts/ui-inspect-stop.mjs",
@@ -33,10 +32,10 @@
     "test:e2e": "playwright test e2e/anonymous-smoke.spec.ts",
     "test:e2e:auth": "playwright test e2e/auth-integration.spec.ts",
     "test:e2e:all": "playwright test",
-    "design:lint": "npx @google/design.md lint DESIGN.md",
-    "design:spec": "npx @google/design.md spec --rules",
-    "design:export": "npx @google/design.md export --format tailwind DESIGN.md",
-    "design:detect": "npx impeccable detect src/"
+    "design:lint": "pnpm dlx @google/design.md lint DESIGN.md",
+    "design:spec": "pnpm dlx @google/design.md spec --rules",
+    "design:export": "pnpm dlx @google/design.md export --format tailwind DESIGN.md",
+    "design:detect": "pnpm dlx impeccable detect src/"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [
