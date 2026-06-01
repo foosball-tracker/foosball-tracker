@@ -45,6 +45,9 @@ await waitForAuthHealth(localStatus.API_URL);
 console.log();
 console.log(`Starting Vite against local Supabase at ${localStatus.API_URL}`);
 console.log(`Log in with admin@example.local / ${password}`);
+console.log(
+  "If localhost does not load in your browser, use the Network URL Vite prints or a port forward."
+);
 
 const vite = spawn("node", ["scripts/local-ui-server.mjs", "--port", "5173"], {
   // NOSONAR - local dev script only

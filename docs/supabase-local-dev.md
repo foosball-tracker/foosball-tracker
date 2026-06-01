@@ -24,6 +24,8 @@ Use the local Supabase stack for day-to-day development, schema work, E2E tests,
 
 `pnpm local:dev` resolves the local Supabase URL and anon key automatically, then launches Vite against the local stack. That means you do not need to edit `.env.local` to work locally.
 
+If your browser is running on a different machine than the shell that started `pnpm local:dev`, `http://localhost:5173` will not work. Use the Network URL Vite prints, or set up a port forward to the machine running the dev server.
+
 If you want to run `pnpm dev` manually, put the local values in `.env.local` first. The committed [`/.env.example`](/home/josh/coding/foosball-tracker/.env.example) and [`/.env.local.example`](/home/josh/coding/foosball-tracker/.env.local.example) files show the split.
 
 If you want to manually reproduce an issue against the hosted Supabase project while keeping the app local, use:
