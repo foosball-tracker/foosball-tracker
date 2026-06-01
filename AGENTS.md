@@ -64,7 +64,7 @@ Impeccable skills are installed at `.agents/skills/impeccable/` (for OpenCode/lo
 - Connect to `http://127.0.0.1:54321` with the local anon key from `pnpm supabase:status`.
 - Never use production service role keys.
 - Test migration changes with `pnpm db:reset`.
-- Regenerate types after schema changes with `pnpm db:types`.
+- Regenerate types after schema changes with `pnpm db-types`.
 - Avoid remote writes unless explicitly requested by the user.
 - Do not run `supabase db push` unless the user explicitly asks.
 - All Supabase MCP queries should target the local instance when it is running.

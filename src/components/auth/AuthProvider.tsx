@@ -11,6 +11,8 @@ import {
 import { clearAuthRedirectState, isRecoveryRedirect } from "~/components/auth/authHelper.ts";
 import { hasSupabaseConfig, supabase } from "~/service/supabaseService";
 
+const SESSION_BOOT_TIMEOUT_MS = 8_000;
+
 interface AuthContextValue {
   loading: Accessor<boolean>;
   recoveryMode: Accessor<boolean>;
@@ -28,51 +30,69 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
 
   onMount(() => {
     let disposed = false;
-    let unsubscribe: (() => void) | undefined;
 
     if (!hasSupabaseConfig() || !supabase) {
       setLoading(false);
       return;
     }
 
-    void (async () => {
-      const {
-        data: { session: currentSession },
-      } = await supabase.auth.getSession();
-
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
       if (disposed) return;
 
-      setSession(currentSession);
-      setRecoveryMode(isRecoveryRedirect());
+      setSession(nextSession);
       setLoading(false);
 
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((event, nextSession) => {
-        setSession(nextSession);
+      if (event === "PASSWORD_RECOVERY") {
+        setRecoveryMode(true);
+        return;
+      }
+
+      if (event === "INITIAL_SESSION") {
+        setRecoveryMode(isRecoveryRedirect());
+        return;
+      }
+
+      if (event === "SIGNED_OUT") {
+        setRecoveryMode(false);
+      }
+    });
+
+    const sessionTimeout = globalThis.setTimeout(() => {
+      if (disposed) return;
+
+      console.warn("Supabase session bootstrap timed out; continuing without a session.");
+      setRecoveryMode(isRecoveryRedirect());
+      setLoading(false);
+    }, SESSION_BOOT_TIMEOUT_MS);
+
+    void (async () => {
+      try {
+        const {
+          data: { session: currentSession },
+        } = await supabase.auth.getSession();
+
+        if (disposed) return;
+
+        globalThis.clearTimeout(sessionTimeout);
+        setSession(currentSession);
+        setRecoveryMode(isRecoveryRedirect());
         setLoading(false);
+      } catch (error) {
+        if (disposed) return;
 
-        if (event === "PASSWORD_RECOVERY") {
-          setRecoveryMode(true);
-          return;
-        }
-
-        if (event === "INITIAL_SESSION") {
-          setRecoveryMode(isRecoveryRedirect());
-          return;
-        }
-
-        if (event === "SIGNED_OUT") {
-          setRecoveryMode(false);
-        }
-      });
-
-      unsubscribe = () => subscription.unsubscribe();
+        globalThis.clearTimeout(sessionTimeout);
+        console.error("Failed to bootstrap Supabase session:", error);
+        setRecoveryMode(isRecoveryRedirect());
+        setLoading(false);
+      }
     })();
 
     onCleanup(() => {
       disposed = true;
-      unsubscribe?.();
+      globalThis.clearTimeout(sessionTimeout);
+      subscription.unsubscribe();
     });
   });
 

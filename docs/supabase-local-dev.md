@@ -5,7 +5,7 @@ This project supports local Supabase development so schema changes, migrations, 
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) (or a compatible runtime like Podman)
-- [Supabase CLI](https://supabase.com/docs/reference/cli) — run `npx supabase --version` or install globally
+- [Supabase CLI](https://supabase.com/docs/reference/cli) — run `supabase --version` or install it globally
 
 ## Starting Local Supabase
 
@@ -76,8 +76,8 @@ After writing the migration, test it locally:
 
 ```bash
 pnpm db:reset
-npm run db:types
-npm run dev
+pnpm db-types
+pnpm dev
 ```
 
 ## Generating Database Types
@@ -113,6 +113,8 @@ LOCAL_TEST_USER_PASSWORD=<your-local-test-password> pnpm db:seed:auth
 This creates four confirmed test users via the Supabase Auth Admin API (using the **local service role key only**). The script is idempotent and safe to run repeatedly.
 
 ### Test Credentials
+
+Unless you explicitly override `LOCAL_TEST_USER_PASSWORD`, the local helper scripts use `password123`.
 
 | Email                   | Password      | Role  |
 | ----------------------- | ------------- | ----- |
@@ -154,10 +156,8 @@ SUPABASE_SERVICE_ROLE_KEY=<local-service-role-key>
 ### Testing Workflow
 
 ```bash
-pnpm supabase:start
-pnpm db:reset
-LOCAL_TEST_USER_PASSWORD=<your-local-test-password> pnpm db:seed:auth
-pnpm dev
+pnpm local:setup
+pnpm local:dev
 ```
 
 Then log in with any of the test credentials above.
@@ -174,9 +174,11 @@ Start local Supabase, reset the database, and create auth test users — everyth
 pnpm local:setup
 ```
 
+If you want a password other than `password123`, prefix the command with `LOCAL_TEST_USER_PASSWORD=...`.
+
 ### Daily Development
 
-Start local Supabase and the dev server without wiping data:
+Start local Supabase, ensure the local auth users exist, and run Vite against the local Supabase URL/key automatically:
 
 ```bash
 pnpm local:dev
