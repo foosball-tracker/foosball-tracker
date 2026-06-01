@@ -115,14 +115,23 @@ export default function ProtectedApp() {
     await matchService.invalidateLastGoalForTeam(match.id, teamId, "manual correction");
   };
 
+  let finalizing = false;
+
   const finalizeCurrentMatch = async (matchId: number) => {
+    if (finalizing) return false;
+    finalizing = true;
+
     const didEnd = await matchService.endGame(matchId);
-    if (!didEnd) return false;
+    if (!didEnd) {
+      finalizing = false;
+      return false;
+    }
 
     stop();
     setIsPaused(false);
     setCurrentMatch((match) => (match ? { ...match, in_progress: false } : match));
     setLeaderboardRefreshKey((value) => value + 1);
+    finalizing = false;
     return true;
   };
 
@@ -135,6 +144,60 @@ export default function ProtectedApp() {
 
     stop();
     setIsPaused(false);
+    reset();
+    setMatchEvents([]);
+    setCurrentMatch(null);
+  };
+
+  const rematch = async () => {
+    const match = currentMatch();
+    if (!match) return;
+
+    const newMatch = await matchService.createMatch(
+      match.home_team_id,
+      match.away_team_id,
+      match.goals_to_win
+    );
+    if (!newMatch) {
+      alert("Could not start the rematch. Please try again.");
+      return;
+    }
+
+    reset();
+    setCurrentMatch(newMatch);
+    setMatchEvents([]);
+    setIsPaused(false);
+    start();
+  };
+
+  const rematchSwitched = async () => {
+    const match = currentMatch();
+    if (!match) return;
+
+    const newMatch = await matchService.createMatch(
+      match.away_team_id,
+      match.home_team_id,
+      match.goals_to_win
+    );
+    if (!newMatch) {
+      alert("Could not start the rematch. Please try again.");
+      return;
+    }
+
+    setSettings({
+      yellowTeam: { ...settings.blackTeam },
+      blackTeam: { ...settings.yellowTeam },
+    });
+
+    reset();
+    setCurrentMatch(newMatch);
+    setMatchEvents([]);
+    setIsPaused(false);
+    start();
+  };
+
+  const newGame = () => {
+    stop();
     reset();
     setMatchEvents([]);
     setCurrentMatch(null);
@@ -186,9 +249,10 @@ export default function ProtectedApp() {
     });
   });
 
-  const activeMatch = () => {
+  const activeMatch = () => currentMatch();
+  const isMatchComplete = () => {
     const match = currentMatch();
-    return match?.in_progress ? match : null;
+    return match ? !match.in_progress : false;
   };
 
   return (
@@ -211,8 +275,12 @@ export default function ProtectedApp() {
             elapsedTime={elapsedTime()}
             matchEvents={matchEvents()}
             isPaused={isPaused()}
+            isComplete={isMatchComplete()}
             leaderboardRefreshKey={leaderboardRefreshKey()}
             onAdjustGoal={adjustGoal}
+            onRematch={rematch}
+            onRematchSwitched={rematchSwitched}
+            onNewGame={newGame}
             onResetGame={resetGame}
             onTogglePause={togglePause}
             settings={settings}

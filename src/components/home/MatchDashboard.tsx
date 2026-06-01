@@ -12,8 +12,12 @@ interface MatchDashboardProps {
   elapsedTime: number;
   matchEvents: MatchEventRow[];
   isPaused: boolean;
+  isComplete: boolean;
   leaderboardRefreshKey: number;
   onAdjustGoal: (teamId: number, increment: number) => Promise<void>;
+  onRematch: () => Promise<void>;
+  onRematchSwitched: () => Promise<void>;
+  onNewGame: () => void;
   onResetGame: () => Promise<void>;
   onTogglePause: () => void;
   settings: ISettings;
@@ -28,7 +32,11 @@ export function MatchDashboard(props: Readonly<MatchDashboardProps>) {
           elapsedTime={props.elapsedTime}
           matchEvents={props.matchEvents}
           isPaused={props.isPaused}
+          isComplete={props.isComplete}
           onAdjustGoal={props.onAdjustGoal}
+          onRematch={props.onRematch}
+          onRematchSwitched={props.onRematchSwitched}
+          onNewGame={props.onNewGame}
           onResetGame={props.onResetGame}
           onTogglePause={props.onTogglePause}
           settings={props.settings}
