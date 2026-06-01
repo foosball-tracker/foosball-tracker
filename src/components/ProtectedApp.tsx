@@ -28,6 +28,22 @@ export default function ProtectedApp() {
   const [leaderboardRefreshKey, setLeaderboardRefreshKey] = createSignal(0);
   const { elapsedTime, reset, running, start, stop } = useGameTimer();
 
+  const countValidGoals = (events: MatchEventRow[], teamId: number | undefined) => {
+    if (!teamId) return 0;
+
+    return events.filter(
+      (event) =>
+        event.type === "goal_detected" && event.status === "valid" && event.team_id === teamId
+    ).length;
+  };
+
+  const isHydratedMatchComplete = (match: MatchRow, events: MatchEventRow[]) => {
+    const yellowGoals = countValidGoals(events, match.home_team_id);
+    const blackGoals = countValidGoals(events, match.away_team_id);
+
+    return yellowGoals >= match.goals_to_win || blackGoals >= match.goals_to_win;
+  };
+
   const syncSettingsWithMatch = async (match: MatchRow) => {
     const teams = await getTeamsByIds([match.home_team_id, match.away_team_id]);
     const teamById = new Map(teams.map((team) => [team.id, team]));
@@ -49,8 +65,20 @@ export default function ProtectedApp() {
     const match = await matchService.getLatestMatch();
     if (!match) return;
 
+    const events = await matchService.fetchMatchEvents(match.id);
+
+    if (isHydratedMatchComplete(match, events)) {
+      await matchService.endGame(match.id);
+      setLeaderboardRefreshKey((value) => value + 1);
+      reset();
+      setIsPaused(false);
+      setMatchEvents([]);
+      setCurrentMatch(null);
+      return;
+    }
+
     setCurrentMatch(match);
-    setMatchEvents(await matchService.fetchMatchEvents(match.id));
+    setMatchEvents(events);
     await syncSettingsWithMatch(match);
     setIsPaused(false);
     start();
@@ -214,13 +242,6 @@ export default function ProtectedApp() {
     setIsPaused(true);
   };
 
-  const countValidGoals = (teamId: number | undefined) => {
-    if (!teamId) return 0;
-    return matchEvents().filter(
-      (e) => e.type === "goal_detected" && e.status === "valid" && e.team_id === teamId
-    ).length;
-  };
-
   onMount(() => {
     void hydrateActiveMatch();
     onCleanup(() => stop());
@@ -237,8 +258,9 @@ export default function ProtectedApp() {
     const match = currentMatch();
     if (!match?.in_progress || isPaused()) return;
 
-    const yellowScore = countValidGoals(settings.yellowTeam.id);
-    const blackScore = countValidGoals(settings.blackTeam.id);
+    const events = matchEvents();
+    const yellowScore = countValidGoals(events, settings.yellowTeam.id);
+    const blackScore = countValidGoals(events, settings.blackTeam.id);
 
     if (yellowScore < settings.goalsToWin && blackScore < settings.goalsToWin) return;
 
