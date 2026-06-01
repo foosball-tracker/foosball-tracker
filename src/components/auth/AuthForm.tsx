@@ -44,7 +44,16 @@ const modeCopy: Record<
 };
 
 function validateEmail(email: string) {
-  return /.+@.+\..+/.test(email);
+  const trimmedEmail = email.trim();
+  const atIndex = trimmedEmail.indexOf("@");
+  const dotIndex = trimmedEmail.lastIndexOf(".");
+
+  return (
+    atIndex > 0 &&
+    dotIndex > atIndex + 1 &&
+    dotIndex < trimmedEmail.length - 1 &&
+    !trimmedEmail.includes(" ")
+  );
 }
 
 function mapAuthError(error: unknown, mode: AuthMode) {
@@ -190,6 +199,72 @@ export function AuthForm(props: Readonly<AuthFormProps>) {
     return null;
   };
 
+  const handleSignIn = async () => {
+    const { error } = await supabase!.auth.signInWithPassword({
+      email: email().trim(),
+      password: password(),
+    });
+    if (error) throw error;
+  };
+
+  const handleSignUp = async () => {
+    const { data, error } = await supabase!.auth.signUp({
+      email: email().trim(),
+      password: password(),
+      options: {
+        emailRedirectTo: getRedirectUrl(),
+      },
+    });
+    if (error) throw error;
+
+    setPassword("");
+    setConfirmPassword("");
+
+    if (!data.session) {
+      setSuccessMessage("Check your email to confirm your account, then sign in.");
+      setMode("signin");
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const { error } = await supabase!.auth.resetPasswordForEmail(email().trim(), {
+      redirectTo: getAuthRouteUrl("/login"),
+    });
+    if (error) throw error;
+
+    setSuccessMessage("If that email is registered, a reset link is on its way.");
+  };
+
+  const handlePasswordReset = async () => {
+    const { error } = await supabase!.auth.updateUser({ password: password() });
+    if (error) throw error;
+
+    setPassword("");
+    setConfirmPassword("");
+    setSuccessMessage("Password updated. Redirecting you back to the app.");
+    redirectTimer = setTimeout(() => {
+      clearRecoveryMode();
+      navigate("/", { replace: true });
+    }, 900);
+  };
+
+  const runEmailAction = async () => {
+    switch (mode()) {
+      case "signin":
+        await handleSignIn();
+        return;
+      case "signup":
+        await handleSignUp();
+        return;
+      case "forgot":
+        await handleForgotPassword();
+        return;
+      case "reset":
+        await handlePasswordReset();
+        return;
+    }
+  };
+
   const handleEmailSubmit = async () => {
     const validationError = validateForm();
     if (validationError) {
@@ -207,54 +282,7 @@ export function AuthForm(props: Readonly<AuthFormProps>) {
         throw new Error("Supabase is not configured");
       }
 
-      if (mode() === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: email().trim(),
-          password: password(),
-        });
-        if (error) throw error;
-      }
-
-      if (mode() === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email: email().trim(),
-          password: password(),
-          options: {
-            emailRedirectTo: getRedirectUrl(),
-          },
-        });
-        if (error) throw error;
-
-        setPassword("");
-        setConfirmPassword("");
-
-        if (!data.session) {
-          setSuccessMessage("Check your email to confirm your account, then sign in.");
-          setMode("signin");
-        }
-      }
-
-      if (mode() === "forgot") {
-        const { error } = await supabase.auth.resetPasswordForEmail(email().trim(), {
-          redirectTo: getAuthRouteUrl("/login"),
-        });
-        if (error) throw error;
-
-        setSuccessMessage("If that email is registered, a reset link is on its way.");
-      }
-
-      if (mode() === "reset") {
-        const { error } = await supabase.auth.updateUser({ password: password() });
-        if (error) throw error;
-
-        setPassword("");
-        setConfirmPassword("");
-        setSuccessMessage("Password updated. Redirecting you back to the app.");
-        redirectTimer = setTimeout(() => {
-          clearRecoveryMode();
-          navigate("/", { replace: true });
-        }, 900);
-      }
+      await runEmailAction();
     } catch (error) {
       setErrorMessage(mapAuthError(error, mode()));
     } finally {
@@ -335,8 +363,8 @@ export function AuthForm(props: Readonly<AuthFormProps>) {
         }}
       >
         <Show when={mode() !== "reset"}>
-          <fieldset class="fieldset gap-1">
-            <label class="fieldset-legend" for={fieldId("email")}>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-semibold" for={fieldId("email")}>
               Email address
             </label>
             <input
@@ -351,12 +379,12 @@ export function AuthForm(props: Readonly<AuthFormProps>) {
               spellcheck={false}
               disabled={isSubmitting()}
             />
-          </fieldset>
+          </div>
         </Show>
 
         <Show when={showPasswordField()}>
-          <fieldset class="fieldset gap-1">
-            <label class="fieldset-legend" for={fieldId("password")}>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-semibold" for={fieldId("password")}>
               {mode() === "reset" ? "New password" : "Password"}
             </label>
             <input
@@ -369,12 +397,12 @@ export function AuthForm(props: Readonly<AuthFormProps>) {
               autocomplete={mode() === "signin" ? "current-password" : "new-password"}
               disabled={isSubmitting()}
             />
-          </fieldset>
+          </div>
         </Show>
 
         <Show when={showConfirmPasswordField()}>
-          <fieldset class="fieldset gap-1">
-            <label class="fieldset-legend" for={fieldId("confirm-password")}>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-semibold" for={fieldId("confirm-password")}>
               Confirm password
             </label>
             <input
@@ -387,7 +415,7 @@ export function AuthForm(props: Readonly<AuthFormProps>) {
               autocomplete="new-password"
               disabled={isSubmitting()}
             />
-          </fieldset>
+          </div>
         </Show>
 
         <div class="space-y-3 pt-2">
