@@ -28,7 +28,7 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install chromium
 
-      - name: Run E2E tests
+      - name: Run anonymous smoke tests
         run: pnpm test:e2e
 
       - name: Upload test results

@@ -15,15 +15,19 @@ For UI changes, also follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md)
 
 ## Common Commands
 
-- Install: `npx pnpm@10 install`
-- Dev server: `npx pnpm@10 dev`
-- Build: `npx pnpm@10 build`
-- Lint: `npx pnpm@10 lint`
-- Format check: `npx pnpm@10 format:check`
-- Format: `npx pnpm@10 format`
-- Regenerate Supabase DB types: `npx pnpm@10 db-types`
-- UI proof capture: `npx pnpm@10 proof:capture -- --name <name> --route <route>`
-- UI proof publish: `npx pnpm@10 proof:publish`
+- Install: `pnpm install`
+- Dev server: `pnpm dev`
+- Build: `pnpm build`
+- Lint: `pnpm lint`
+- Format check: `pnpm format:check`
+- Format: `pnpm format`
+- Regenerate Supabase DB types: `pnpm db-types`
+- Start local Supabase: `pnpm supabase:start`
+- Reset local DB (re-runs migrations + seed): `pnpm db:reset`
+- UI proof capture: `pnpm proof:capture -- --name <name> --route <route>`
+- UI proof publish: `pnpm proof:publish`
+
+The project uses pnpm via Corepack (see `packageManager` in `package.json`). Run `corepack enable` once if `pnpm` is not found. Do not use `npx pnpm@10` — use `pnpm` directly.
 
 ## Repo Structure
 
@@ -53,6 +57,17 @@ Impeccable skills are installed at `.agents/skills/impeccable/` (for OpenCode/lo
 - Avoid destructuring props in a way that loses reactivity.
 - Follow existing project style, folder structure, routing setup, and component patterns.
 - Do not introduce a new UI library or state library unless the project already uses it.
+
+## Supabase Local-First Workflow
+
+- Use the local Supabase instance by default (start with `pnpm supabase:start`).
+- Connect to `http://127.0.0.1:54321` with the local anon key from `pnpm supabase:status`.
+- Never use production service role keys.
+- Test migration changes with `pnpm db:reset`.
+- Regenerate types after schema changes with `pnpm db:types`.
+- Avoid remote writes unless explicitly requested by the user.
+- Do not run `supabase db push` unless the user explicitly asks.
+- All Supabase MCP queries should target the local instance when it is running.
 
 ## Working Rules
 

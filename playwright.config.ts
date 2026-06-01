@@ -26,7 +26,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npx pnpm@10 dev --host 0.0.0.0 --port ${e2ePort} --strictPort`,
+    command: `pnpm dev --host 0.0.0.0 --port ${e2ePort} --strictPort`,
     port: e2ePort,
     reuseExistingServer: !globalThis.process?.env.CI,
   },
