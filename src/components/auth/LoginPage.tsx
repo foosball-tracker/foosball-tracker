@@ -17,35 +17,35 @@ export default function LoginPage() {
 
   return (
     <main class="mx-auto flex min-h-full w-full max-w-lg flex-col justify-center px-4 py-8 sm:px-6">
-      <div class="card border-base-300 bg-base-100 shadow-sm">
-        <div class="card-body gap-5 p-6 sm:p-8">
-          <div>
-            <h1 class="text-2xl font-black tracking-tight">Sign in</h1>
-            <p class="text-base-content/70 mt-2 text-sm">
-              Sign in to manage teams, players, and matches.
-            </p>
-          </div>
-
-          <Show when={!loading()} fallback={<Spinner />}>
-            <Show
-              when={hasSupabaseConfig()}
-              fallback={
-                <div class="alert alert-warning">
-                  <span>Supabase is not configured. Sign in is unavailable.</span>
+      <Show when={!loading()} fallback={<Spinner />}>
+        <Show
+          when={hasSupabaseConfig()}
+          fallback={
+            <div class="card border-base-300 bg-base-100 shadow-sm">
+              <div class="card-body gap-5 p-6 sm:p-8">
+                <div class="space-y-2">
+                  <h1 class="text-2xl font-black tracking-tight">Sign in unavailable</h1>
+                  <p class="text-base-content/80 text-sm">
+                    Supabase is not configured, so authentication cannot be used right now.
+                  </p>
                 </div>
-              }
-            >
-              <AuthForm />
-            </Show>
-          </Show>
 
-          <div class="card-actions justify-start">
-            <A class="btn btn-ghost btn-sm" href="/">
-              Back to start
-            </A>
-          </div>
-        </div>
-      </div>
+                <div class="alert alert-warning text-sm">
+                  <span>Add the local Supabase environment variables to enable sign-in.</span>
+                </div>
+
+                <div class="card-actions justify-start">
+                  <A class="btn btn-ghost btn-sm" href="/">
+                    Back to start
+                  </A>
+                </div>
+              </div>
+            </div>
+          }
+        >
+          <AuthForm idPrefix="login-page" showBackLink surface="card" />
+        </Show>
+      </Show>
     </main>
   );
 }

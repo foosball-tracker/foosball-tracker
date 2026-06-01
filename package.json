@@ -36,8 +36,6 @@
   "dependencies": {
     "@solid-primitives/scheduled": "^1.5.3",
     "@solidjs/router": "^0.16.1",
-    "@supabase/auth-ui-shared": "^0.1.8",
-    "@supabase/auth-ui-solid": "^0.3.8",
     "@supabase/supabase-js": "^2.105.4",
     "@tanstack/solid-table": "^8.21.3",
     "lucide-solid": "^1.16.0",
