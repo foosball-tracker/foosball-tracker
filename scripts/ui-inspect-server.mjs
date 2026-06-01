@@ -92,8 +92,8 @@ export async function ensureInspectServer({ timeoutMs = 20_000 } = {}) {
 
   const logFd = openSync(LOG_PATH, "a");
   const child = spawn(
-    "npx",
-    ["pnpm@10", "dev", "--host", "0.0.0.0", "--port", String(INSPECT_PORT), "--strictPort"],
+    "pnpm",
+    ["dev", "--host", "0.0.0.0", "--port", String(INSPECT_PORT), "--strictPort"],
     {
       detached: true,
       stdio: ["ignore", logFd, logFd],

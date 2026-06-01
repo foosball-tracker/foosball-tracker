@@ -13,7 +13,7 @@ if (!supabaseUrl?.includes("127.0.0.1") && !supabaseUrl?.includes("localhost")) 
 if (!serviceRoleKey) {
   console.error("Error: Missing SUPABASE_SERVICE_ROLE_KEY environment variable.");
   console.error(
-    "  Run `npx pnpm@10 supabase:status` and set SUPABASE_SERVICE_ROLE_KEY to the service_role key."
+    "  Run `pnpm supabase:status` and set SUPABASE_SERVICE_ROLE_KEY to the service_role key."
   );
   process.exit(1);
 }

@@ -10,7 +10,7 @@ This project supports local Supabase development so schema changes, migrations, 
 ## Starting Local Supabase
 
 ```bash
-npx pnpm@10 supabase:start
+pnpm supabase:start
 ```
 
 This starts all local Supabase services (Postgres, API, Auth, Storage, Studio, etc.) via Docker.
@@ -18,13 +18,13 @@ This starts all local Supabase services (Postgres, API, Auth, Storage, Studio, e
 ## Stopping Local Supabase
 
 ```bash
-npx pnpm@10 supabase:stop
+pnpm supabase:stop
 ```
 
 ## Inspecting Local URLs and Keys
 
 ```bash
-npx pnpm@10 supabase:status
+pnpm supabase:status
 ```
 
 This prints the local environment variables needed to connect:
@@ -51,7 +51,7 @@ VITE_CONTEXT=local
 Then start the dev server as usual:
 
 ```bash
-npx pnpm@10 dev
+pnpm dev
 ```
 
 ## Resetting the Database
@@ -59,7 +59,7 @@ npx pnpm@10 dev
 Drops the local database, re-runs all migrations, and applies seed data:
 
 ```bash
-npx pnpm@10 db:reset
+pnpm db:reset
 ```
 
 This is the recommended way to get a clean state after schema changes.
@@ -67,7 +67,7 @@ This is the recommended way to get a clean state after schema changes.
 ## Creating a New Migration
 
 ```bash
-npx pnpm@10 db:migration:new <descriptive-name>
+pnpm db:migration:new <descriptive-name>
 ```
 
 This creates a new timestamped `.sql` file in `supabase/migrations/`. Write your DDL changes there.
@@ -75,7 +75,7 @@ This creates a new timestamped `.sql` file in `supabase/migrations/`. Write your
 After writing the migration, test it locally:
 
 ```bash
-npx pnpm@10 db:reset
+pnpm db:reset
 npm run db:types
 npm run dev
 ```
@@ -85,7 +85,7 @@ npm run dev
 Generate TypeScript types from the **local** database schema:
 
 ```bash
-npx pnpm@10 db-types
+pnpm db-types
 ```
 
 This writes the types to `src/types/database.ts`. Run this after any schema change.
@@ -106,8 +106,8 @@ The seed includes:
 The local database ships with no auth users (the app schema seed covers players, teams, and matches). To test authentication, RLS policies, and permission behaviour locally, run the auth seed script after `db:reset`:
 
 ```bash
-npx pnpm@10 db:reset
-npx pnpm@10 db:seed:auth
+pnpm db:reset
+pnpm db:seed:auth
 ```
 
 This creates four confirmed test users via the Supabase Auth Admin API (using the **local service role key only**). The script is idempotent and safe to run repeatedly.
@@ -136,7 +136,7 @@ The script:
 The script needs the local service role key. Get it from `supabase status`:
 
 ```bash
-npx pnpm@10 supabase:status
+pnpm supabase:status
 ```
 
 Then export it before running the auth seed:
@@ -154,10 +154,10 @@ SUPABASE_SERVICE_ROLE_KEY=<local-service-role-key>
 ### Testing Workflow
 
 ```bash
-npx pnpm@10 supabase:start
-npx pnpm@10 db:reset
-npx pnpm@10 db:seed:auth
-npx pnpm@10 dev
+pnpm supabase:start
+pnpm db:reset
+pnpm db:seed:auth
+pnpm dev
 ```
 
 Then log in with any of the test credentials above.
@@ -171,7 +171,7 @@ Convenience scripts are available for common local development workflows.
 Start local Supabase, reset the database, and create auth test users — everything in one command:
 
 ```bash
-npx pnpm@10 local:setup
+pnpm local:setup
 ```
 
 ### Daily Development
@@ -179,7 +179,7 @@ npx pnpm@10 local:setup
 Start local Supabase and the dev server without wiping data:
 
 ```bash
-npx pnpm@10 local:dev
+pnpm local:dev
 ```
 
 Open the app at the Vite URL (usually `http://localhost:5173`) and log in with:
@@ -206,7 +206,7 @@ Use these local-only users to test:
 Wipe and reseed the local database and recreate auth users:
 
 ```bash
-npx pnpm@10 local:reset
+pnpm local:reset
 ```
 
 ### Supabase Studio
@@ -214,13 +214,13 @@ npx pnpm@10 local:reset
 Inspect local data via the Supabase Studio. Start local Supabase, then open the Studio URL shown by `supabase:status` (usually `http://127.0.0.1:54323`):
 
 ```bash
-npx pnpm@10 supabase:status
+pnpm supabase:status
 ```
 
 ### Stop
 
 ```bash
-npx pnpm@10 supabase:stop
+pnpm supabase:stop
 ```
 
 ## Pushing Migrations to Remote
@@ -228,7 +228,7 @@ npx pnpm@10 supabase:stop
 **This is a manual, dangerous operation.** Do not run it unless explicitly requested.
 
 ```bash
-npx pnpm@10 db:push:remote
+pnpm db:push:remote
 ```
 
 For normal development, migrations are applied to the Supabase preview branch automatically when a PR is opened (via Supabase Git integration). A direct push should only be used when:
@@ -247,18 +247,18 @@ For normal development, migrations are applied to the Supabase preview branch au
 
 ## Quick Reference
 
-| Task                       | Command                               |
-| -------------------------- | ------------------------------------- |
-| Full local setup           | `npx pnpm@10 local:setup`             |
-| Local dev (no wipe)        | `npx pnpm@10 local:dev`               |
-| Reset DB + auth            | `npx pnpm@10 local:reset`             |
-| Start local Supabase       | `npx pnpm@10 supabase:start`          |
-| Stop local Supabase        | `npx pnpm@10 supabase:stop`           |
-| Show local URLs/keys       | `npx pnpm@10 supabase:status`         |
-| Reset local DB             | `npx pnpm@10 db:reset`                |
-| Seed local auth users      | `npx pnpm@10 db:seed:auth`            |
-| Create migration           | `npx pnpm@10 db:migration:new <name>` |
-| Generate DB types          | `npx pnpm@10 db-types`                |
-| Push to remote (dangerous) | `npx pnpm@10 db:push:remote`          |
-| Supabase Studio            | http://127.0.0.1:54323                |
-| Email testing (Inbucket)   | http://127.0.0.1:54324                |
+| Task                       | Command                        |
+| -------------------------- | ------------------------------ |
+| Full local setup           | `pnpm local:setup`             |
+| Local dev (no wipe)        | `pnpm local:dev`               |
+| Reset DB + auth            | `pnpm local:reset`             |
+| Start local Supabase       | `pnpm supabase:start`          |
+| Stop local Supabase        | `pnpm supabase:stop`           |
+| Show local URLs/keys       | `pnpm supabase:status`         |
+| Reset local DB             | `pnpm db:reset`                |
+| Seed local auth users      | `pnpm db:seed:auth`            |
+| Create migration           | `pnpm db:migration:new <name>` |
+| Generate DB types          | `pnpm db-types`                |
+| Push to remote (dangerous) | `pnpm db:push:remote`          |
+| Supabase Studio            | http://127.0.0.1:54323         |
+| Email testing (Inbucket)   | http://127.0.0.1:54324         |

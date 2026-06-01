@@ -37,12 +37,25 @@ See companion sensor project: [Goal Tracker Hardware](https://github.com/joshua-
 - **Supabase** v2.49.1 ([Backend Services](https://supabase.com/))
 - **UI Components**: Lucide Solid icons v0.479.0
 
+## Setup
+
+This project pins its package manager via [Corepack](https://github.com/nodejs/corepack#readme) (included with Node.js 16+).
+Enable it once, then use `pnpm` for all commands:
+
+```bash
+corepack enable
+corepack prepare pnpm@10.33.4 --activate
+pnpm install
+```
+
+After setup, run commands directly:
+
 ```bash
 pnpm install
-pnpm run dev  # Starts Vite dev server
-pnpm run build  # Production build
-pnpm run lint  # ESLint checks
-pnpm run format  # Prettier formatting
+pnpm dev     # Starts Vite dev server
+pnpm build   # Production build
+pnpm lint    # ESLint checks
+pnpm format  # Prettier formatting
 pnpm db-types  # Generate Supabase types from database schema
 ```
 
@@ -168,3 +181,15 @@ Local agent screenshots are the PR proof path. CI does not generate or publish p
 - If manual inspection fails to start, check whether port `4174` is occupied by another process.
 - If e2e startup fails, check whether port `4174` is occupied by another process.
 - Never store the test user password in `.env` or commit `playwright/.auth/user.json`.
+
+### `pnpm` command asks to install pnpm
+
+Do not use `npx pnpm@10` for normal project commands. Enable Corepack once instead:
+
+```bash
+corepack enable
+corepack prepare pnpm@10.33.4 --activate
+pnpm install
+```
+
+Then use `pnpm` directly. The `packageManager` field in `package.json` is the single source of truth for the pnpm version.

@@ -37,14 +37,14 @@ git checkout -b feat/16-team-management-crud
 
 1. If you need schema changes or seed data, start local Supabase first:
    ```bash
-   npx pnpm@10 supabase:start
+   pnpm supabase:start
    ```
    See [`docs/supabase-local-dev.md`](./docs/supabase-local-dev.md) for full details.
 2. Ensure `.env` has `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
-   For local development, use `http://127.0.0.1:54321` and the local anon key from `npx pnpm@10 supabase:status`.
+   For local development, use `http://127.0.0.1:54321` and the local anon key from `pnpm supabase:status`.
 3. Start the dev server:
    ```bash
-   npx pnpm@10 dev
+   pnpm dev
    ```
 4. If the change touches UI, verify the browser workflow first:
    Follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md) from start to finish.
@@ -61,24 +61,24 @@ When working on schema changes, **use the local Supabase instance by default**:
 
 1. Start local Supabase:
    ```bash
-   npx pnpm@10 supabase:start
+   pnpm supabase:start
    ```
 2. Create a migration:
    ```bash
-   npx pnpm@10 db:migration:new <descriptive-name>
+   pnpm db:migration:new <descriptive-name>
    ```
 3. Write the SQL migration in the generated file under `supabase/migrations/`.
 4. Test the migration locally:
    ```bash
-   npx pnpm@10 db:reset
+   pnpm db:reset
    ```
 5. Regenerate database types:
    ```bash
-   npx pnpm@10 db-types
+   pnpm db-types
    ```
 6. Verify the app works against the local instance.
 
-**Do not run `npx pnpm@10 db:push:remote`** unless the user explicitly asks. The Supabase Git integration auto-deploys migrations to the PR preview branch on push.
+**Do not run `pnpm db:push:remote`** unless the user explicitly asks. The Supabase Git integration auto-deploys migrations to the PR preview branch on push.
 
 For full details, see [`docs/supabase-local-dev.md`](./docs/supabase-local-dev.md).
 
@@ -86,7 +86,7 @@ For full details, see [`docs/supabase-local-dev.md`](./docs/supabase-local-dev.m
 
 ## 5. Demo Data (if needed)
 
-The local database is seeded automatically by `npx pnpm@10 db:reset` from `supabase/seed.sql`.
+The local database is seeded automatically by `pnpm db:reset` from `supabase/seed.sql`.
 
 For UI testing on Netlify deploy previews, demo data must be inserted directly into the **preview branch** database (not production) so the preview shows real content:
 
@@ -104,9 +104,9 @@ The Supabase preview branch is auto-created for every PR and seeded from migrati
 Run these **before every commit** (Husky runs them on staged files, but run them manually for safety):
 
 ```bash
-npx pnpm@10 lint        # ESLint
-npx pnpm@10 format:check # Prettier
-npx pnpm@10 build       # TypeScript + Vite build
+pnpm lint        # ESLint
+pnpm format:check # Prettier
+pnpm build       # TypeScript + Vite build
 ```
 
 All three must pass before pushing.
@@ -114,8 +114,8 @@ All three must pass before pushing.
 If the change touches UI, also complete the proof flow before pushing or before marking the PR ready:
 
 ```bash
-npx pnpm@10 proof:capture -- --name <descriptive-name> --route <route>
-npx pnpm@10 proof:publish
+pnpm proof:capture -- --name <descriptive-name> --route <route>
+pnpm proof:publish
 ```
 
 Then verify the PR comment contains working screenshot previews and direct links.
@@ -261,15 +261,15 @@ Or merge via the GitHub UI.
 | Step            | Command / Action                          |
 | --------------- | ----------------------------------------- |
 | Branch          | `git checkout -b feat/<nr>-description`   |
-| Supabase start  | `npx pnpm@10 supabase:start`              |
-| Supabase status | `npx pnpm@10 supabase:status`             |
-| DB reset        | `npx pnpm@10 db:reset`                    |
-| Migration new   | `npx pnpm@10 db:migration:new <name>`     |
-| DB types        | `npx pnpm@10 db-types`                    |
-| Dev             | `npx pnpm@10 dev`                         |
-| Lint            | `npx pnpm@10 lint`                        |
-| Format          | `npx pnpm@10 format`                      |
-| Build           | `npx pnpm@10 build`                       |
+| Supabase start  | `pnpm supabase:start`                     |
+| Supabase status | `pnpm supabase:status`                    |
+| DB reset        | `pnpm db:reset`                           |
+| Migration new   | `pnpm db:migration:new <name>`            |
+| DB types        | `pnpm db-types`                           |
+| Dev             | `pnpm dev`                                |
+| Lint            | `pnpm lint`                               |
+| Format          | `pnpm format`                             |
+| Build           | `pnpm build`                              |
 | PR              | `gh pr create --title "..." --body "..."` |
 | Preview         | Check Netlify bot comment on PR           |
 | Codex re-review | `@codex review` PR comment                |
