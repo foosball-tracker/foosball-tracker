@@ -10,7 +10,7 @@ const PUBLIC_PATHS = new Set(["/login"]);
 export const MainLayout: ParentComponent = (props) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { loading, session } = useAuthSession();
+  const { loading, recoveryMode, session } = useAuthSession();
 
   const isPublicRoute = () => PUBLIC_PATHS.has(location.pathname);
 
@@ -22,7 +22,7 @@ export const MainLayout: ParentComponent = (props) => {
       return;
     }
 
-    if (session() && location.pathname === "/login") {
+    if (session() && location.pathname === "/login" && !recoveryMode()) {
       navigate("/", { replace: true });
     }
   });
@@ -39,7 +39,9 @@ export const MainLayout: ParentComponent = (props) => {
             </div>
           </Match>
           <Match when={isPublicRoute() || session()}>
-            <Show when={!(session() && location.pathname === "/login")}>{props.children}</Show>
+            <Show when={!(session() && location.pathname === "/login" && !recoveryMode())}>
+              {props.children}
+            </Show>
           </Match>
           <Match when={true}>
             <div class="flex min-h-full items-center justify-center">

@@ -20,9 +20,8 @@ export function AuthDialog(props: Readonly<AuthDialogProps>) {
         {props.buttonLabel ?? "Sign in"}
       </button>
       <dialog id="login-modal" class="modal">
-        <div class="modal-box">
-          <h3 class="text-lg font-bold">Sign in</h3>
-          <AuthForm />
+        <div class="modal-box max-w-md p-6 sm:p-8">
+          <AuthForm surface="plain" />
           <div class="modal-action">
             <form method="dialog">
               <button class="btn btn-ghost btn-sm sm:btn-md">Close</button>

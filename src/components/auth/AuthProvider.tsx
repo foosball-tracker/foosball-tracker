@@ -8,11 +8,14 @@ import {
   type Accessor,
   type JSX,
 } from "solid-js";
+import { clearAuthRedirectState, isRecoveryRedirect } from "~/components/auth/authHelper.ts";
 import { hasSupabaseConfig, supabase } from "~/service/supabaseService";
 
 interface AuthContextValue {
   loading: Accessor<boolean>;
+  recoveryMode: Accessor<boolean>;
   session: Accessor<Session | null>;
+  clearRecoveryMode: () => void;
   signOut: () => Promise<void>;
 }
 
@@ -21,6 +24,7 @@ const AuthContext = createContext<AuthContextValue>();
 export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
   const [session, setSession] = createSignal<Session | null>(null);
   const [loading, setLoading] = createSignal(hasSupabaseConfig());
+  const [recoveryMode, setRecoveryMode] = createSignal(false);
 
   onMount(() => {
     let disposed = false;
@@ -39,13 +43,28 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
       if (disposed) return;
 
       setSession(currentSession);
+      setRecoveryMode(isRecoveryRedirect());
       setLoading(false);
 
       const {
         data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      } = supabase.auth.onAuthStateChange((event, nextSession) => {
         setSession(nextSession);
         setLoading(false);
+
+        if (event === "PASSWORD_RECOVERY") {
+          setRecoveryMode(true);
+          return;
+        }
+
+        if (event === "INITIAL_SESSION") {
+          setRecoveryMode(isRecoveryRedirect());
+          return;
+        }
+
+        if (event === "SIGNED_OUT") {
+          setRecoveryMode(false);
+        }
       });
 
       unsubscribe = () => subscription.unsubscribe();
@@ -57,6 +76,11 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
     });
   });
 
+  const clearRecoveryMode = () => {
+    setRecoveryMode(false);
+    clearAuthRedirectState();
+  };
+
   const signOut = async () => {
     if (!supabase) return;
     const { error } = await supabase.auth.signOut();
@@ -66,7 +90,7 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
   };
 
   return (
-    <AuthContext.Provider value={{ loading, session, signOut }}>
+    <AuthContext.Provider value={{ loading, recoveryMode, session, clearRecoveryMode, signOut }}>
       {props.children}
     </AuthContext.Provider>
   );

@@ -14,12 +14,6 @@ importers:
       '@solidjs/router':
         specifier: ^0.16.1
         version: 0.16.1(solid-js@1.9.13)
-      '@supabase/auth-ui-shared':
-        specifier: ^0.1.8
-        version: 0.1.8(@supabase/supabase-js@2.105.4)
-      '@supabase/auth-ui-solid':
-        specifier: ^0.3.8
-        version: 0.3.8(@supabase/supabase-js@2.105.4)
       '@supabase/supabase-js':
         specifier: ^2.105.4
         version: 2.105.4
@@ -611,20 +605,9 @@ packages:
     peerDependencies:
       solid-js: ^1.8.6
 
-  '@stitches/core@1.2.8':
-    resolution: {integrity: sha512-Gfkvwk9o9kE9r9XNBmJRfV8zONvXThnm1tcuojL04Uy5uRyqg93DC83lDebl0rocZCfKSjUv+fWYtMQmEDJldg==}
-
   '@supabase/auth-js@2.105.4':
     resolution: {integrity: sha512-Ejfa37M5xoIwoxVebxRahnwubPo8g22qkXQ4p50+N9MIvU9UZoN+A8dwVPtczzGf8oV/YXN80ZPxK4aWXuSN/A==}
     engines: {node: '>=20.0.0'}
-
-  '@supabase/auth-ui-shared@0.1.8':
-    resolution: {integrity: sha512-ouQ0DjKcEFg+0gZigFIEgu01V3e6riGZPzgVD0MJsCBNsMsiDT74+GgCEIElMUpTGkwSja3xLwdFRFgMNFKcjg==}
-    peerDependencies:
-      '@supabase/supabase-js': ^2.21.0
-
-  '@supabase/auth-ui-solid@0.3.8':
-    resolution: {integrity: sha512-W9BPG1IbIG5XnLlGnJvhC7yr7cEnqe7jIT+h1JbFdJeT4BMl4diZp23GfCNcLOfpDbHvNxPJ3Ost8actMpJC4Q==}
 
   '@supabase/functions-js@2.105.4':
     resolution: {integrity: sha512-JVNKbBft3Qkja+WlGaE026AJ2AH9K0UTsxsfvEIHgd4zFrBor4BYRCrYFrv9IDsvVqkF72wKDsODJl5GY/C4tA==}
@@ -1552,9 +1535,6 @@ packages:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
     engines: {node: '>=6'}
     hasBin: true
-
-  just-merge@3.2.0:
-    resolution: {integrity: sha512-cNh5FWt44hx4SpQS1xZU8Tzr/fQA69pqCdjbwxmaYYIOuRfA8EIg+dn1bGmIW03ZUtR2vkMOCjWKc+jIbpauSw==}
 
   kebab-case@1.0.2:
     resolution: {integrity: sha512-7n6wXq4gNgBELfDCpzKc+mRrZFs7D+wgfF5WRFLNAr4DA/qtr9Js8uOAVAfHhuLMfAcQ0pRKqbpjx+TcJVdE1Q==}
@@ -2688,24 +2668,9 @@ snapshots:
     dependencies:
       solid-js: 1.9.13
 
-  '@stitches/core@1.2.8': {}
-
   '@supabase/auth-js@2.105.4':
     dependencies:
       tslib: 2.8.1
-
-  '@supabase/auth-ui-shared@0.1.8(@supabase/supabase-js@2.105.4)':
-    dependencies:
-      '@supabase/supabase-js': 2.105.4
-
-  '@supabase/auth-ui-solid@0.3.8(@supabase/supabase-js@2.105.4)':
-    dependencies:
-      '@stitches/core': 1.2.8
-      '@supabase/auth-ui-shared': 0.1.8(@supabase/supabase-js@2.105.4)
-      just-merge: 3.2.0
-      solid-js: 1.9.13
-    transitivePeerDependencies:
-      - '@supabase/supabase-js'
 
   '@supabase/functions-js@2.105.4':
     dependencies:
@@ -3669,8 +3634,6 @@ snapshots:
   json-stable-stringify-without-jsonify@1.0.1: {}
 
   json5@2.2.3: {}
-
-  just-merge@3.2.0: {}
 
   kebab-case@1.0.2: {}
 
