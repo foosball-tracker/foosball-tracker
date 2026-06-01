@@ -1,9 +1,9 @@
-// src/services/matchService.ts
 import { requireSupabase, supabase } from "~/service/supabaseService";
 import type { Tables } from "~/types/database";
 
 type GoalsRow = Tables<"goals">;
 type MatchesRow = Tables<"matches">;
+type MatchEventRow = Tables<"match_events">;
 
 export function formatGoalTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -29,37 +29,93 @@ export async function createMatch(
   return data;
 }
 
-export async function recordGoal(
+export async function recordGoalEvent(
   matchId: number,
   teamId: number,
   timer: number,
   formatTime: (seconds: number) => string
-) {
+): Promise<number | null> {
   const client = requireSupabase();
   const goalTime = formatTime(timer);
-  const { error } = await client.from("goals").insert({
-    match_id: matchId,
-    team_id: teamId,
-    goal_time: goalTime,
+  const { data, error } = await client.rpc("record_goal_event", {
+    p_match_id: matchId,
+    p_team_id: teamId,
+    p_source: "web",
+    p_source_id: undefined,
+    p_goal_time: goalTime,
   });
-  if (error) console.error("Error recording goal:", error);
+  if (error) {
+    console.error("Error recording goal event:", error);
+    return null;
+  }
+  return data;
 }
 
-export async function removeLastGoal(matchId: number, teamId: number) {
+export async function invalidateGoalEvent(
+  eventId: number,
+  reason?: string
+): Promise<number | null> {
   const client = requireSupabase();
-  const { data: foundGoals, error: fetchErr } = await client
-    .from("goals")
-    .select("*")
+  const { data, error } = await client.rpc("invalidate_goal_event", {
+    p_event_id: eventId,
+    p_reason: reason ?? undefined,
+  });
+  if (error) {
+    console.error("Error invalidating goal event:", error);
+    return null;
+  }
+  return data;
+}
+
+export async function invalidateLastGoalForTeam(
+  matchId: number,
+  teamId: number,
+  reason?: string
+): Promise<number | null> {
+  const client = requireSupabase();
+  const { data } = await client
+    .from("match_events")
+    .select("id")
     .eq("match_id", matchId)
     .eq("team_id", teamId)
+    .eq("type", "goal_detected")
+    .eq("status", "valid")
     .order("created_at", { ascending: false })
     .limit(1);
-  if (fetchErr || !foundGoals?.length) {
-    console.error("Error fetching last goal:", fetchErr);
-    return;
+
+  if (!data?.length) {
+    console.warn("No valid goal to invalidate for team", teamId);
+    return null;
   }
-  const { error: deleteErr } = await client.from("goals").delete().eq("id", foundGoals[0].id);
-  if (deleteErr) console.error("Error deleting goal:", deleteErr);
+
+  return invalidateGoalEvent(data[0].id, reason);
+}
+
+export async function resetMatchScore(matchId: number, reason?: string): Promise<number | null> {
+  const client = requireSupabase();
+  const { data, error } = await client.rpc("reset_match_score", {
+    p_match_id: matchId,
+    p_reason: reason ?? undefined,
+  });
+  if (error) {
+    console.error("Error resetting match score:", error);
+    return null;
+  }
+  return data;
+}
+
+export async function fetchMatchEvents(matchId: number): Promise<MatchEventRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("match_events")
+    .select("*")
+    .eq("match_id", matchId)
+    .order("created_at");
+  if (error) {
+    console.error("Error fetching match events:", error);
+    return [];
+  }
+  return data;
 }
 
 export async function fetchGoalsForMatch(matchId: number): Promise<GoalsRow[]> {
@@ -103,6 +159,12 @@ export async function endGame(matchId: number) {
 
 export async function abandonMatch(matchId: number) {
   const client = requireSupabase();
+
+  const { error: eventsError } = await client.from("match_events").delete().eq("match_id", matchId);
+  if (eventsError) {
+    console.error("Error deleting abandoned match events:", eventsError);
+    return false;
+  }
 
   const { error: goalsError } = await client.from("goals").delete().eq("match_id", matchId);
   if (goalsError) {

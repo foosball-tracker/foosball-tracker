@@ -297,7 +297,28 @@ export type Database = {
           team_id: number;
         }[];
       };
+      invalidate_goal_event: {
+        Args: { p_event_id: number; p_reason?: string };
+        Returns: number;
+      };
       is_admin: { Args: never; Returns: boolean };
+      record_goal_event: {
+        Args: {
+          p_dedupe_key?: string;
+          p_goal_time?: string;
+          p_match_id: number;
+          p_metadata?: Json;
+          p_player_id?: number;
+          p_source: Database["public"]["Enums"]["match_event_source"];
+          p_source_id?: string;
+          p_team_id: number;
+        };
+        Returns: number;
+      };
+      reset_match_score: {
+        Args: { p_match_id: number; p_reason?: string };
+        Returns: number;
+      };
       update_team_with_members: {
         Args: {
           target_name: string;
