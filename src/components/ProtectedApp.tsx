@@ -131,16 +131,27 @@ export default function ProtectedApp() {
     if (!match || !running() || isPaused()) return;
 
     if (increment > 0) {
-      await matchService.recordGoalEvent(
+      const recordedGoalId = await matchService.recordGoalEvent(
         match.id,
         teamId,
         elapsedTime(),
         matchService.formatGoalTime
       );
+
+      if (!recordedGoalId) return;
+
+      setMatchEvents(await matchService.fetchMatchEvents(match.id));
       return;
     }
 
-    await matchService.invalidateLastGoalForTeam(match.id, teamId, "manual correction");
+    const invalidatedGoalId = await matchService.invalidateLastGoalForTeam(
+      match.id,
+      teamId,
+      "manual correction"
+    );
+    if (!invalidatedGoalId) return;
+
+    setMatchEvents(await matchService.fetchMatchEvents(match.id));
   };
 
   let finalizing = false;
