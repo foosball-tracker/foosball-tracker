@@ -107,7 +107,7 @@ The local database ships with no auth users (the app schema seed covers players,
 
 ```bash
 pnpm db:reset
-pnpm db:seed:auth
+LOCAL_TEST_USER_PASSWORD=<your-local-test-password> pnpm db:seed:auth
 ```
 
 This creates four confirmed test users via the Supabase Auth Admin API (using the **local service role key only**). The script is idempotent and safe to run repeatedly.
@@ -156,7 +156,7 @@ SUPABASE_SERVICE_ROLE_KEY=<local-service-role-key>
 ```bash
 pnpm supabase:start
 pnpm db:reset
-pnpm db:seed:auth
+LOCAL_TEST_USER_PASSWORD=<your-local-test-password> pnpm db:seed:auth
 pnpm dev
 ```
 

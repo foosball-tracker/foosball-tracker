@@ -12,11 +12,19 @@ INSERT INTO public.players (id, name) VALUES
 ALTER SEQUENCE public.players_id_seq RESTART WITH 5;
 
 -- Player-type teams (auto-linked 1:1 with each player)
-INSERT INTO public.teams (id, name, type, player_id) VALUES
-  (1, 'Alice', 'player', 1),
-  (2, 'Bob', 'player', 2),
-  (3, 'Charlie', 'player', 3),
-  (4, 'Diana', 'player', 4);
+WITH player_team_type AS (
+  SELECT 'player' AS team_type
+)
+INSERT INTO public.teams (id, name, type, player_id)
+SELECT data.id, data.name, player_team_type.team_type, data.player_id
+FROM player_team_type
+JOIN (
+  VALUES
+    (1, 'Alice', 1),
+    (2, 'Bob', 2),
+    (3, 'Charlie', 3),
+    (4, 'Diana', 4)
+) AS data(id, name, player_id) ON TRUE;
 
 -- Custom multi-player teams
 INSERT INTO public.teams (id, name, type) VALUES

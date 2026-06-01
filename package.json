@@ -17,6 +17,7 @@
     "supabase:status": "supabase status -o env",
     "db:reset": "supabase db reset",
     "db:migration:new": "supabase migration new",
+    "db-types": "supabase gen types typescript --local --schema public > src/types/database.ts",
     "db:types": "supabase gen types typescript --local --schema public > src/types/database.ts",
     "db:seed:auth": "tsx scripts/seed-local-auth.ts",
     "local:setup": "npm run supabase:start && npm run db:reset && npm run db:seed:auth",
@@ -78,6 +79,7 @@
     "prettier-plugin-toml": "^2.0.6",
     "tailwindcss": "^4.3.0",
     "typescript": "~5.8.3",
+    "tsx": "^4.20.6",
     "vite": "^6.4.2",
     "vite-plugin-solid": "^2.11.12",
     "vite-tsconfig-paths": "^6.1.1"

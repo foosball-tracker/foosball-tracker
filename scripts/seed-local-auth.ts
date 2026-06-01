@@ -26,17 +26,23 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
 
 interface SeedUser {
   email: string;
-  password: string;
   role: string;
   first_name: string;
   last_name: string;
   is_admin: boolean;
 }
 
+const localTestPassword = process.env.LOCAL_TEST_USER_PASSWORD;
+
+if (!localTestPassword) {
+  console.error("Error: Missing LOCAL_TEST_USER_PASSWORD environment variable.");
+  console.error("  Set a local-only password before running `pnpm db:seed:auth`.");
+  process.exit(1);
+}
+
 const users: SeedUser[] = [
   {
     email: "admin@example.local",
-    password: "password123",
     role: "admin",
     first_name: "Admin",
     last_name: "User",
@@ -44,7 +50,6 @@ const users: SeedUser[] = [
   },
   {
     email: "player1@example.local",
-    password: "password123",
     role: "player",
     first_name: "Player",
     last_name: "One",
@@ -52,7 +57,6 @@ const users: SeedUser[] = [
   },
   {
     email: "player2@example.local",
-    password: "password123",
     role: "player",
     first_name: "Player",
     last_name: "Two",
@@ -60,7 +64,6 @@ const users: SeedUser[] = [
   },
   {
     email: "viewer@example.local",
-    password: "password123",
     role: "viewer",
     first_name: "Viewer",
     last_name: "User",
@@ -74,7 +77,7 @@ let skipped = 0;
 for (const user of users) {
   const { data, error } = await supabase.auth.admin.createUser({
     email: user.email,
-    password: user.password,
+    password: localTestPassword,
     email_confirm: true,
     user_metadata: { local_test_user: true, role: user.role },
   });
@@ -120,7 +123,8 @@ for (const user of users) {
 console.log();
 console.log(`Done. Created ${created}, skipped ${skipped} (already existed).`);
 console.log();
-console.log("Local test credentials:");
+console.log("Local test users:");
 for (const user of users) {
-  console.log(`  ${user.email} / ${user.password}  (${user.is_admin ? "admin" : "user"})`);
+  console.log(`  ${user.email} (${user.is_admin ? "admin" : "user"})`);
 }
+console.log("Use the LOCAL_TEST_USER_PASSWORD value you set in your shell for these accounts.");
