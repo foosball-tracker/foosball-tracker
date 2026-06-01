@@ -162,6 +162,67 @@ npx pnpm@10 dev
 
 Then log in with any of the test credentials above.
 
+## Manual UI Testing
+
+Convenience scripts are available for common local development workflows.
+
+### Fresh Setup
+
+Start local Supabase, reset the database, and create auth test users — everything in one command:
+
+```bash
+npx pnpm@10 local:setup
+```
+
+### Daily Development
+
+Start local Supabase and the dev server without wiping data:
+
+```bash
+npx pnpm@10 local:dev
+```
+
+Open the app at the Vite URL (usually `http://localhost:5173`) and log in with:
+
+| Email                   | Password      | Role  |
+| ----------------------- | ------------- | ----- |
+| `admin@example.local`   | `password123` | admin |
+| `player1@example.local` | `password123` | user  |
+| `player2@example.local` | `password123` | user  |
+| `viewer@example.local`  | `password123` | user  |
+
+Use these local-only users to test:
+
+- Login/logout flow
+- Authenticated routes
+- Admin-only actions
+- Player permissions
+- Read-only or restricted behaviour
+- RLS rules
+- Realtime updates with multiple browser sessions
+
+### Reset Everything
+
+Wipe and reseed the local database and recreate auth users:
+
+```bash
+npx pnpm@10 local:reset
+```
+
+### Supabase Studio
+
+Inspect local data via the Supabase Studio. Start local Supabase, then open the Studio URL shown by `supabase:status` (usually `http://127.0.0.1:54323`):
+
+```bash
+npx pnpm@10 supabase:status
+```
+
+### Stop
+
+```bash
+npx pnpm@10 supabase:stop
+```
+
 ## Pushing Migrations to Remote
 
 **This is a manual, dangerous operation.** Do not run it unless explicitly requested.
@@ -188,6 +249,9 @@ For normal development, migrations are applied to the Supabase preview branch au
 
 | Task                       | Command                               |
 | -------------------------- | ------------------------------------- |
+| Full local setup           | `npx pnpm@10 local:setup`             |
+| Local dev (no wipe)        | `npx pnpm@10 local:dev`               |
+| Reset DB + auth            | `npx pnpm@10 local:reset`             |
 | Start local Supabase       | `npx pnpm@10 supabase:start`          |
 | Stop local Supabase        | `npx pnpm@10 supabase:stop`           |
 | Show local URLs/keys       | `npx pnpm@10 supabase:status`         |
