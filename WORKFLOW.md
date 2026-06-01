@@ -36,15 +36,20 @@ git checkout -b feat/16-team-management-crud
 ## 3. Local Development
 
 1. Use the local Supabase stack for any work that touches the app, UI tests, or browser proofing. `pnpm local:setup` gives you a clean reset; `pnpm local:dev` gives you an iterative local app server with local Supabase and seeded auth users.
-2. Local UI, e2e, and proof flows must use the local API and local auth state. Do not rely on the remote `.env` values for those flows.
+2. Local UI, e2e, and proof flows must use the local API and local auth state. Do not rely on the hosted `.env` values for those flows.
 3. Start the app against local Supabase with:
    ```bash
    pnpm local:dev
    ```
    See [`docs/supabase-local-dev.md`](./docs/supabase-local-dev.md) for the full local workflow and manual setup options.
-4. If the change touches UI, verify the browser workflow first:
+4. If you need to reproduce an issue against hosted Supabase from a local browser, use:
+   ```bash
+   pnpm local:hosted
+   ```
+   That is a manual debugging path only. Do not use it for automated UI coverage, auth bootstrap, or proof capture.
+5. If the change touches UI, verify the browser workflow first:
    Follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md) from start to finish. It covers local auth state, Playwright inspection, desktop/mobile proof capture, and proof publication back to the PR.
-5. Implement the feature. Follow the guidelines in `AGENTS.md` (SolidJS patterns, service/store split, etc.).
+6. Implement the feature. Follow the guidelines in `AGENTS.md` (SolidJS patterns, service/store split, etc.).
 
 ---
 

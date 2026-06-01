@@ -52,6 +52,16 @@ Use this exact flow for every UI change.
     pnpm ui:inspect:stop
     ```
 
+## Manual Hosted Repro
+
+If you need to reproduce a bug against the hosted Supabase project from a local browser, use:
+
+```sh
+pnpm local:hosted
+```
+
+This path is for manual debugging only. Do not use it for `test:e2e`, `test:e2e:auth`, `auth:local`, `ui:inspect:start`, or proof capture.
+
 ## Required Checks
 
 Every UI change must be checked for:
@@ -102,6 +112,7 @@ pnpm proof:publish
 - Do not use ad hoc screenshot scripts when `proof:capture` and `proof:publish` are available.
 - Do not use `pnpm dev` as the inspection server. Use `ui:inspect:start`.
 - Do not capture proof from a remote or preview environment when local Supabase is available.
+- Do not use `pnpm local:hosted` for automated testing or screenshot proofing.
 
 ## Troubleshooting
 

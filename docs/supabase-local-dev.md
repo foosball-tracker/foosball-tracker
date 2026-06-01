@@ -9,28 +9,32 @@ Use the local Supabase stack for day-to-day development, schema work, E2E tests,
 
 ## Core Commands
 
-| Task                     | Command                | Notes                                                      |
-| ------------------------ | ---------------------- | ---------------------------------------------------------- |
-| Start local Supabase     | `pnpm supabase:start`  | Starts Postgres, Auth, Storage, Studio, and API locally    |
-| Stop local Supabase      | `pnpm supabase:stop`   | Stops the local stack                                      |
-| Show local URLs and keys | `pnpm supabase:status` | Prints the local env values for `.env.local` or shell use  |
-| Reset local DB           | `pnpm db:reset`        | Reapplies migrations and seed data                         |
-| Fresh local setup        | `pnpm local:setup`     | Starts Supabase, resets the DB, and seeds local auth users |
-| Daily local app dev      | `pnpm local:dev`       | Boots the app against the local Supabase stack             |
-| Reset data and auth      | `pnpm local:reset`     | Re-seeds auth users after a DB reset                       |
+| Task                              | Command                | Notes                                                                  |
+| --------------------------------- | ---------------------- | ---------------------------------------------------------------------- |
+| Start local Supabase              | `pnpm supabase:start`  | Starts Postgres, Auth, Storage, Studio, and API locally                |
+| Stop local Supabase               | `pnpm supabase:stop`   | Stops the local stack                                                  |
+| Show local URLs and keys          | `pnpm supabase:status` | Prints the local env values for `.env.local` or shell use              |
+| Reset local DB                    | `pnpm db:reset`        | Reapplies migrations and seed data                                     |
+| Fresh local setup                 | `pnpm local:setup`     | Starts Supabase, resets the DB, and seeds local auth users             |
+| Daily local app dev               | `pnpm local:dev`       | Boots the app against the local Supabase stack                         |
+| Local app against hosted Supabase | `pnpm local:hosted`    | Boots the app locally while forcing hosted Supabase values from `.env` |
+| Reset data and auth               | `pnpm local:reset`     | Re-seeds auth users after a DB reset                                   |
 
 ## Local App Environment
 
-`pnpm local:dev` resolves the local Supabase URL and anon key automatically, then launches Vite against the local stack. That means you do not need to edit `.env` to work locally.
+`pnpm local:dev` resolves the local Supabase URL and anon key automatically, then launches Vite against the local stack. That means you do not need to edit `.env.local` to work locally.
 
-If you want to run `pnpm dev` manually, first start local Supabase and copy the values from `pnpm supabase:status` into your shell or a temporary local env file:
+If you want to run `pnpm dev` manually, put the local values in `.env.local` first. The committed [`/.env.example`](/home/josh/coding/foosball-tracker/.env.example) and [`/.env.local.example`](/home/josh/coding/foosball-tracker/.env.local.example) files show the split.
 
-```env
-VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_ANON_KEY=<local-anon-key-from-supabase-status>
-VITE_SUPABASE_PROJECT_ID=foosball-tracker
-VITE_CONTEXT=local
+If you want to manually reproduce an issue against the hosted Supabase project while keeping the app local, use:
+
+```bash
+pnpm local:hosted
 ```
+
+That command reads the hosted Supabase values from `.env` and still serves the app on localhost, so the browser origin stays local.
+
+`pnpm local:hosted` is for manual repro only. Do not use it for E2E, auth bootstrap, or proof capture.
 
 ## Auth Test Users
 
@@ -91,7 +95,8 @@ This writes `src/types/database.ts`. Regenerate types after any schema change.
 
 ## Local Testing Workflow
 
-- Use `pnpm local:dev` for day-to-day manual testing.
+- Use `pnpm local:dev` for day-to-day manual testing against local Supabase.
+- Use `pnpm local:hosted` when you need to reproduce a bug against the hosted Supabase project from a local browser.
 - Use `pnpm test:e2e` and `pnpm test:e2e:auth` against the local stack for automated UI coverage.
 - Use `pnpm auth:local` to create local Playwright browser auth state before authenticated E2E or proof capture.
 - Use `pnpm proof:capture` and `pnpm proof:publish` to capture and publish screenshots from the local authenticated session.

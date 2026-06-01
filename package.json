@@ -22,6 +22,7 @@
     "local:setup": "pnpm supabase:start && pnpm db:reset && node scripts/local-auth-seed.mjs",
     "local:reset": "pnpm db:reset && node scripts/local-auth-seed.mjs",
     "local:dev": "node scripts/local-dev.mjs",
+    "local:hosted": "node scripts/local-hosted.mjs",
     "ui:local": "node scripts/local-ui-server.mjs",
     "ui:inspect:start": "node scripts/ui-inspect-start.mjs",
     "ui:inspect:stop": "node scripts/ui-inspect-stop.mjs",

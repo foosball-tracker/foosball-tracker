@@ -22,7 +22,7 @@ export function SupabaseBanner() {
         </svg>
         <span>
           Supabase not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your{" "}
-          <code class="badge badge-sm">.env</code> file to enable online features.
+          <code class="badge badge-sm">.env.local</code> file to enable online features.
         </span>
         <button class="btn btn-sm btn-ghost" onClick={() => setDismissed(true)}>
           Dismiss

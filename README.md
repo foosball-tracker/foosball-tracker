@@ -115,7 +115,7 @@ Deployed on [Netlify](https://www.netlify.com/) with continuous deployment from 
 - **Production**: [foosly.netlify.app](https://foosly.netlify.app)
 - **Preview**: Automatic deploy previews for every pull request (e.g., `deploy-preview-{PR_NUMBER}--foosly.netlify.app`)
 
-Build settings are configured in [`netlify.toml`](./netlify.toml). Environment variables are managed in the Netlify dashboard.
+Build settings are configured in [`netlify.toml`](./netlify.toml). Environment variables for the live site are managed in the Netlify dashboard.
 
 ## Running Without Supabase
 
@@ -123,22 +123,20 @@ This app can run without Supabase environment variables configured. When `VITE_S
 
 ## Environment Variables
 
-To enable full functionality, set these environment variables in a `.env` file:
+Live site and preview environment variables stay in Netlify. Do not manage production values in a repo env file.
 
-- `VITE_SUPABASE_URL`: Your Supabase project URL \
-  (Found in Supabase Dashboard > Project Settings > General)
-- `VITE_SUPABASE_ANON_KEY`: Your Supabase anonymous/public key \
-  (Found in Supabase Dashboard > Project Settings > API)
-- `VITE_SUPABASE_PROJECT_ID`: Your Supabase project ID \
-  (Found in Supabase Dashboard > Project Settings > General)
+For local development:
 
-These are used in:
+- Put local Supabase values in `.env.local`
+- Use [`/.env.local.example`](/home/josh/coding/foosball-tracker/.env.local.example) as the template
+- Run `pnpm local:dev` for the normal local Supabase flow
 
-- `src/service/supabaseService.ts` - Initializing the Supabase client
-- Authentication flows - For secure API interactions
-- Database operations - Managing match data and player statistics
+For manual bug reproduction against the hosted Supabase project:
 
-Make sure these match the types defined in `src/vite-env.d.ts`.
+- Put the hosted Supabase values in `.env`
+- Run `pnpm local:hosted`
+
+The Supabase client in `src/service/supabaseService.ts` reads the `VITE_*` variables from the active environment, and the auth helpers use `VITE_CONTEXT` to determine the app origin for redirects. Make sure the local values match the types defined in `src/vite-env.d.ts`.
 
 ## E2E Testing
 
@@ -164,6 +162,14 @@ pnpm local:dev
 ```
 
 This starts local Supabase, ensures the local auth users exist, and runs Vite with the local Supabase URL/key. Log in with `admin@example.local` and `password123` by default, or set `LOCAL_TEST_USER_PASSWORD` before `pnpm local:dev` to use a different local-only password.
+
+If you need to reproduce the app against the hosted Supabase project while keeping the browser local, run:
+
+```bash
+pnpm local:hosted
+```
+
+That path is for manual debugging only. Keep automated tests, auth bootstrapping, and proof capture on the local Supabase path.
 
 ### Running tests
 
