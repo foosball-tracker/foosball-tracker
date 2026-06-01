@@ -31,10 +31,15 @@ function parseArgs(argv) {
 
 const args = parseArgs(process.argv.slice(2));
 const port = args.port ?? process.env.UI_INSPECT_PORT ?? process.env.PLAYWRIGHT_PORT ?? "4174";
-const host = args.host ?? process.env.LOCAL_UI_HOST ?? "127.0.0.1";
+const host = args.host ?? process.env.LOCAL_UI_HOST;
 const localEnv = resolveLocalViteEnv();
+const viteArgs = ["dev", "--port", String(port), "--strictPort"];
 
-const vite = spawn("pnpm", ["dev", "--host", host, "--port", String(port), "--strictPort"], {
+if (host) {
+  viteArgs.splice(1, 0, "--host", host);
+}
+
+const vite = spawn("pnpm", viteArgs, {
   stdio: "inherit",
   env: {
     ...process.env,

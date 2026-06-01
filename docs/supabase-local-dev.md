@@ -22,7 +22,7 @@ Use the local Supabase stack for day-to-day development, schema work, E2E tests,
 
 ## Local App Environment
 
-`pnpm local:dev` resolves the local Supabase URL and anon key automatically, then launches Vite against the local stack on `127.0.0.1`. That means you do not need to edit `.env.local` to work locally.
+`pnpm local:dev` resolves the local Supabase URL and anon key automatically, then launches Vite against the local stack using Vite's normal localhost behavior. That means you do not need to edit `.env.local` to work locally.
 
 This default is intentional because it works well with VS Code port forwarding and remote-dev setups. If you want to expose the app on your LAN instead, run `LOCAL_UI_HOST=0.0.0.0 pnpm local:dev`.
 
