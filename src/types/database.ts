@@ -297,6 +297,7 @@ export type Database = {
         Returns: number;
       };
       is_admin: { Args: never; Returns: boolean };
+      is_match_participant: { Args: { p_match_id: number }; Returns: boolean };
       record_goal_event: {
         Args: {
           p_dedupe_key?: string;
