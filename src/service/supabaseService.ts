@@ -26,12 +26,20 @@ function isLocalSupabaseUrl(value: string | undefined) {
   return /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?(\/|$)/.test(value ?? "");
 }
 
+function getSupabaseConnectionLabel(mode: "local" | "hosted" | "off", context: string) {
+  if (mode === "off") return "Supabase off";
+  if (mode === "local") return "Local";
+  if (context === "production") return "Production";
+  if (context === "deploy-preview") return "Preview";
+  return "Hosted";
+}
+
 export function getSupabaseConnectionInfo() {
   if (!hasSupabaseConfig()) {
     return {
       context: supabaseContext,
       host: "not configured",
-      label: "Supabase off",
+      label: getSupabaseConnectionLabel("off", supabaseContext),
       mode: "off" as const,
       url: "",
     };
@@ -39,14 +47,7 @@ export function getSupabaseConnectionInfo() {
 
   const url = supabaseUrl ?? "";
   const mode = isLocalSupabaseUrl(url) ? ("local" as const) : ("hosted" as const);
-  const label =
-    mode === "local"
-      ? "Local"
-      : supabaseContext === "production"
-        ? "Production"
-        : supabaseContext === "deploy-preview"
-          ? "Preview"
-          : "Hosted";
+  const label = getSupabaseConnectionLabel(mode, supabaseContext);
 
   return {
     context: supabaseContext,
