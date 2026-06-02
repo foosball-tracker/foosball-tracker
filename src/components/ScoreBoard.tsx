@@ -146,15 +146,23 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
 
   const goalEvents = createMemo(() => props.matchEvents.filter((e) => e.type === "goal_detected"));
 
-  const actionButtonClasses = (variant: "primary" | "outline" | "subtle") =>
-    [
+  const actionButtonClasses = (variant: "primary" | "outline" | "subtle") => {
+    let variantClass: string;
+
+    if (variant === "primary") {
+      variantClass = "btn-primary";
+    } else if (variant === "outline") {
+      variantClass = "btn-outline";
+    } else {
+      variantClass =
+        "btn-outline border-base-300 bg-base-100/60 hover:bg-base-100 text-base-content/80 [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:hover:bg-base-100/15";
+    }
+
+    return [
       "btn btn-sm sm:btn-md h-11 min-h-11 w-full justify-center gap-2 rounded-full px-4 text-center sm:min-w-40 sm:w-auto",
-      variant === "primary"
-        ? "btn-primary"
-        : variant === "outline"
-          ? "btn-outline"
-          : "btn-outline border-base-300 bg-base-100/60 hover:bg-base-100 text-base-content/80 [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:hover:bg-base-100/15",
+      variantClass,
     ].join(" ");
+  };
 
   const centerScore = () => (
     <div class="border-base-300 bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content rounded-box border px-3 py-2 shadow-sm sm:px-6 sm:py-4">

@@ -77,14 +77,28 @@ export default function ProtectedApp() {
     }
 
     if (isHydratedMatchComplete(match, events)) {
-      await matchService.endGame(match.id);
-      setLeaderboardRefreshKey((value) => value + 1);
-      stop();
-      reset();
-      setIsPaused(false);
+      // Do not flip local state until the server-side endGame() succeeds.
+      // First, set the match/events so UI reflects the latest events while
+      // we attempt to finalize on the server. Only mark the match complete
+      // locally if finalizeCurrentMatch reports success; otherwise treat
+      // it as an active match and resume.
+      setCurrentMatch(match);
       setMatchEvents(events);
-      setCurrentMatch({ ...match, in_progress: false });
       await syncSettingsWithMatch(match);
+
+      const didEnd = await finalizeCurrentMatch(match.id);
+      if (didEnd) {
+        // finalizeCurrentMatch handled stopping the timer and marking
+        // the match complete; ensure timer state is reset locally.
+        reset();
+        return;
+      }
+
+      // If we failed to finalize on the server, keep the match active
+      // locally (do not mark complete) and resume the timer so the UI
+      // remains consistent with the persisted `in_progress` state.
+      setIsPaused(false);
+      start();
       return;
     }
 
