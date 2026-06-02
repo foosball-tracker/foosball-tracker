@@ -280,11 +280,16 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      create_team_with_members: {
+        Args: { p_name: string; p_player_ids: number[] };
+        Returns: number;
+      };
       current_player_id: { Args: never; Returns: number };
       delete_player_with_linked_team: {
         Args: { target_player_id: number };
         Returns: undefined;
       };
+      delete_team: { Args: { target_team_id: number }; Returns: undefined };
       get_match_score: {
         Args: { p_match_id: number };
         Returns: {
