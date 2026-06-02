@@ -153,7 +153,7 @@ async function main() {
   try {
     await page.goto(INSPECT_BASE_URL);
 
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await page.getByRole("banner").getByRole("button", { name: "Sign in" }).click();
 
     const modal = page.locator("#login-modal");
     await modal.waitFor({ state: "visible", timeout: 5_000 });
