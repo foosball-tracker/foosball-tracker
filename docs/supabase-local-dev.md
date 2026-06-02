@@ -106,7 +106,7 @@ This writes `src/types/database.ts`. Regenerate types after any schema change.
 
 The local auth state lives in `playwright/.auth/user.json`. The hosted/prod auth state lives in `playwright/.auth/user.hosted.json`. Regenerate whichever file matches the environment you are testing.
 
-`pnpm auth:local` signs in with the seeded local admin account automatically. If you need to debug the hosted Supabase path, run `pnpm local:hosted` first and then `pnpm auth:hosted` or `pnpm auth:prod` with your real account.
+`pnpm auth:local` signs in with the seeded local admin account automatically on port `4174`. If you need to debug the hosted Supabase path, run `pnpm auth:hosted` or `pnpm auth:prod` with your real account; those flows use port `4175` by default so they do not accidentally reuse the local inspect app.
 
 ## Supabase Studio
 

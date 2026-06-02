@@ -62,7 +62,7 @@ pnpm local:hosted
 
 This path is for manual debugging only. Do not use it for `test:e2e`, `test:e2e:auth`, `auth:local`, `ui:inspect:start`, or proof capture.
 
-If you need a Playwright auth state for that hosted path, use `pnpm auth:hosted` or `pnpm auth:prod` after the local app is running with `pnpm local:hosted`.
+If you need a Playwright auth state for that hosted path, use `pnpm auth:hosted` or `pnpm auth:prod`. Those commands use port `4175` by default so they do not collide with the local auth/proof flow on `4174`.
 
 ## Required Checks
 

@@ -9,10 +9,10 @@ import {
   createLocalViteEnv,
   getLocalSupabaseStatus,
 } from "./lib/utils.mjs";
-import { INSPECT_BASE_URL, ensureInspectServer } from "./ui-inspect-server.mjs";
-
 const LOCAL_AUTH_STATE_PATH = "playwright/.auth/user.json";
 const HOSTED_AUTH_STATE_PATH = "playwright/.auth/user.hosted.json";
+const LOCAL_INSPECT_PORT = 4174;
+const HOSTED_INSPECT_PORT = 4175;
 
 function parseArgs(argv) {
   const options = {};
@@ -99,6 +99,15 @@ function normalizeMode(value) {
   return value === "hosted" ? "hosted" : "local";
 }
 
+function resolveInspectPort(mode) {
+  const configuredPort = process.env.UI_INSPECT_PORT ?? process.env.PLAYWRIGHT_PORT;
+  if (configuredPort) {
+    return Number(configuredPort);
+  }
+
+  return mode === "hosted" ? HOSTED_INSPECT_PORT : LOCAL_INSPECT_PORT;
+}
+
 function resolveAuthStatePath(mode, options) {
   return (
     options.authFile ??
@@ -136,16 +145,26 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const mode = normalizeMode(args.mode ?? (args.hosted === "true" ? "hosted" : "local"));
   const authStatePath = resolveAuthStatePath(mode, args);
+  const inspectPort = resolveInspectPort(mode);
+  const inspectBaseUrl = `http://localhost:${inspectPort}`;
   const credentials =
     mode === "hosted" ? await resolveHostedCredentials(args) : resolveLocalCredentials(args);
   const viteEnv =
     mode === "hosted" ? createHostedViteEnv() : createLocalViteEnv(getLocalSupabaseStatus().status);
 
-  await ensureInspectServer({ env: { ...process.env, ...viteEnv } });
+  process.env.UI_INSPECT_PORT = String(inspectPort);
+  const { ensureInspectServer } = await import("./ui-inspect-server.mjs");
+  await ensureInspectServer({
+    env: { ...process.env, ...viteEnv, UI_INSPECT_PORT: String(inspectPort) },
+  });
 
   console.log("Supabase Auth — Playwright login");
   console.log(`Mode: ${mode}`);
-  console.log(`Target: ${INSPECT_BASE_URL}\n`);
+  console.log(`Target: ${inspectBaseUrl}`);
+  if (viteEnv.VITE_SUPABASE_URL) {
+    console.log(`Supabase: ${new URL(viteEnv.VITE_SUPABASE_URL).host}`);
+  }
+  console.log();
 
   if (mode === "local") {
     console.log(`Using local account: ${credentials.email}`);
@@ -161,7 +180,7 @@ async function main() {
   const page = await context.newPage();
 
   try {
-    await page.goto(INSPECT_BASE_URL);
+    await page.goto(inspectBaseUrl);
 
     await page.getByRole("banner").getByRole("button", { name: "Sign in" }).click();
 

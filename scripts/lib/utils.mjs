@@ -126,17 +126,13 @@ function createHostedViteEnv() {
 
 const resolveHostedViteEnv = createHostedViteEnv;
 
-function isLocalSupabaseUrl(value) {
-  return /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?(\/|$)/.test(value ?? "");
-}
-
 function resolveLocalViteEnv() {
   const configuredUrl = process.env.VITE_SUPABASE_URL;
   const configuredKey = process.env.VITE_SUPABASE_ANON_KEY;
 
-  if (configuredUrl && configuredKey && isLocalSupabaseUrl(configuredUrl)) {
+  if (configuredUrl && configuredKey) {
     return {
-      VITE_CONTEXT: "local",
+      VITE_CONTEXT: process.env.VITE_CONTEXT ?? "local",
       VITE_SUPABASE_ANON_KEY: configuredKey,
       VITE_SUPABASE_PROJECT_ID: process.env.VITE_SUPABASE_PROJECT_ID ?? LOCAL_SUPABASE_PROJECT_ID,
       VITE_SUPABASE_URL: configuredUrl,

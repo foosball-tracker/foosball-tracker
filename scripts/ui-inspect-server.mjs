@@ -105,13 +105,22 @@ function getProcessCommand(pid) {
   }
 }
 
+function isFoosballInspectProcess(pid) {
+  const cwd = getProcessCwd(pid) ?? "";
+  const command = getProcessCommand(pid);
+
+  return (
+    (cwd.includes("/foosball-tracker") || cwd.includes("(deleted)")) &&
+    (command.includes("scripts/local-ui-server.mjs") || command.includes("/vite/bin/vite.js"))
+  );
+}
+
 function isStaleFoosballInspectProcess(pid) {
   const cwd = getProcessCwd(pid) ?? "";
   const command = getProcessCommand(pid);
 
   return (
-    (cwd.includes("(deleted)") || command.includes("(deleted)")) &&
-    (command.includes("scripts/local-ui-server.mjs") || command.includes("/vite/bin/vite.js"))
+    isFoosballInspectProcess(pid) && (cwd.includes("(deleted)") || command.includes("(deleted)"))
   );
 }
 
@@ -183,11 +192,17 @@ export async function ensureInspectServer({ timeoutMs = 20_000, env = process.en
   }
 
   if (status.reachable) {
-    if (
-      status.pidRunning &&
-      (!status.meta?.envSignature || status.meta.envSignature !== envSignature)
-    ) {
+    const managedPids = listeningPids.filter(isFoosballInspectProcess);
+    const shouldReplaceManagedServer =
+      managedPids.length > 0 &&
+      (!status.pidRunning ||
+        !status.meta?.envSignature ||
+        status.meta.envSignature !== envSignature);
+
+    if (shouldReplaceManagedServer) {
+      stopPids(managedPids);
       await stopInspectServer();
+      await delay(500);
     } else {
       throw new Error(
         `Port ${INSPECT_PORT} is already in use by another process. Stop it or change UI_INSPECT_PORT.`
