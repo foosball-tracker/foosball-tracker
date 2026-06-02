@@ -55,6 +55,7 @@ function Select<T extends string | number>(props: Readonly<SelectProps<T>>) {
       aria-label={local["aria-label"]}
       aria-haspopup="listbox"
       aria-expanded={open()}
+      aria-controls="select-menu"
       class={`btn select-bordered flex w-full items-center justify-between gap-2 font-normal ${local.class ?? ""}`}
       onClick={() => setOpen((prev) => !prev)}
       type="button"
@@ -79,13 +80,14 @@ function Select<T extends string | number>(props: Readonly<SelectProps<T>>) {
 
   const menu = (
     <Show when={open()}>
-      <ul
+      <div
+        id="select-menu"
         class="bg-base-100 rounded-box border-base-300 absolute z-10 mt-1 w-full border shadow-md"
         role="listbox"
       >
         <For each={local.options}>
           {(option) => (
-            <li
+            <div
               role="option"
               aria-selected={option.value === local.value}
               aria-disabled={option.disabled}
@@ -101,10 +103,10 @@ function Select<T extends string | number>(props: Readonly<SelectProps<T>>) {
                 </Show>
                 <span class="truncate">{option.label}</span>
               </button>
-            </li>
+            </div>
           )}
         </For>
-      </ul>
+      </div>
     </Show>
   );
 
