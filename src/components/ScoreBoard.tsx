@@ -146,6 +146,16 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
 
   const goalEvents = createMemo(() => props.matchEvents.filter((e) => e.type === "goal_detected"));
 
+  const actionButtonClasses = (variant: "primary" | "outline" | "subtle") =>
+    [
+      "btn btn-sm sm:btn-md h-11 min-h-11 w-full justify-center gap-2 rounded-full px-4 text-center sm:min-w-40 sm:w-auto",
+      variant === "primary"
+        ? "btn-primary"
+        : variant === "outline"
+          ? "btn-outline"
+          : "btn-outline border-base-300 bg-base-100/60 hover:bg-base-100 text-base-content/80 [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:hover:bg-base-100/15",
+    ].join(" ");
+
   const centerScore = () => (
     <div class="border-base-300 bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content rounded-box border px-3 py-2 shadow-sm sm:px-6 sm:py-4">
       <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1 sm:gap-4">
@@ -228,9 +238,9 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
           <Show
             when={props.isComplete}
             fallback={
-              <div class="flex flex-wrap justify-center gap-2">
+              <div class="grid w-full gap-2 sm:flex sm:flex-wrap sm:justify-center">
                 <button
-                  class="btn btn-primary btn-sm sm:btn-md rounded-full"
+                  class={actionButtonClasses("primary")}
                   disabled={!props.backendReady}
                   onClick={() => props.onTogglePause()}
                   type="button"
@@ -239,7 +249,7 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
                   {props.isPaused ? "Resume" : "Pause"}
                 </button>
                 <button
-                  class="btn btn-ghost btn-sm sm:btn-md rounded-full"
+                  class={actionButtonClasses("subtle")}
                   disabled={!props.backendReady}
                   onClick={() => void props.onResetGame()}
                   type="button"
@@ -250,9 +260,9 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
               </div>
             }
           >
-            <div class="flex flex-wrap justify-center gap-2">
+            <div class="grid w-full gap-2 sm:grid-cols-2">
               <button
-                class="btn btn-primary btn-sm sm:btn-md rounded-full"
+                class={actionButtonClasses("primary")}
                 onClick={() => void props.onRematch()}
                 type="button"
               >
@@ -260,15 +270,15 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
                 Rematch
               </button>
               <button
-                class="btn btn-outline btn-sm sm:btn-md rounded-full"
+                class={actionButtonClasses("outline")}
                 onClick={() => void props.onRematchSwitched()}
                 type="button"
               >
                 <ArrowLeftRight size={18} />
-                Rematch (switch sides)
+                Rematch + swap sides
               </button>
               <button
-                class="btn btn-ghost btn-sm sm:btn-md rounded-full"
+                class={`${actionButtonClasses("subtle")} sm:col-span-2 sm:mx-auto`}
                 onClick={() => props.onNewGame()}
                 type="button"
               >

@@ -5,7 +5,10 @@ import { dirname, join } from "node:path";
 const DEFAULT_LOCAL_TEST_PASSWORD = "password123"; /* NOSONAR - local dev credential only */
 const DEFAULT_LOCAL_AUTH_EMAIL = "admin@example.local";
 const LOCAL_SUPABASE_PROJECT_ID = "foosball-tracker";
-const PNPM_BIN = process.env.PNPM_BIN ?? join(dirname(process.execPath), "pnpm");
+const PNPM_BIN =
+  process.env.PNPM_BIN ??
+  (process.env.PNPM_HOME ? join(process.env.PNPM_HOME, "pnpm") : undefined) ??
+  join(dirname(process.execPath), "pnpm");
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
