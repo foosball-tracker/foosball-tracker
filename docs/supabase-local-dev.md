@@ -115,12 +115,26 @@ The Supabase CLI is **not linked to production** during normal development. All 
 
 **How migrations reach production:**
 
-1. You write and test migrations locally (`pnpm db:reset`, `pnpm db-types`).
-2. You commit the migration files and open a PR.
-3. Supabase GitHub integration auto-creates a preview branch for the PR and applies the migrations there.
-4. When the PR is merged to `main`, Supabase GitHub integration auto-applies the migrations to the production database.
+We are on the Supabase **free tier**, which does not include database branching. This means:
 
-You never need to `supabase link` or `supabase db push` for normal migration work.
+1. You write and test migrations locally against the local Supabase instance (`pnpm db:reset`, `pnpm db-types`). Your local schema must mirror production so tests are accurate.
+2. You commit the migration files and open a PR.
+3. The Netlify deploy preview runs against the **same production Supabase database** — there is no preview branch database. If your PR introduces a new migration, features depending on it may fail in the preview environment until the migration is applied.
+4. When the PR is merged to `main`, Supabase GitHub integration auto-applies the migrations to the production database. The deploy preview will then work correctly.
+
+You never need to `supabase link` or `supabase db push` for normal migration work. The GitHub integration handles the single deploy automatically on merge.
+
+**Testing migrations in the preview environment (optional):**
+
+If a new feature requires schema changes and you want the Netlify preview to work before merge, you can manually apply the migration to production:
+
+```bash
+supabase link --project-ref eucjxbcicejyinubzgwh
+pnpm db:push:remote
+supabase unlink
+```
+
+Only do this when you are confident the migration is correct and reversible. Prefer local testing (`pnpm db:reset`) as the primary verification step.
 
 **Temporarily connecting to production for debugging:**
 

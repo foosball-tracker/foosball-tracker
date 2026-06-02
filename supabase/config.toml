@@ -3,8 +3,8 @@
 #
 # LOCAL-FIRST: This config describes the local Supabase development instance.
 # All migration work, type generation, and testing happen locally by default.
-# Migrations reach production automatically via Supabase GitHub integration when
-# PRs are merged to main — no manual `supabase db push` needed.
+# The project is on Supabase free tier — no database branching. Migrations are
+# applied to production via Supabase GitHub integration when PRs merge to main.
 # Do not leave the CLI linked to production. For temporary prod debugging, use
 # `supabase link --project-ref eucjxbcicejyinubzgwh`, then `supabase unlink` after.
 #

@@ -123,7 +123,7 @@ pnpm db:reset
 pnpm db-types
 ```
 
-Migrations are deployed to production automatically via Supabase GitHub integration when PRs are merged to `main`. No manual `supabase db push` is needed.
+Test migrations locally (`pnpm db:reset`) as the primary verification step. On the free tier, the Netlify deploy preview shares the production Supabase database, and migrations are applied when the PR is merged to `main` via Supabase GitHub integration.
 
 Ask before any schema, migration, RLS, or non-local data change. Full guidance lives in [docs/supabase-local-dev.md](./docs/supabase-local-dev.md) and [AGENTS.md](./AGENTS.md).
 

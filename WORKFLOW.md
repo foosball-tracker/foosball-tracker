@@ -78,12 +78,11 @@ When working on schema changes, **use the local Supabase instance by default**:
    ```
 6. Verify the app works against the local instance with `pnpm local:dev`.
 
-You do not need `supabase link` or `supabase db push` for normal migration work. The Supabase GitHub integration handles deployment:
+You do not need `supabase link` or `supabase db push` for normal migration work. We are on the Supabase free tier — there is no database branching. The deploy preview shares the production database, and migrations only apply to production when the PR is merged to `main` via Supabase GitHub integration.
 
-- Migrations auto-apply to the **PR preview branch** on push.
-- Migrations auto-apply to **production** when the PR is merged to `main`.
+Features depending on pending migrations may not work in the Netlify preview. That is expected. Test migrations locally (`pnpm db:reset`) as the primary verification step. If you need the preview to work before merge, manually apply migrations with `pnpm supabase:link:prod && pnpm db:push:remote` and unlink after.
 
-**Do not run `pnpm db:push:remote`** unless the user explicitly asks and the GitHub integration is unavailable.
+**Do not run `pnpm db:push:remote`** unless the user explicitly asks.
 
 For full details, see [`docs/supabase-local-dev.md`](./docs/supabase-local-dev.md).
 
@@ -95,7 +94,7 @@ The local database is seeded automatically by `pnpm db:reset` from `supabase/see
 
 For local UI testing, mutation-based setup, and proofing, it is expected that you edit the local database freely. The local stack is disposable.
 
-For UI testing on Netlify deploy previews, demo data must be inserted directly into the **preview branch** database (not production) so the preview shows real content:
+For UI testing on Netlify deploy previews, demo data must be inserted directly into the production database since the preview shares it:
 
 ```bash
 # Use MCP execute_sql or Supabase dashboard
@@ -179,11 +178,12 @@ For UI changes:
 - **Test the preview on mobile** — the deploy preview is the closest thing to production.
 - For UI PRs, do not rely on Netlify alone. Local proof screenshots published from `proof:publish` are also required.
 
-### Supabase Preview Branch
+### Supabase Database
 
-- Supabase Git integration creates a preview branch for the PR.
-- Migrations from `supabase/migrations/` are auto-applied.
-- The deploy preview connects to this preview database, **not** production.
+- The project is on Supabase **free tier** — there is no database branching.
+- The Netlify deploy preview shares the **same production Supabase database**.
+- Migrations from `supabase/migrations/` are only applied when the PR is merged to `main` via the Supabase GitHub integration.
+- Features depending on pending migrations may fail in the preview environment. That is expected.
 
 ---
 

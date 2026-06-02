@@ -83,7 +83,9 @@ Impeccable skills are installed at `.agents/skills/impeccable/` (for OpenCode/lo
 ### CLI Link State
 
 - The Supabase CLI is **not linked to production** by default. Migration work, type generation, and testing all run against the local instance.
-- Migrations reach production through the **Supabase GitHub integration**: preview branch is created on PR push, migrations auto-apply there, and they auto-apply to production when the PR is merged to `main`. No manual push needed.
+- The project is on Supabase **free tier** — there is no database branching. The Netlify deploy preview shares the production Supabase database. Migrations only apply when the PR is merged to `main` via Supabase GitHub integration.
+- Features depending on pending migrations may not work in the Netlify preview. That is expected. Test migrations locally (`pnpm db:reset`) as the primary verification step.
+- If you need the preview to work before merge, you can manually apply migrations to production with `pnpm supabase:link:prod && pnpm db:push:remote`. Unlink after.
 - Do not run `supabase db push` (or `pnpm db:push:remote`) unless the user explicitly asks.
 - If you need to query production for debugging, temporarily link with `supabase link --project-ref eucjxbcicejyinubzgwh`, do your work, then `supabase unlink`. Never leave the CLI linked to production.
 - All Supabase MCP queries should target the local instance when it is running.
