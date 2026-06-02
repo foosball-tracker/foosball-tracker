@@ -79,10 +79,12 @@ export default function ProtectedApp() {
     if (isHydratedMatchComplete(match, events)) {
       await matchService.endGame(match.id);
       setLeaderboardRefreshKey((value) => value + 1);
+      stop();
       reset();
       setIsPaused(false);
-      setMatchEvents([]);
-      setCurrentMatch(null);
+      setMatchEvents(events);
+      setCurrentMatch({ ...match, in_progress: false });
+      await syncSettingsWithMatch(match);
       return;
     }
 

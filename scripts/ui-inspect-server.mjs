@@ -1,4 +1,4 @@
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readlink, rm, writeFile } from "node:fs/promises";
 import { openSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execFileSync, spawn } from "node:child_process";
@@ -11,6 +11,7 @@ const PID_PATH = `${SERVER_DIR}/ui-inspect.pid`;
 const META_PATH = `${SERVER_DIR}/ui-inspect.json`;
 const LOG_PATH = `${SERVER_DIR}/ui-inspect.log`;
 const APP_MARKER = "<title>Foosball Tracker</title>";
+const LSOF_BIN = "/usr/bin/lsof";
 
 async function delay(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
@@ -69,7 +70,7 @@ async function cleanupMetaFile() {
 
 function getListeningPids(port) {
   try {
-    const output = execFileSync("lsof", ["-tiTCP:" + String(port), "-sTCP:LISTEN"], {
+    const output = execFileSync(LSOF_BIN, ["-tiTCP:" + String(port), "-sTCP:LISTEN"], {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
     });
@@ -83,31 +84,33 @@ function getListeningPids(port) {
   }
 }
 
-function getProcessCwd(pid) {
+async function getProcessCwd(pid) {
   try {
-    return execFileSync("readlink", ["-f", `/proc/${pid}/cwd`], {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
+    return await readlink(`/proc/${pid}/cwd`);
   } catch {
     return null;
   }
 }
 
-function getProcessCommand(pid) {
+async function getProcessCommand(pid) {
   try {
-    return execFileSync("bash", ["-lc", `tr '\\0' ' ' </proc/${pid}/cmdline`], {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
+    const raw = await readFile(`/proc/${pid}/cmdline`);
+    return raw.toString("utf8").replaceAll("\u0000", " ").trim();
   } catch {
     return "";
   }
 }
 
-function isFoosballInspectProcess(pid) {
-  const cwd = getProcessCwd(pid) ?? "";
-  const command = getProcessCommand(pid);
+async function getProcessDetails(pid) {
+  const [cwd, command] = await Promise.all([getProcessCwd(pid), getProcessCommand(pid)]);
+  return {
+    cwd: cwd ?? "",
+    command,
+  };
+}
+
+async function isFoosballInspectProcess(pid) {
+  const { cwd, command } = await getProcessDetails(pid);
 
   return (
     (cwd.includes("/foosball-tracker") || cwd.includes("(deleted)")) &&
@@ -115,12 +118,13 @@ function isFoosballInspectProcess(pid) {
   );
 }
 
-function isStaleFoosballInspectProcess(pid) {
-  const cwd = getProcessCwd(pid) ?? "";
-  const command = getProcessCommand(pid);
+async function isStaleFoosballInspectProcess(pid) {
+  const { cwd, command } = await getProcessDetails(pid);
 
   return (
-    isFoosballInspectProcess(pid) && (cwd.includes("(deleted)") || command.includes("(deleted)"))
+    (cwd.includes("/foosball-tracker") || cwd.includes("(deleted)")) &&
+    (command.includes("scripts/local-ui-server.mjs") || command.includes("/vite/bin/vite.js")) &&
+    (cwd.includes("(deleted)") || command.includes("(deleted)"))
   );
 }
 
@@ -143,6 +147,54 @@ function buildEnvSignature(env) {
   };
 
   return createHash("sha256").update(JSON.stringify(source)).digest("hex");
+}
+
+async function stopMatchingPids(pids, predicate) {
+  const matchingPids = [];
+
+  for (const pid of pids) {
+    if (await predicate(pid)) {
+      matchingPids.push(pid);
+    }
+  }
+
+  if (matchingPids.length > 0) {
+    stopPids(matchingPids);
+    await delay(500);
+  }
+
+  return matchingPids;
+}
+
+async function clearStaleInspectProcesses(status, listeningPids) {
+  if (status.reachable || listeningPids.length === 0) return;
+  await stopMatchingPids(listeningPids, isStaleFoosballInspectProcess);
+}
+
+async function replaceManagedInspectServerIfNeeded(status, listeningPids, envSignature) {
+  if (!status.reachable) return;
+
+  const managedPids = [];
+
+  for (const pid of listeningPids) {
+    if (await isFoosballInspectProcess(pid)) {
+      managedPids.push(pid);
+    }
+  }
+
+  const shouldReplaceManagedServer =
+    managedPids.length > 0 &&
+    (!status.pidRunning || !status.meta?.envSignature || status.meta.envSignature !== envSignature);
+
+  if (!shouldReplaceManagedServer) {
+    throw new Error(
+      `Port ${INSPECT_PORT} is already in use by another process. Stop it or change UI_INSPECT_PORT.`
+    );
+  }
+
+  stopPids(managedPids);
+  await stopInspectServer();
+  await delay(500);
 }
 
 export async function getInspectServerStatus() {
@@ -183,32 +235,8 @@ export async function ensureInspectServer({ timeoutMs = 20_000, env = process.en
     return status;
   }
 
-  if (!status.reachable && listeningPids.length > 0) {
-    const stalePids = listeningPids.filter(isStaleFoosballInspectProcess);
-    if (stalePids.length > 0) {
-      stopPids(stalePids);
-      await delay(500);
-    }
-  }
-
-  if (status.reachable) {
-    const managedPids = listeningPids.filter(isFoosballInspectProcess);
-    const shouldReplaceManagedServer =
-      managedPids.length > 0 &&
-      (!status.pidRunning ||
-        !status.meta?.envSignature ||
-        status.meta.envSignature !== envSignature);
-
-    if (shouldReplaceManagedServer) {
-      stopPids(managedPids);
-      await stopInspectServer();
-      await delay(500);
-    } else {
-      throw new Error(
-        `Port ${INSPECT_PORT} is already in use by another process. Stop it or change UI_INSPECT_PORT.`
-      );
-    }
-  }
+  await clearStaleInspectProcesses(status, listeningPids);
+  await replaceManagedInspectServerIfNeeded(status, listeningPids, envSignature);
 
   const logFd = openSync(LOG_PATH, "a");
   const child = spawn("node", ["scripts/local-ui-server.mjs", "--port", String(INSPECT_PORT)], {

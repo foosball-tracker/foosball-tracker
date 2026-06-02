@@ -8,39 +8,12 @@ import {
   createHostedViteEnv,
   createLocalViteEnv,
   getLocalSupabaseStatus,
+  parseArgs,
 } from "./lib/utils.mjs";
 const LOCAL_AUTH_STATE_PATH = "playwright/.auth/user.json";
 const HOSTED_AUTH_STATE_PATH = "playwright/.auth/user.hosted.json";
 const LOCAL_INSPECT_PORT = 4174;
 const HOSTED_INSPECT_PORT = 4175;
-
-function parseArgs(argv) {
-  const options = {};
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const value = argv[index];
-    if (!value.startsWith("--")) continue;
-
-    const [flag, inlineValue] = value.split("=", 2);
-    const key = flag.slice(2);
-
-    if (inlineValue !== undefined) {
-      options[key] = inlineValue;
-      continue;
-    }
-
-    const nextValue = argv[index + 1];
-    if (nextValue && !nextValue.startsWith("--")) {
-      options[key] = nextValue;
-      index += 1;
-      continue;
-    }
-
-    options[key] = "true";
-  }
-
-  return options;
-}
 
 function ask(question) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
