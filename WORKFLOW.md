@@ -193,6 +193,10 @@ For UI changes:
 
 - Codex automatically reviews every new PR within a few minutes.
 - Review comments appear as threads on the PR diff.
+- **For every Codex comment, take one of these actions:**
+  1. **Push a fix** if the feedback is valid and actionable.
+  2. **Reply with an explanation** if the comment is a false positive, not applicable, or can be safely ignored (e.g. pending migration not yet applied, review against stale base, etc.).
+     Never leave a Codex comment unanswered.
 - After fixing issues, push the changes and trigger a re-review:
   ```
   @codex review
