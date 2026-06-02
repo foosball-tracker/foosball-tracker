@@ -71,27 +71,35 @@ export function MatchSetupPanel(props: Readonly<MatchSetupPanelProps>) {
     opts.find((option) => option.value === id);
 
   createEffect(() => {
+    const ownIds = ownTeamIds();
     const availableOptions = options();
     if (!availableOptions.length) return;
 
-    const yellowOption =
-      optionById(availableOptions, props.settings.yellowTeam.id) ?? availableOptions[0];
-    const blackOption =
-      optionById(availableOptions, props.settings.blackTeam.id) ??
-      availableOptions[1] ??
-      yellowOption;
+    const yellowTeam = props.settings.yellowTeam;
+    const blackTeam = props.settings.blackTeam;
 
-    if (
-      yellowOption.value !== props.settings.yellowTeam.id ||
-      yellowOption.label !== props.settings.yellowTeam.name
-    ) {
+    const hasOwnTeams = ownIds.size > 0;
+    const yellowIsOwn = yellowTeam.id != null && ownIds.has(yellowTeam.id);
+    const blackIsOwn = blackTeam.id != null && ownIds.has(blackTeam.id);
+
+    const yellowOption =
+      hasOwnTeams && !yellowIsOwn
+        ? availableOptions[0]
+        : (optionById(availableOptions, yellowTeam.id) ?? availableOptions[0]);
+    const blackOption =
+      hasOwnTeams && !blackIsOwn
+        ? (availableOptions[1] ?? availableOptions[0])
+        : (optionById(availableOptions, blackTeam.id) ??
+          (availableOptions[1]?.value !== yellowOption.value
+            ? availableOptions[1]
+            : availableOptions[2]) ??
+          yellowOption);
+
+    if (yellowOption.value !== yellowTeam.id || yellowOption.label !== yellowTeam.name) {
       props.setSettings("yellowTeam", { id: yellowOption.value, name: yellowOption.label });
     }
 
-    if (
-      blackOption.value !== props.settings.blackTeam.id ||
-      blackOption.label !== props.settings.blackTeam.name
-    ) {
+    if (blackOption.value !== blackTeam.id || blackOption.label !== blackTeam.name) {
       props.setSettings("blackTeam", { id: blackOption.value, name: blackOption.label });
     }
   });
