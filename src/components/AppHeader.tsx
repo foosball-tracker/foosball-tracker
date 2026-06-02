@@ -2,6 +2,7 @@ import { A, useLocation } from "@solidjs/router";
 import { Medal, Menu, UserRound, UsersRound } from "lucide-solid";
 import { createSignal, For } from "solid-js";
 import { Login } from "~/components/auth/Login.tsx";
+import { SupabaseConnectionBadge } from "~/components/SupabaseConnectionBadge.tsx";
 import { ThemeSwitch } from "~/components/ThemeSwitch.tsx";
 
 const navItems = [
@@ -82,6 +83,7 @@ export function AppHeader() {
         </nav>
 
         <div class="navbar-end ml-1 flex-none items-center gap-1 sm:ml-0 sm:gap-2">
+          <SupabaseConnectionBadge />
           <ThemeSwitch />
           <Login />
         </div>
