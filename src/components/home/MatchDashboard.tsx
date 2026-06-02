@@ -8,12 +8,17 @@ type MatchRow = Tables<"matches">;
 type MatchEventRow = Tables<"match_events">;
 
 interface MatchDashboardProps {
+  backendReady: boolean;
   currentMatch: MatchRow;
   elapsedTime: number;
   matchEvents: MatchEventRow[];
   isPaused: boolean;
+  isComplete: boolean;
   leaderboardRefreshKey: number;
   onAdjustGoal: (teamId: number, increment: number) => Promise<void>;
+  onRematch: () => Promise<void>;
+  onRematchSwitched: () => Promise<void>;
+  onNewGame: () => void;
   onResetGame: () => Promise<void>;
   onTogglePause: () => void;
   settings: ISettings;
@@ -24,11 +29,16 @@ export function MatchDashboard(props: Readonly<MatchDashboardProps>) {
     <div class="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(20rem,1fr)] xl:items-start">
       <div class="grid gap-6">
         <ScoreBoard
+          backendReady={props.backendReady}
           currentMatch={props.currentMatch}
           elapsedTime={props.elapsedTime}
           matchEvents={props.matchEvents}
           isPaused={props.isPaused}
+          isComplete={props.isComplete}
           onAdjustGoal={props.onAdjustGoal}
+          onRematch={props.onRematch}
+          onRematchSwitched={props.onRematchSwitched}
+          onNewGame={props.onNewGame}
           onResetGame={props.onResetGame}
           onTogglePause={props.onTogglePause}
           settings={props.settings}

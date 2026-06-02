@@ -1,4 +1,8 @@
-import { supabase } from "~/service/supabaseService";
+import {
+  clearSupabaseSchemaIssue,
+  reportSupabaseSchemaIssue,
+  supabase,
+} from "~/service/supabaseService";
 import type { Tables } from "~/types/database";
 
 type MatchRow = Tables<"matches">;
@@ -40,17 +44,24 @@ export async function getLeaderboardSnapshot(): Promise<LeaderboardSnapshot> {
     ]);
 
   if (matchesResult.error) {
+    reportSupabaseSchemaIssue(matchesResult.error, "loading completed matches");
     console.error("Error fetching completed matches:", matchesResult.error);
     return { teams: [], players: [] };
   }
 
   if (eventsResult.error || teamsResult.error || playersResult.error || membersResult.error) {
+    reportSupabaseSchemaIssue(
+      eventsResult.error ?? teamsResult.error ?? playersResult.error ?? membersResult.error,
+      "loading leaderboard data"
+    );
     console.error(
       "Error fetching leaderboard dependencies:",
       eventsResult.error ?? teamsResult.error ?? playersResult.error ?? membersResult.error
     );
     return { teams: [], players: [] };
   }
+
+  clearSupabaseSchemaIssue();
 
   return buildLeaderboardSnapshot({
     matches: matchesResult.data ?? [],

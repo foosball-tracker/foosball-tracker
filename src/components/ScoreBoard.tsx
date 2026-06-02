@@ -1,15 +1,18 @@
 import {
+  ArrowLeftRight,
   ChevronDown,
   ChevronUp,
+  CirclePlay,
   Goal,
   Maximize2,
   Minimize2,
   Pause,
   Play,
+  RefreshCw,
   RotateCcw,
   Timer,
 } from "lucide-solid";
-import { createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { GoalHistoryCard } from "~/components/home/GoalHistoryCard.tsx";
 import { TeamScore } from "~/components/TeamScore";
 import { formatTime } from "~/lib/utils.ts";
@@ -20,11 +23,16 @@ type MatchEventRow = Tables<"match_events">;
 type MatchRow = Tables<"matches">;
 
 interface ScoreBoardProps {
+  backendReady: boolean;
   currentMatch: MatchRow;
   elapsedTime: number;
   matchEvents: MatchEventRow[];
   isPaused: boolean;
+  isComplete: boolean;
   onAdjustGoal: (teamId: number, increment: number) => Promise<void>;
+  onRematch: () => Promise<void>;
+  onRematchSwitched: () => Promise<void>;
+  onNewGame: () => void;
   onResetGame: () => Promise<void>;
   onTogglePause: () => void;
   settings: Readonly<ISettings>;
@@ -53,7 +61,7 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
       ).length
   );
 
-  const scoreboardDisabled = () => props.isPaused;
+  const scoreboardDisabled = () => props.isPaused || props.isComplete || !props.backendReady;
   const yellowTeamName = () => props.settings.yellowTeam.name ?? "Yellow Team";
   const blackTeamName = () => props.settings.blackTeam.name ?? "Black Team";
   const goalsToWin = () => props.settings.goalsToWin || props.currentMatch.goals_to_win;
@@ -122,12 +130,39 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
 
   const fullscreenIcon = () => (isFullscreen() ? <Minimize2 size={18} /> : <Maximize2 size={18} />);
 
-  const gameStatusClasses = () =>
-    props.isPaused ? "badge badge-warning gap-2" : "badge badge-success gap-2";
+  const gameStatusClasses = () => {
+    if (props.isComplete) return "badge badge-error gap-2";
+    if (props.isPaused) return "badge badge-warning gap-2";
+    return "badge badge-success gap-2";
+  };
+
+  const gameStatusLabel = () => {
+    if (props.isComplete) return "Finished";
+    if (props.isPaused) return "Paused";
+    return "Live";
+  };
 
   const recentGoalLimit = () => (isFullscreen() ? 4 : 0);
 
   const goalEvents = createMemo(() => props.matchEvents.filter((e) => e.type === "goal_detected"));
+
+  const actionButtonClasses = (variant: "primary" | "outline" | "subtle") => {
+    let variantClass: string;
+
+    if (variant === "primary") {
+      variantClass = "btn-primary";
+    } else if (variant === "outline") {
+      variantClass = "btn-outline";
+    } else {
+      variantClass =
+        "btn-outline border-base-300 bg-base-100/60 hover:bg-base-100 text-base-content/80 [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:hover:bg-base-100/15";
+    }
+
+    return [
+      "btn btn-sm sm:btn-md h-11 min-h-11 w-full justify-center gap-2 rounded-full px-4 text-center sm:min-w-40 sm:w-auto",
+      variantClass,
+    ].join(" ");
+  };
 
   const centerScore = () => (
     <div class="border-base-300 bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content rounded-box border px-3 py-2 shadow-sm sm:px-6 sm:py-4">
@@ -167,7 +202,7 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
           <div class="flex items-center gap-2">
             <span class={gameStatusClasses()}>
               <span class="h-2 w-2 rounded-full bg-current" />
-              {props.isPaused ? "Paused" : "Live"}
+              {gameStatusLabel()}
             </span>
             <button
               aria-label={fullscreenLabel()}
@@ -200,7 +235,7 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
             </div>
             <div>
               <p class="text-base-content/70 [html[data-theme=dim]_&]:text-neutral-content/70 text-xs font-black tracking-[0.18em] uppercase">
-                Match Time
+                {props.isComplete ? "Final Time" : "Match Time"}
               </p>
               <p class="text-2xl leading-none font-black tabular-nums sm:text-3xl">
                 {formatTime(props.elapsedTime)}
@@ -208,24 +243,58 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
             </div>
           </div>
 
-          <div class="flex flex-wrap justify-center gap-2">
-            <button
-              class="btn btn-primary btn-sm sm:btn-md rounded-full"
-              onClick={() => props.onTogglePause()}
-              type="button"
-            >
-              {props.isPaused ? <Play size={18} /> : <Pause size={18} />}
-              {props.isPaused ? "Resume" : "Pause"}
-            </button>
-            <button
-              class="btn btn-ghost btn-sm sm:btn-md rounded-full"
-              onClick={() => void props.onResetGame()}
-              type="button"
-            >
-              <RotateCcw size={18} />
-              Reset
-            </button>
-          </div>
+          <Show
+            when={props.isComplete}
+            fallback={
+              <div class="grid w-full gap-2 sm:flex sm:flex-wrap sm:justify-center">
+                <button
+                  class={actionButtonClasses("primary")}
+                  disabled={!props.backendReady}
+                  onClick={() => props.onTogglePause()}
+                  type="button"
+                >
+                  {props.isPaused ? <Play size={18} /> : <Pause size={18} />}
+                  {props.isPaused ? "Resume" : "Pause"}
+                </button>
+                <button
+                  class={actionButtonClasses("subtle")}
+                  disabled={!props.backendReady}
+                  onClick={() => void props.onResetGame()}
+                  type="button"
+                >
+                  <RotateCcw size={18} />
+                  Reset
+                </button>
+              </div>
+            }
+          >
+            <div class="grid w-full gap-2 sm:grid-cols-2">
+              <button
+                class={actionButtonClasses("primary")}
+                onClick={() => void props.onRematch()}
+                type="button"
+              >
+                <RefreshCw size={18} />
+                Rematch
+              </button>
+              <button
+                class={actionButtonClasses("outline")}
+                onClick={() => void props.onRematchSwitched()}
+                type="button"
+              >
+                <ArrowLeftRight size={18} />
+                Rematch + swap sides
+              </button>
+              <button
+                class={`${actionButtonClasses("subtle")} sm:col-span-2 sm:mx-auto`}
+                onClick={() => props.onNewGame()}
+                type="button"
+              >
+                <CirclePlay size={18} />
+                New game
+              </button>
+            </div>
+          </Show>
         </div>
 
         {isFullscreen() && (

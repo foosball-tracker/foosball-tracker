@@ -16,14 +16,17 @@ For UI changes, also follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md)
 ## Common Commands
 
 - Install: `pnpm install`
-- Dev server: `pnpm dev`
-- Build: `pnpm build`
+- Full local setup: `pnpm local:setup`
+- Local dev app: `pnpm local:dev`
+- Local app against hosted Supabase: `pnpm local:hosted`
 - Lint: `pnpm lint`
 - Format check: `pnpm format:check`
 - Format: `pnpm format`
 - Regenerate Supabase DB types: `pnpm db-types`
 - Start local Supabase: `pnpm supabase:start`
 - Reset local DB (re-runs migrations + seed): `pnpm db:reset`
+- Create local Playwright auth state: `pnpm auth:local`
+- Create hosted Playwright auth state: `pnpm auth:prod`
 - UI proof capture: `pnpm proof:capture -- --name <name> --route <route>`
 - UI proof publish: `pnpm proof:publish`
 
@@ -61,6 +64,10 @@ Impeccable skills are installed at `.agents/skills/impeccable/` (for OpenCode/lo
 ## Supabase Local-First Workflow
 
 - Use the local Supabase instance by default (start with `pnpm supabase:start`).
+- Use `pnpm local:dev` for normal app development, E2E, auth bootstrap, and proof capture.
+- Use `pnpm local:hosted` only when reproducing a hosted Supabase issue from a local browser.
+- `pnpm auth:local` writes `playwright/.auth/user.json`.
+- `pnpm auth:prod` and `pnpm auth:hosted` write `playwright/.auth/user.hosted.json`.
 - Connect to `http://127.0.0.1:54321` with the local anon key from `pnpm supabase:status`.
 - Never use production service role keys.
 - Test migration changes with `pnpm db:reset`.
@@ -76,7 +83,7 @@ Impeccable skills are installed at `.agents/skills/impeccable/` (for OpenCode/lo
 - Preserve the existing service/store split.
 - Avoid editing generated types manually unless the generation flow is broken.
 - **Ask the user before any Supabase schema change, migration, data mutation, or RLS policy change.**
-- Run lint and build before pushing.
+- Run lint before pushing, and rely on pre-commit hooks for staged formatting and fixups.
 - Never hardcode secrets or tokens. `SONARQUBE_TOKEN` is loaded from `~/.secrets/sonarqube_token`.
 
 ## MCP & Skills

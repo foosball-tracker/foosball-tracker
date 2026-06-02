@@ -2,10 +2,18 @@ import { chromium } from "playwright";
 import readline from "node:readline";
 import { mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
-import { INSPECT_BASE_URL, ensureInspectServer } from "./ui-inspect-server.mjs";
-
-const AUTH_STATE_PATH = "playwright/.auth/user.json";
-const BASE_URL = INSPECT_BASE_URL;
+import {
+  DEFAULT_LOCAL_AUTH_EMAIL,
+  DEFAULT_LOCAL_TEST_PASSWORD,
+  createHostedViteEnv,
+  createLocalViteEnv,
+  getLocalSupabaseStatus,
+  parseArgs,
+} from "./lib/utils.mjs";
+const LOCAL_AUTH_STATE_PATH = "playwright/.auth/user.json";
+const HOSTED_AUTH_STATE_PATH = "playwright/.auth/user.hosted.json";
+const LOCAL_INSPECT_PORT = 4174;
+const HOSTED_INSPECT_PORT = 4175;
 
 function ask(question) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -60,56 +68,114 @@ function askPassword(question) {
   });
 }
 
-async function main() {
-  await ensureInspectServer();
+function normalizeMode(value) {
+  return value === "hosted" ? "hosted" : "local";
+}
 
-  console.log("Supabase Auth — interactive login for Playwright");
-  console.log(`Target: ${BASE_URL}\n`);
+function resolveInspectPort(mode) {
+  const configuredPort = process.env.UI_INSPECT_PORT ?? process.env.PLAYWRIGHT_PORT;
+  if (configuredPort) {
+    return Number(configuredPort);
+  }
 
-  const email = await ask("Email: ");
+  return mode === "hosted" ? HOSTED_INSPECT_PORT : LOCAL_INSPECT_PORT;
+}
+
+function resolveAuthStatePath(mode, options) {
+  return (
+    options.authFile ??
+    process.env.AUTH_STATE_PATH ??
+    (mode === "hosted" ? HOSTED_AUTH_STATE_PATH : LOCAL_AUTH_STATE_PATH)
+  );
+}
+
+function resolveLocalCredentials(options) {
+  return {
+    email: options.email ?? process.env.LOCAL_TEST_USER_EMAIL ?? DEFAULT_LOCAL_AUTH_EMAIL,
+    password:
+      options.password ?? process.env.LOCAL_TEST_USER_PASSWORD ?? DEFAULT_LOCAL_TEST_PASSWORD,
+  };
+}
+
+async function resolveHostedCredentials(options) {
+  const email = options.email ?? process.env.AUTH_EMAIL ?? (await ask("Email: "));
   if (!email) {
     console.error("Email is required.");
     process.exit(1);
   }
 
-  const password = await askPassword("Password: ");
+  const password =
+    options.password ?? process.env.AUTH_PASSWORD ?? (await askPassword("Password: "));
   if (!password) {
     console.error("Password is required.");
     process.exit(1);
+  }
+
+  return { email, password };
+}
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+  const mode = normalizeMode(args.mode ?? (args.hosted === "true" ? "hosted" : "local"));
+  const authStatePath = resolveAuthStatePath(mode, args);
+  const inspectPort = resolveInspectPort(mode);
+  const inspectBaseUrl = `http://localhost:${inspectPort}`;
+  const credentials =
+    mode === "hosted" ? await resolveHostedCredentials(args) : resolveLocalCredentials(args);
+  const viteEnv =
+    mode === "hosted" ? createHostedViteEnv() : createLocalViteEnv(getLocalSupabaseStatus().status);
+
+  process.env.UI_INSPECT_PORT = String(inspectPort);
+  const { ensureInspectServer } = await import("./ui-inspect-server.mjs");
+  await ensureInspectServer({
+    env: { ...process.env, ...viteEnv, UI_INSPECT_PORT: String(inspectPort) },
+  });
+
+  console.log("Supabase Auth — Playwright login");
+  console.log(`Mode: ${mode}`);
+  console.log(`Target: ${inspectBaseUrl}`);
+  if (viteEnv.VITE_SUPABASE_URL) {
+    console.log(`Supabase: ${new URL(viteEnv.VITE_SUPABASE_URL).host}`);
+  }
+  console.log();
+
+  if (mode === "local") {
+    console.log(`Using local account: ${credentials.email}`);
   }
 
   const hasDisplay = !!(process.env.DISPLAY || process.env.WAYLAND_DISPLAY);
   const forceHeadless = process.argv.includes("--headless");
   const headless = forceHeadless || !hasDisplay;
 
-  console.log(`\nLaunching browser (${headless ? "headless" : "headed"})...`);
+  console.log(`Launching browser (${headless ? "headless" : "headed"})...`);
   const browser = await chromium.launch({ headless });
   const context = await browser.newContext({ colorScheme: "dark" });
   const page = await context.newPage();
 
   try {
-    await page.goto(BASE_URL);
+    await page.goto(inspectBaseUrl);
 
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await page.getByRole("banner").getByRole("button", { name: "Sign in" }).click();
 
     const modal = page.locator("#login-modal");
-    await modal.waitFor({ state: "visible", timeout: 5000 });
+    await modal.waitFor({ state: "visible", timeout: 5_000 });
 
-    await modal.locator("#email").waitFor({ state: "visible", timeout: 5000 });
+    await modal.locator("#email").waitFor({ state: "visible", timeout: 5_000 });
     await modal.locator("#email").clear();
-    await modal.locator("#email").pressSequentially(email, { delay: 10 });
+    await modal.locator("#email").pressSequentially(credentials.email, { delay: 10 });
     await modal.locator("#password").clear();
-    await modal.locator("#password").pressSequentially(password, { delay: 10 });
+    await modal.locator("#password").pressSequentially(credentials.password, { delay: 10 });
     await modal.getByRole("button", { name: "Sign in" }).click();
 
     await page.getByRole("button", { name: "Logout" }).waitFor({ timeout: 30_000 });
 
-    await mkdir(dirname(AUTH_STATE_PATH), { recursive: true });
-    await context.storageState({ path: AUTH_STATE_PATH });
+    await mkdir(dirname(authStatePath), { recursive: true });
+    await context.storageState({ path: authStatePath });
 
-    console.log(`\nAuth state saved to ${AUTH_STATE_PATH}`);
-  } catch (err) {
-    console.error("\nLogin failed:", err.message);
+    console.log(`\nAuth state saved to ${authStatePath}`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("\nLogin failed:", message);
     await page.screenshot({ path: "playwright-auth-error.png" });
     console.log("Screenshot saved to playwright-auth-error.png");
     process.exitCode = 1;

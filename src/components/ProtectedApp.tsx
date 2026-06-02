@@ -8,6 +8,7 @@ import { MatchSetupPanel } from "~/components/home/MatchSetupPanel.tsx";
 import type { ISettings } from "../types/Settings.ts";
 import * as matchService from "../service/matchService";
 import { playSound } from "~/service/soundService.ts";
+import { getSupabaseSchemaIssue } from "~/service/supabaseService.ts";
 import { getAllTeams, getTeamsByIds } from "~/service/teamService.ts";
 import type { Tables } from "~/types/database.ts";
 import "../App.css";
@@ -27,6 +28,23 @@ export default function ProtectedApp() {
   const [isPaused, setIsPaused] = createSignal(false);
   const [leaderboardRefreshKey, setLeaderboardRefreshKey] = createSignal(0);
   const { elapsedTime, reset, running, start, stop } = useGameTimer();
+  const hasSchemaIssue = () => getSupabaseSchemaIssue() !== null;
+
+  const countValidGoals = (events: MatchEventRow[], teamId: number | undefined) => {
+    if (!teamId) return 0;
+
+    return events.filter(
+      (event) =>
+        event.type === "goal_detected" && event.status === "valid" && event.team_id === teamId
+    ).length;
+  };
+
+  const isHydratedMatchComplete = (match: MatchRow, events: MatchEventRow[]) => {
+    const yellowGoals = countValidGoals(events, match.home_team_id);
+    const blackGoals = countValidGoals(events, match.away_team_id);
+
+    return yellowGoals >= match.goals_to_win || blackGoals >= match.goals_to_win;
+  };
 
   const syncSettingsWithMatch = async (match: MatchRow) => {
     const teams = await getTeamsByIds([match.home_team_id, match.away_team_id]);
@@ -49,8 +67,43 @@ export default function ProtectedApp() {
     const match = await matchService.getLatestMatch();
     if (!match) return;
 
+    const events = await matchService.fetchMatchEvents(match.id);
+    if (hasSchemaIssue()) {
+      stop();
+      setIsPaused(false);
+      setMatchEvents([]);
+      setCurrentMatch(null);
+      return;
+    }
+
+    if (isHydratedMatchComplete(match, events)) {
+      // Do not flip local state until the server-side endGame() succeeds.
+      // First, set the match/events so UI reflects the latest events while
+      // we attempt to finalize on the server. Only mark the match complete
+      // locally if finalizeCurrentMatch reports success; otherwise treat
+      // it as an active match and resume.
+      setCurrentMatch(match);
+      setMatchEvents(events);
+      await syncSettingsWithMatch(match);
+
+      const didEnd = await finalizeCurrentMatch(match.id);
+      if (didEnd) {
+        // finalizeCurrentMatch handled stopping the timer and marking
+        // the match complete; ensure timer state is reset locally.
+        reset();
+        return;
+      }
+
+      // If we failed to finalize on the server, keep the match active
+      // locally (do not mark complete) and resume the timer so the UI
+      // remains consistent with the persisted `in_progress` state.
+      setIsPaused(false);
+      start();
+      return;
+    }
+
     setCurrentMatch(match);
-    setMatchEvents(await matchService.fetchMatchEvents(match.id));
+    setMatchEvents(events);
     await syncSettingsWithMatch(match);
     setIsPaused(false);
     start();
@@ -80,6 +133,7 @@ export default function ProtectedApp() {
 
   const startGame = async () => {
     const { blackTeam, yellowTeam } = settings;
+    if (hasSchemaIssue()) return;
     if (!blackTeam.id || !yellowTeam.id) {
       alert("Please select both teams before starting the game.");
       return;
@@ -103,26 +157,52 @@ export default function ProtectedApp() {
     if (!match || !running() || isPaused()) return;
 
     if (increment > 0) {
-      await matchService.recordGoalEvent(
+      const recordedGoalId = await matchService.recordGoalEvent(
         match.id,
         teamId,
         elapsedTime(),
         matchService.formatGoalTime
       );
+
+      if (!recordedGoalId) return;
+
+      const events = await matchService.fetchMatchEvents(match.id);
+      if (hasSchemaIssue()) return;
+
+      setMatchEvents(events);
       return;
     }
 
-    await matchService.invalidateLastGoalForTeam(match.id, teamId, "manual correction");
+    const invalidatedGoalId = await matchService.invalidateLastGoalForTeam(
+      match.id,
+      teamId,
+      "manual correction"
+    );
+    if (!invalidatedGoalId) return;
+
+    const events = await matchService.fetchMatchEvents(match.id);
+    if (hasSchemaIssue()) return;
+
+    setMatchEvents(events);
   };
 
+  let finalizing = false;
+
   const finalizeCurrentMatch = async (matchId: number) => {
+    if (finalizing) return false;
+    finalizing = true;
+
     const didEnd = await matchService.endGame(matchId);
-    if (!didEnd) return false;
+    if (!didEnd) {
+      finalizing = false;
+      return false;
+    }
 
     stop();
     setIsPaused(false);
     setCurrentMatch((match) => (match ? { ...match, in_progress: false } : match));
     setLeaderboardRefreshKey((value) => value + 1);
+    finalizing = false;
     return true;
   };
 
@@ -140,6 +220,60 @@ export default function ProtectedApp() {
     setCurrentMatch(null);
   };
 
+  const rematch = async () => {
+    const match = currentMatch();
+    if (!match) return;
+
+    const newMatch = await matchService.createMatch(
+      match.home_team_id,
+      match.away_team_id,
+      match.goals_to_win
+    );
+    if (!newMatch) {
+      alert("Could not start the rematch. Please try again.");
+      return;
+    }
+
+    reset();
+    setCurrentMatch(newMatch);
+    setMatchEvents([]);
+    setIsPaused(false);
+    start();
+  };
+
+  const rematchSwitched = async () => {
+    const match = currentMatch();
+    if (!match) return;
+
+    const newMatch = await matchService.createMatch(
+      match.away_team_id,
+      match.home_team_id,
+      match.goals_to_win
+    );
+    if (!newMatch) {
+      alert("Could not start the rematch. Please try again.");
+      return;
+    }
+
+    setSettings({
+      yellowTeam: { ...settings.blackTeam },
+      blackTeam: { ...settings.yellowTeam },
+    });
+
+    reset();
+    setCurrentMatch(newMatch);
+    setMatchEvents([]);
+    setIsPaused(false);
+    start();
+  };
+
+  const newGame = () => {
+    stop();
+    reset();
+    setMatchEvents([]);
+    setCurrentMatch(null);
+  };
+
   const togglePause = () => {
     if (isPaused()) {
       start();
@@ -149,13 +283,6 @@ export default function ProtectedApp() {
 
     stop();
     setIsPaused(true);
-  };
-
-  const countValidGoals = (teamId: number | undefined) => {
-    if (!teamId) return 0;
-    return matchEvents().filter(
-      (e) => e.type === "goal_detected" && e.status === "valid" && e.team_id === teamId
-    ).length;
   };
 
   onMount(() => {
@@ -174,8 +301,9 @@ export default function ProtectedApp() {
     const match = currentMatch();
     if (!match?.in_progress || isPaused()) return;
 
-    const yellowScore = countValidGoals(settings.yellowTeam.id);
-    const blackScore = countValidGoals(settings.blackTeam.id);
+    const events = matchEvents();
+    const yellowScore = countValidGoals(events, settings.yellowTeam.id);
+    const blackScore = countValidGoals(events, settings.blackTeam.id);
 
     if (yellowScore < settings.goalsToWin && blackScore < settings.goalsToWin) return;
 
@@ -186,9 +314,10 @@ export default function ProtectedApp() {
     });
   });
 
-  const activeMatch = () => {
+  const activeMatch = () => currentMatch();
+  const isMatchComplete = () => {
     const match = currentMatch();
-    return match?.in_progress ? match : null;
+    return match ? !match.in_progress : false;
   };
 
   return (
@@ -198,6 +327,7 @@ export default function ProtectedApp() {
         keyed
         fallback={
           <MatchSetupPanel
+            backendReady={!hasSchemaIssue()}
             onStartGame={startGame}
             settings={settings}
             setSettings={setSettings}
@@ -209,10 +339,15 @@ export default function ProtectedApp() {
           <MatchDashboard
             currentMatch={match}
             elapsedTime={elapsedTime()}
+            backendReady={!hasSchemaIssue()}
             matchEvents={matchEvents()}
             isPaused={isPaused()}
+            isComplete={isMatchComplete()}
             leaderboardRefreshKey={leaderboardRefreshKey()}
             onAdjustGoal={adjustGoal}
+            onRematch={rematch}
+            onRematchSwitched={rematchSwitched}
+            onNewGame={newGame}
             onResetGame={resetGame}
             onTogglePause={togglePause}
             settings={settings}

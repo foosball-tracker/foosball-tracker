@@ -1,4 +1,9 @@
-import { requireSupabase, supabase } from "~/service/supabaseService";
+import {
+  clearSupabaseSchemaIssue,
+  reportSupabaseSchemaIssue,
+  requireSupabase,
+  supabase,
+} from "~/service/supabaseService";
 import type { Tables } from "~/types/database";
 
 type GoalsRow = Tables<"goals">;
@@ -45,9 +50,11 @@ export async function recordGoalEvent(
     p_goal_time: goalTime,
   });
   if (error) {
+    reportSupabaseSchemaIssue(error, "recording a goal");
     console.error("Error recording goal event:", error);
     return null;
   }
+  clearSupabaseSchemaIssue();
   return data;
 }
 
@@ -61,9 +68,11 @@ export async function invalidateGoalEvent(
     p_reason: reason ?? undefined,
   });
   if (error) {
+    reportSupabaseSchemaIssue(error, "invalidating a goal");
     console.error("Error invalidating goal event:", error);
     return null;
   }
+  clearSupabaseSchemaIssue();
   return data;
 }
 
@@ -73,7 +82,7 @@ export async function invalidateLastGoalForTeam(
   reason?: string
 ): Promise<number | null> {
   const client = requireSupabase();
-  const { data } = await client
+  const { data, error } = await client
     .from("match_events")
     .select("id")
     .eq("match_id", matchId)
@@ -82,6 +91,12 @@ export async function invalidateLastGoalForTeam(
     .eq("status", "valid")
     .order("created_at", { ascending: false })
     .limit(1);
+
+  if (error) {
+    reportSupabaseSchemaIssue(error, "loading goal history");
+    console.error("Error fetching latest goal event:", error);
+    return null;
+  }
 
   if (!data?.length) {
     console.warn("No valid goal to invalidate for team", teamId);
@@ -98,9 +113,11 @@ export async function resetMatchScore(matchId: number, reason?: string): Promise
     p_reason: reason ?? undefined,
   });
   if (error) {
+    reportSupabaseSchemaIssue(error, "resetting the match score");
     console.error("Error resetting match score:", error);
     return null;
   }
+  clearSupabaseSchemaIssue();
   return data;
 }
 
@@ -112,9 +129,11 @@ export async function fetchMatchEvents(matchId: number): Promise<MatchEventRow[]
     .eq("match_id", matchId)
     .order("created_at");
   if (error) {
+    reportSupabaseSchemaIssue(error, "loading match events");
     console.error("Error fetching match events:", error);
     return [];
   }
+  clearSupabaseSchemaIssue();
   return data;
 }
 

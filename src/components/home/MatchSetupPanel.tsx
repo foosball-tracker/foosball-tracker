@@ -6,6 +6,7 @@ import type { ISettings } from "~/types/Settings";
 import type { Tables } from "~/types/database";
 
 interface MatchSetupPanelProps {
+  backendReady: boolean;
   onStartGame: () => Promise<void>;
   settings: ISettings;
   setSettings: SetStoreFunction<ISettings>;
@@ -21,7 +22,12 @@ export function MatchSetupPanel(props: Readonly<MatchSetupPanelProps>) {
 
   const selectedName = (name: string) => name || "Select team";
   const canStartMatch = () =>
-    Boolean(props.settings.yellowTeam.id && props.settings.blackTeam.id && options().length);
+    Boolean(
+      props.backendReady &&
+      props.settings.yellowTeam.id &&
+      props.settings.blackTeam.id &&
+      options().length
+    );
   const optionById = (id: number | undefined) => options().find((option) => option.value === id);
 
   createEffect(() => {
@@ -88,6 +94,12 @@ export function MatchSetupPanel(props: Readonly<MatchSetupPanelProps>) {
             </div>
 
             <div class="rounded-box bg-base-200 [html[data-theme=dim]_&]:bg-base-100/10 flex flex-col justify-between gap-4 p-4 sm:p-5">
+              {!props.backendReady && (
+                <div class="alert alert-error text-sm">
+                  Connected Supabase backend is missing required migrations for match tracking on
+                  this branch.
+                </div>
+              )}
               <fieldset class="fieldset m-0 p-0">
                 <legend class="fieldset-legend text-base-content [html[data-theme=dim]_&]:text-neutral-content flex items-center gap-2 pb-2 text-sm font-semibold">
                   <Goal class="h-4 w-4" />

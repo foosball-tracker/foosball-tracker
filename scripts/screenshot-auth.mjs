@@ -4,34 +4,7 @@ import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { execSync } from "node:child_process";
 import { INSPECT_BASE_URL, ensureInspectServer } from "./ui-inspect-server.mjs";
-
-function parseArgs(argv) {
-  const options = {};
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const value = argv[index];
-    if (!value.startsWith("--")) continue;
-
-    const [flag, inlineValue] = value.split("=", 2);
-    const key = flag.slice(2);
-
-    if (inlineValue !== undefined) {
-      options[key] = inlineValue;
-      continue;
-    }
-
-    const nextValue = argv[index + 1];
-    if (nextValue && !nextValue.startsWith("--")) {
-      options[key] = nextValue;
-      index += 1;
-      continue;
-    }
-
-    options[key] = "true";
-  }
-
-  return options;
-}
+import { parseArgs } from "./lib/utils.mjs";
 
 function sanitizeName(value) {
   return value.toLowerCase().replace(/[^a-z0-9-_]+/g, "-");
