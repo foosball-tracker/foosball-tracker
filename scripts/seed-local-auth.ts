@@ -101,21 +101,27 @@ for (const user of users) {
     console.log(`  ${user.email} — created (id: ${data.user.id}).`);
     created++;
 
-    const { error: profileError } = await supabase.from("profiles").upsert(
-      {
-        user_id: data.user.id,
-        is_admin: user.is_admin,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email,
-      },
-      { onConflict: "user_id" }
-    );
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({ is_admin: user.is_admin })
+      .eq("user_id", data.user.id);
 
     if (profileError) {
-      console.error(`  ${user.email} — profile upsert error:`, profileError.message);
+      console.error(`  ${user.email} — profile update error:`, profileError.message);
     } else {
-      console.log(`  ${user.email} — profile upserted.`);
+      console.log(`  ${user.email} — profile updated (admin: ${user.is_admin}).`);
+    }
+
+    const displayName = `${user.first_name} ${user.last_name}`;
+    const { error: playerError } = await supabase
+      .from("players")
+      .update({ name: displayName })
+      .eq("user_id", data.user.id);
+
+    if (playerError) {
+      console.error(`  ${user.email} — player update error:`, playerError.message);
+    } else {
+      console.log(`  ${user.email} — player updated (name: ${displayName}).`);
     }
   }
 }
