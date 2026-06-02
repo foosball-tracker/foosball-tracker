@@ -46,7 +46,7 @@ git checkout -b feat/16-team-management-crud
    ```bash
    pnpm local:hosted
    ```
-   That is a manual debugging path only. Do not use it for automated UI coverage, auth bootstrap, or proof capture.
+   That is a manual debugging path only. The app still runs on localhost, but the Supabase backend comes from `.env`. Do not use it for automated UI coverage, local auth bootstrap, or proof capture.
 5. If the change touches UI, verify the browser workflow first:
    Follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md) from start to finish. It covers local auth state, Playwright inspection, desktop/mobile proof capture, and proof publication back to the PR.
 6. Implement the feature. Follow the guidelines in `AGENTS.md` (SolidJS patterns, service/store split, etc.).
@@ -107,11 +107,9 @@ Run these **before every commit** (Husky runs them on staged files, but run them
 
 ```bash
 pnpm lint        # ESLint
-pnpm format:check # Prettier
-pnpm build       # TypeScript + Vite build
 ```
 
-All three must pass before pushing.
+Lint must pass before pushing. Formatting and related staged fixups are enforced by the existing pre-commit hooks.
 
 If the change touches UI, also complete the proof flow before pushing or before marking the PR ready:
 
@@ -124,6 +122,8 @@ pnpm proof:publish
 ```
 
 Then verify the PR comment contains working screenshot previews and direct links from the local authenticated session.
+
+If you need hosted Supabase browser auth for manual debugging, use `pnpm auth:prod` or `pnpm auth:hosted`. Those commands save `playwright/.auth/user.hosted.json` and use port `4175` so they do not collide with the normal local auth and proof flow on `4174`.
 
 ---
 
@@ -273,6 +273,7 @@ Or merge via the GitHub UI.
 | DB types        | `pnpm db-types`                           |
 | Dev             | `pnpm local:dev`                          |
 | Auth state      | `pnpm auth:local`                         |
+| Hosted auth     | `pnpm auth:prod`                          |
 | Lint            | `pnpm lint`                               |
 | Format          | `pnpm format`                             |
 | Build           | `pnpm build`                              |
