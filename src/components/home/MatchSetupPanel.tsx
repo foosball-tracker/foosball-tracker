@@ -78,11 +78,8 @@ export function MatchSetupPanel(props: Readonly<MatchSetupPanelProps>) {
     const yellowTeam = props.settings.yellowTeam;
     const blackTeam = props.settings.blackTeam;
 
-    const hasOwnTeams = ownIds.size > 0;
-    const yellowIsOwn = yellowTeam.id != null && ownIds.has(yellowTeam.id);
-
     const yellowOption =
-      hasOwnTeams && (yellowTeam.id == null || !yellowIsOwn)
+      ownIds.size > 0 && yellowTeam.id == null
         ? availableOptions[0]
         : (optionById(availableOptions, yellowTeam.id) ?? availableOptions[0]);
 
