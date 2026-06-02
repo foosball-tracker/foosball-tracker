@@ -11,7 +11,8 @@ import {
 } from "./lib/utils.mjs";
 import { INSPECT_BASE_URL, ensureInspectServer } from "./ui-inspect-server.mjs";
 
-const AUTH_STATE_PATH = "playwright/.auth/user.json";
+const LOCAL_AUTH_STATE_PATH = "playwright/.auth/user.json";
+const HOSTED_AUTH_STATE_PATH = "playwright/.auth/user.hosted.json";
 
 function parseArgs(argv) {
   const options = {};
@@ -98,6 +99,14 @@ function normalizeMode(value) {
   return value === "hosted" ? "hosted" : "local";
 }
 
+function resolveAuthStatePath(mode, options) {
+  return (
+    options.authFile ??
+    process.env.AUTH_STATE_PATH ??
+    (mode === "hosted" ? HOSTED_AUTH_STATE_PATH : LOCAL_AUTH_STATE_PATH)
+  );
+}
+
 function resolveLocalCredentials(options) {
   return {
     email: options.email ?? process.env.LOCAL_TEST_USER_EMAIL ?? DEFAULT_LOCAL_AUTH_EMAIL,
@@ -126,6 +135,7 @@ async function resolveHostedCredentials(options) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const mode = normalizeMode(args.mode ?? (args.hosted === "true" ? "hosted" : "local"));
+  const authStatePath = resolveAuthStatePath(mode, args);
   const credentials =
     mode === "hosted" ? await resolveHostedCredentials(args) : resolveLocalCredentials(args);
   const viteEnv =
@@ -167,10 +177,10 @@ async function main() {
 
     await page.getByRole("button", { name: "Logout" }).waitFor({ timeout: 30_000 });
 
-    await mkdir(dirname(AUTH_STATE_PATH), { recursive: true });
-    await context.storageState({ path: AUTH_STATE_PATH });
+    await mkdir(dirname(authStatePath), { recursive: true });
+    await context.storageState({ path: authStatePath });
 
-    console.log(`\nAuth state saved to ${AUTH_STATE_PATH}`);
+    console.log(`\nAuth state saved to ${authStatePath}`);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("\nLogin failed:", message);

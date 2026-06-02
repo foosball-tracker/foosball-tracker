@@ -29,6 +29,7 @@
     "ui:inspect:status": "node scripts/ui-inspect-status.mjs",
     "auth:local": "node scripts/auth-local.mjs --mode local",
     "auth:hosted": "node scripts/auth-local.mjs --mode hosted",
+    "auth:prod": "node scripts/auth-local.mjs --mode hosted",
     "proof:capture": "node scripts/screenshot-auth.mjs",
     "proof:publish": "node scripts/proof-publish.mjs",
     "db:push:remote": "supabase db push",
