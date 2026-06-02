@@ -71,18 +71,13 @@ export function MatchSetupPanel(props: Readonly<MatchSetupPanelProps>) {
     opts.find((option) => option.value === id);
 
   createEffect(() => {
-    const ownIds = ownTeamIds();
     const availableOptions = options();
     if (!availableOptions.length) return;
 
     const yellowTeam = props.settings.yellowTeam;
     const blackTeam = props.settings.blackTeam;
 
-    const yellowOption =
-      ownIds.size > 0 && yellowTeam.id == null
-        ? availableOptions[0]
-        : (optionById(availableOptions, yellowTeam.id) ?? availableOptions[0]);
-
+    const yellowOption = optionById(availableOptions, yellowTeam.id) ?? availableOptions[0];
     const blackOption =
       optionById(availableOptions, blackTeam.id) ??
       availableOptions.find((o) => o.value !== yellowOption.value) ??
