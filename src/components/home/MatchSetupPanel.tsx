@@ -1,4 +1,4 @@
-import { createEffect } from "solid-js";
+import { createEffect, createMemo } from "solid-js";
 import type { SetStoreFunction } from "solid-js/store";
 import { CirclePlay, Goal, Shield } from "lucide-solid";
 import Select from "~/components/shared/Select.tsx";
@@ -11,13 +11,51 @@ interface MatchSetupPanelProps {
   settings: ISettings;
   setSettings: SetStoreFunction<ISettings>;
   teamOptions: Tables<"teams">[];
+  currentPlayerId: number | null;
+  currentPlayerTeamIds: number[];
 }
 
 export function MatchSetupPanel(props: Readonly<MatchSetupPanelProps>) {
-  const options = () =>
-    props.teamOptions.map((team) => ({
-      value: team.id,
-      label: team.type === "player" ? `${team.name} (Player)` : `${team.name} (Team)`,
+  const ownTeamIds = createMemo(() => {
+    const ids = new Set(props.currentPlayerTeamIds);
+    for (const team of props.teamOptions) {
+      if (team.type === "player" && team.player_id === props.currentPlayerId) {
+        ids.add(team.id);
+      }
+    }
+    return ids;
+  });
+
+  const options = () => {
+    const ownIds = ownTeamIds();
+    return [...props.teamOptions]
+      .sort((a, b) => {
+        const aOwn = ownIds.has(a.id);
+        const bOwn = ownIds.has(b.id);
+        if (aOwn && !bOwn) return -1;
+        if (!aOwn && bOwn) return 1;
+        return 0;
+      })
+      .map((team) => {
+        const isOwn = ownIds.has(team.id);
+        const label = team.type === "player" ? `${team.name} (Player)` : `${team.name} (Team)`;
+        return { value: team.id, label: isOwn ? `${team.name} (You)` : label };
+      });
+  };
+
+  const yellowTeamId = () => props.settings.yellowTeam.id;
+  const blackTeamId = () => props.settings.blackTeam.id;
+
+  const yellowOptions = () =>
+    options().map((opt) => ({
+      ...opt,
+      disabled: opt.value === blackTeamId(),
+    }));
+
+  const blackOptions = () =>
+    options().map((opt) => ({
+      ...opt,
+      disabled: opt.value === yellowTeamId(),
     }));
 
   const selectedName = (name: string) => name || "Select team";
@@ -26,17 +64,22 @@ export function MatchSetupPanel(props: Readonly<MatchSetupPanelProps>) {
       props.backendReady &&
       props.settings.yellowTeam.id &&
       props.settings.blackTeam.id &&
+      props.settings.yellowTeam.id !== props.settings.blackTeam.id &&
       options().length
     );
-  const optionById = (id: number | undefined) => options().find((option) => option.value === id);
+  const optionById = (opts: { value: number; label: string }[], id: number | undefined) =>
+    opts.find((option) => option.value === id);
 
   createEffect(() => {
     const availableOptions = options();
     if (!availableOptions.length) return;
 
-    const yellowOption = optionById(props.settings.yellowTeam.id) ?? availableOptions[0];
+    const yellowOption =
+      optionById(availableOptions, props.settings.yellowTeam.id) ?? availableOptions[0];
     const blackOption =
-      optionById(props.settings.blackTeam.id) ?? availableOptions[1] ?? yellowOption;
+      optionById(availableOptions, props.settings.blackTeam.id) ??
+      availableOptions[1] ??
+      yellowOption;
 
     if (
       yellowOption.value !== props.settings.yellowTeam.id ||
@@ -87,7 +130,7 @@ export function MatchSetupPanel(props: Readonly<MatchSetupPanelProps>) {
                 onChange={(value, option) =>
                   props.setSettings("yellowTeam", { id: value, name: option.label })
                 }
-                options={options()}
+                options={yellowOptions()}
                 placeholder="Select yellow team"
                 value={props.settings.yellowTeam.id}
               />
@@ -148,7 +191,7 @@ export function MatchSetupPanel(props: Readonly<MatchSetupPanelProps>) {
                 onChange={(value, option) =>
                   props.setSettings("blackTeam", { id: value, name: option.label })
                 }
-                options={options()}
+                options={blackOptions()}
                 placeholder="Select black team"
                 value={props.settings.blackTeam.id}
               />

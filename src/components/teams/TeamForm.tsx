@@ -13,7 +13,7 @@ import {
 import { useParams, useNavigate } from "@solidjs/router";
 import Spinner from "../shared/Spinner";
 import { createTeam, updateTeam, getTeamWithMembers } from "~/service/teamService";
-import { getPlayers } from "~/service/playerService";
+import { getCurrentPlayerId, getPlayers } from "~/service/playerService";
 import { useTeamListContext } from "./TeamListContext";
 
 export interface TeamEditData {
@@ -38,6 +38,7 @@ export default function TeamForm() {
   const hasValidTeamId = () => teamId() !== undefined;
 
   const [players] = createResource(getPlayers);
+  const [currentPlayerId] = createResource(getCurrentPlayerId);
   const [teamData] = createResource(teamId, async (id) => {
     if (!id) return null;
     return getTeamWithMembers(id);
@@ -108,6 +109,16 @@ export default function TeamForm() {
     }
   };
 
+  const playerOptions = createMemo(() => {
+    const allPlayers = players() ?? [];
+    const currentId = currentPlayerId();
+    return [...allPlayers].sort((a, b) => {
+      if (a.id === currentId && b.id !== currentId) return -1;
+      if (b.id === currentId && a.id !== currentId) return 1;
+      return 0;
+    });
+  });
+
   const handlePlayerSelect: JSX.EventHandler<HTMLSelectElement, Event> = (e) => {
     const value = Number.parseInt(e.currentTarget.value);
     if (!isNaN(value) && !selectedPlayerIds().includes(value)) {
@@ -149,8 +160,12 @@ export default function TeamForm() {
               disabled={isSubmitting()}
             >
               <option value="">Select player...</option>
-              <For each={players() ?? []}>
-                {(player) => <option value={player.id}>{player.name}</option>}
+              <For each={playerOptions()}>
+                {(player) => (
+                  <option value={player.id}>
+                    {player.id === currentPlayerId() ? `${player.name} (You)` : player.name}
+                  </option>
+                )}
               </For>
             </select>
           </fieldset>
@@ -158,12 +173,12 @@ export default function TeamForm() {
           <div class="mt-2 flex flex-wrap gap-2">
             <For each={selectedPlayerIds()}>
               {(id) => {
-                const playerName = createMemo(
-                  () => players()?.find((p) => p.id === id)?.name ?? "Unknown"
-                );
+                const player = createMemo(() => players()?.find((p) => p.id === id));
                 return (
                   <div class="badge badge-primary badge-soft gap-2 p-3">
-                    {playerName()}
+                    {player()?.id === currentPlayerId()
+                      ? `${player()?.name ?? "Unknown"} (You)`
+                      : (player()?.name ?? "Unknown")}
                     <button
                       type="button"
                       class="btn btn-xs btn-circle btn-ghost ml-2"
