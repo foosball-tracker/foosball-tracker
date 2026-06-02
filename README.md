@@ -123,6 +123,8 @@ pnpm db:reset
 pnpm db-types
 ```
 
+Migrations are deployed to production automatically via Supabase GitHub integration when PRs are merged to `main`. No manual `supabase db push` is needed.
+
 Ask before any schema, migration, RLS, or non-local data change. Full guidance lives in [docs/supabase-local-dev.md](./docs/supabase-local-dev.md) and [AGENTS.md](./AGENTS.md).
 
 ## Deployment

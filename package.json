@@ -33,6 +33,8 @@
     "proof:capture": "node scripts/screenshot-auth.mjs",
     "proof:publish": "node scripts/proof-publish.mjs",
     "db:push:remote": "supabase db push",
+    "supabase:link:prod": "supabase link --project-ref eucjxbcicejyinubzgwh",
+    "supabase:unlink": "supabase unlink",
     "test:e2e": "playwright test e2e/anonymous-smoke.spec.ts",
     "test:e2e:auth": "playwright test e2e/auth-integration.spec.ts",
     "test:e2e:all": "playwright test",

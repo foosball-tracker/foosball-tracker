@@ -78,7 +78,12 @@ When working on schema changes, **use the local Supabase instance by default**:
    ```
 6. Verify the app works against the local instance with `pnpm local:dev`.
 
-**Do not run `pnpm db:push:remote`** unless the user explicitly asks. The Supabase Git integration auto-deploys migrations to the PR preview branch on push.
+You do not need `supabase link` or `supabase db push` for normal migration work. The Supabase GitHub integration handles deployment:
+
+- Migrations auto-apply to the **PR preview branch** on push.
+- Migrations auto-apply to **production** when the PR is merged to `main`.
+
+**Do not run `pnpm db:push:remote`** unless the user explicitly asks and the GitHub integration is unavailable.
 
 For full details, see [`docs/supabase-local-dev.md`](./docs/supabase-local-dev.md).
 

@@ -4,6 +4,12 @@
 
 **ALWAYS follow [`WORKFLOW.md`](./WORKFLOW.md)** from start to finish. It covers branch naming, commits, pre-commit checks, PR creation, Codex review, SonarQube checks, and merge. Do not skip steps or invent your own workflow.
 
+**Before reading any code or starting any work:**
+
+1. Pull latest `main` and create a feature branch as described in `WORKFLOW.md` step 2.
+2. Only then explore code, read files, or make changes. Skipping this step means you may be reading stale code.
+3. If you start reading code without branching first, stop, branch, and re-read.
+
 For UI changes, also follow [`docs/ai-ui-workflow.md`](./docs/ai-ui-workflow.md) exactly — including Playwright inspection at both viewports, proof capture, and proof publication.
 
 ## Stack
@@ -73,7 +79,13 @@ Impeccable skills are installed at `.agents/skills/impeccable/` (for OpenCode/lo
 - Test migration changes with `pnpm db:reset`.
 - Regenerate types after schema changes with `pnpm db-types`.
 - Avoid remote writes unless explicitly requested by the user.
-- Do not run `supabase db push` unless the user explicitly asks.
+
+### CLI Link State
+
+- The Supabase CLI is **not linked to production** by default. Migration work, type generation, and testing all run against the local instance.
+- Migrations reach production through the **Supabase GitHub integration**: preview branch is created on PR push, migrations auto-apply there, and they auto-apply to production when the PR is merged to `main`. No manual push needed.
+- Do not run `supabase db push` (or `pnpm db:push:remote`) unless the user explicitly asks.
+- If you need to query production for debugging, temporarily link with `supabase link --project-ref eucjxbcicejyinubzgwh`, do your work, then `supabase unlink`. Never leave the CLI linked to production.
 - All Supabase MCP queries should target the local instance when it is running.
 
 ## Working Rules
