@@ -145,7 +145,7 @@ Keep commits focused. Use [Conventional Commits](https://www.conventionalcommits
 
 ## 8. Open a Pull Request
 
-Use the GitHub CLI (`gh`) or the web UI.
+Use the GitHub CLI (`gh`) or the web UI. Always include a description before opening — Codex only reviews ready PRs with a body.
 
 ```bash
 gh pr create --title "feat: team management CRUD (#16)" --body "..."
@@ -160,7 +160,7 @@ Closes #16
 If later pushes introduce larger new behavior, migrations, workflow changes, or other meaningful scope changes, update the PR description so it still matches the actual contents of the branch.
 Small follow-up fixes do not need a PR description update unless they materially change scope or rollout considerations.
 
-For UI changes:
+Open PRs as **ready** (not draft) so Codex can review them. The only exception is UI changes:
 
 1. Open the PR as a draft first.
 2. Publish local proof screenshots to the PR.
@@ -191,7 +191,7 @@ For UI changes:
 
 ### Codex (AI Review)
 
-- Codex automatically reviews every new PR within a few minutes.
+- Codex automatically reviews every new PR within a few minutes. **PR must be ready (not draft)** for Codex to pick it up.
 - Review comments appear as threads on the PR diff.
 - **For every Codex comment, take one of these actions:**
   1. **Push a fix** if the feedback is valid and actionable.
