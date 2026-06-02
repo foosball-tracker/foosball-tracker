@@ -44,6 +44,21 @@ export const createPlayer = async (params: CreatePlayerParams) => {
 };
 
 /**
+ * Fetches the current authenticated user's player ID, or null if not linked.
+ */
+export const getCurrentPlayerId = async (): Promise<number | null> => {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("current_player_id");
+
+  if (error) {
+    console.error("Error fetching current player ID:", error);
+    return null;
+  }
+
+  return data ?? null;
+};
+
+/**
  * Fetches all players from the database
  * @returns Array of players
  */

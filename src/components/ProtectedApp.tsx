@@ -9,7 +9,8 @@ import type { ISettings } from "../types/Settings.ts";
 import * as matchService from "../service/matchService";
 import { playSound } from "~/service/soundService.ts";
 import { getSupabaseSchemaIssue } from "~/service/supabaseService.ts";
-import { getAllTeams, getTeamsByIds } from "~/service/teamService.ts";
+import { getAllTeams, getTeamIdsForPlayer, getTeamsByIds } from "~/service/teamService.ts";
+import { getCurrentPlayerId } from "~/service/playerService.ts";
 import type { Tables } from "~/types/database.ts";
 import "../App.css";
 
@@ -23,6 +24,15 @@ export default function ProtectedApp() {
     goalsToWin: 6,
   });
   const [availableTeams] = createResource(getAllTeams);
+
+  const loadCurrentPlayerInfo = async () => {
+    const playerId = await getCurrentPlayerId();
+    if (playerId === null) return { playerId: null, teamIds: [] as number[] };
+    const teamIds = await getTeamIdsForPlayer(playerId);
+    return { playerId, teamIds };
+  };
+  const [currentPlayerInfo] = createResource(loadCurrentPlayerInfo);
+
   const [currentMatch, setCurrentMatch] = createSignal<MatchRow | null>(null);
   const [matchEvents, setMatchEvents] = createSignal<MatchEventRow[]>([]);
   const [isPaused, setIsPaused] = createSignal(false);
@@ -136,6 +146,10 @@ export default function ProtectedApp() {
     if (hasSchemaIssue()) return;
     if (!blackTeam.id || !yellowTeam.id) {
       alert("Please select both teams before starting the game.");
+      return;
+    }
+    if (yellowTeam.id === blackTeam.id) {
+      alert("Yellow and Black teams must be different.");
       return;
     }
 
@@ -332,6 +346,8 @@ export default function ProtectedApp() {
             settings={settings}
             setSettings={setSettings}
             teamOptions={availableTeams() ?? []}
+            currentPlayerId={currentPlayerInfo()?.playerId ?? null}
+            currentPlayerTeamIds={currentPlayerInfo()?.teamIds ?? []}
           />
         }
       >

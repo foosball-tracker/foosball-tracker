@@ -1,6 +1,38 @@
 import { requireSupabase, supabase } from "./supabaseService";
 import type { Tables } from "~/types/database";
 
+export const getTeamIdsForPlayer = async (playerId: number): Promise<number[]> => {
+  if (!supabase) return [];
+
+  const { data: playerTeams, error: playerError } = await supabase
+    .from("teams")
+    .select("id")
+    .eq("type", "player")
+    .eq("player_id", playerId);
+
+  if (playerError) {
+    console.error("Error fetching player teams:", playerError);
+    return [];
+  }
+
+  const { data: memberTeams, error: memberError } = await supabase
+    .from("team_members")
+    .select("team_id")
+    .eq("player_id", playerId);
+
+  if (memberError) {
+    console.error("Error fetching member teams:", memberError);
+    return [];
+  }
+
+  const ids = new Set([
+    ...(playerTeams ?? []).map((t) => t.id),
+    ...(memberTeams ?? []).map((m) => m.team_id),
+  ]);
+
+  return [...ids];
+};
+
 export interface TeamMember {
   player_id: number;
   players: { name: string } | null;

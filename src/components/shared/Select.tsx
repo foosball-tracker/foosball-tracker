@@ -1,53 +1,25 @@
-import { For, JSX, Show, splitProps } from "solid-js";
+import { createMemo, createSignal, For, onCleanup, onMount, Show, splitProps } from "solid-js";
 
 export interface Option<T extends string | number = string | number> {
   value: T;
   label: string;
   disabled?: boolean;
+  highlighted?: boolean;
 }
 
-export interface SelectProps<T extends string | number = string | number> extends Omit<
-  JSX.SelectHTMLAttributes<HTMLSelectElement>,
-  "onChange" | "value"
-> {
+export interface SelectProps<T extends string | number = string | number> {
   options: Option<T>[];
   value?: T;
-  /**
-   * Fires when an option is selected. The callback receives the new value
-   * and the fully matched option object. (The second argument is guaranteed
-   * to be a valid Option, never undefined.)
-   */
   onChange?: (value: T, option: Option<T>) => void;
   placeholder?: string;
   class?: string;
   legend?: string;
   label?: string;
+  "aria-label"?: string;
 }
 
-/**
- * A reusable Select component based on DaisyUI.
- *
- * @example
- * ```tsx
- * const options = [
- *   { value: "crimson", label: "Crimson" },
- *   { value: "amber", label: "Amber" },
- *   { value: "velvet", label: "Velvet" },
- * ];
- *
- * <Select
- *   options={options}
- *   placeholder="Pick a color"
- *   value={selectedValue}
- *   onChange={(newValue, matchedOption) => {
- *     setSelectedValue(newValue);
- *     console.log("Selected Option:", matchedOption);
- *   }}
- * />
- * ```
- */
-const Select = <T extends string | number = string>(props: Readonly<SelectProps<T>>) => {
-  const [local, others] = splitProps(props, [
+function Select<T extends string | number>(props: Readonly<SelectProps<T>>) {
+  const [local] = splitProps(props, [
     "options",
     "onChange",
     "value",
@@ -55,65 +27,109 @@ const Select = <T extends string | number = string>(props: Readonly<SelectProps<
     "class",
     "legend",
     "label",
+    "aria-label",
   ]);
+  const [open, setOpen] = createSignal(false);
+  let ref: HTMLDivElement | undefined;
 
-  const handleChange: JSX.EventHandler<HTMLSelectElement, Event> = (e) => {
-    const rawValue = e.currentTarget.value;
+  const selectedOption = createMemo(() => local.options.find((o) => o.value === local.value));
 
-    // If rawValue is empty (e.g. a placeholder was selected), we skip calling onChange.
-    if (!rawValue) {
-      return;
-    }
+  onMount(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (ref && !ref.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClick);
+    onCleanup(() => document.removeEventListener("click", handleClick));
+  });
 
-    // Convert if the first option is numeric
-    const convertedValue =
-      typeof local.options[0]?.value === "number" ? (Number(rawValue) as T) : (rawValue as T);
-
-    // Find the matching option
-    const matchedOption = local.options.find((o) => o.value.toString() === rawValue);
-
-    // Only call onChange if we found a valid matching option.
-    // This ensures that when onChange fires, the second argument is never undefined.
-    if (matchedOption) {
-      local.onChange?.(convertedValue, matchedOption);
-    }
+  const handleSelect = (opt: Option<T>) => {
+    if (opt.disabled) return;
+    local.onChange?.(opt.value, opt);
+    setOpen(false);
   };
 
-  const selectElement = (
-    <select
-      {...others}
-      class={`select ${local.class ?? ""}`}
-      value={local.value?.toString() ?? ""}
-      onChange={handleChange}
+  const trigger = (
+    <button
+      aria-label={local["aria-label"]}
+      aria-haspopup="listbox"
+      aria-expanded={open()}
+      aria-controls="select-menu"
+      class={`btn select-bordered flex w-full items-center justify-between gap-2 font-normal ${local.class ?? ""}`}
+      onClick={() => setOpen((prev) => !prev)}
+      type="button"
     >
-      <Show when={local.placeholder && (local.value === undefined || local.value === "")}>
-        <option value="" disabled>
-          {local.placeholder}
-        </option>
-      </Show>
-      <For each={local.options}>
-        {(option) => (
-          <option value={option.value.toString()} disabled={option.disabled}>
-            {option.label}
-          </option>
-        )}
-      </For>
-    </select>
+      <span class={selectedOption() ? "" : "text-base-content/50"}>
+        {selectedOption()?.label || local.placeholder || ""}
+      </span>
+      <svg
+        class={`h-4 w-4 shrink-0 transition-transform ${open() ? "rotate-180" : ""}`}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    </button>
+  );
+
+  const menu = (
+    <Show when={open()}>
+      <div
+        id="select-menu"
+        class="bg-base-100 rounded-box border-base-300 absolute z-10 mt-1 w-full border shadow-md"
+        role="listbox"
+      >
+        <For each={local.options}>
+          {(option) => (
+            <div
+              role="option"
+              aria-selected={option.value === local.value}
+              aria-disabled={option.disabled}
+            >
+              <button
+                class={`hover:bg-base-200 flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${option.highlighted ? "font-bold" : ""} ${option.value === local.value ? "text-primary font-semibold" : ""} ${option.disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
+                disabled={option.disabled}
+                onClick={() => handleSelect(option)}
+                type="button"
+              >
+                <Show when={option.highlighted}>
+                  <span class="badge badge-primary badge-xs shrink-0" />
+                </Show>
+                <span class="truncate">{option.label}</span>
+              </button>
+            </div>
+          )}
+        </For>
+      </div>
+    </Show>
+  );
+
+  const content = (
+    <div ref={ref} class="relative">
+      {trigger}
+      {menu}
+    </div>
   );
 
   return (
-    <Show when={local.legend || local.label} fallback={selectElement}>
+    <Show when={local.legend || local.label} fallback={content}>
       <fieldset class="fieldset">
         <Show when={local.legend}>
           <legend class="fieldset-legend">{local.legend}</legend>
         </Show>
-        {selectElement}
+        {content}
         <Show when={local.label}>
           <span class="fieldset-label">{local.label}</span>
         </Show>
       </fieldset>
     </Show>
   );
-};
+}
 
 export default Select;
