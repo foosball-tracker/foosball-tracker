@@ -77,33 +77,18 @@ export const getTeamsByIds = async (teamIds: number[]): Promise<Tables<"teams">[
 
 export const createTeam = async (params: CreateTeamParams) => {
   const client = requireSupabase();
-  const { data, error: teamError } = await client
-    .from("teams")
-    .insert({
-      name: params.name,
-      type: "team",
-    })
-    .select()
-    .single();
 
-  if (teamError) {
-    console.error("Error creating team: ", teamError);
-    throw new Error(teamError.message);
+  const { data, error } = await client.rpc("create_team_with_members", {
+    p_name: params.name,
+    p_player_ids: params.playerIds,
+  });
+
+  if (error) {
+    console.error("Error creating team:", error);
+    throw new Error(error.message);
   }
 
-  const teamMembers = params.playerIds.map((player_id) => ({
-    player_id,
-    team_id: data.id,
-  }));
-
-  const { error: memberError } = await client.from("team_members").insert(teamMembers);
-
-  if (memberError) {
-    console.error("Error adding team members", memberError);
-    throw new Error(memberError.message);
-  }
-
-  return data;
+  return { id: data, name: params.name };
 };
 
 export const updateTeam = async (teamId: number, params: CreateTeamParams) => {
@@ -126,17 +111,13 @@ export const updateTeam = async (teamId: number, params: CreateTeamParams) => {
 
 export const deleteTeam = async (teamId: number) => {
   const client = requireSupabase();
-  const { error: memberError } = await client.from("team_members").delete().eq("team_id", teamId);
 
-  if (memberError) {
-    console.error("Error deleting team members:", memberError);
-    throw new Error(memberError.message);
-  }
+  const { error } = await client.rpc("delete_team", {
+    target_team_id: teamId,
+  });
 
-  const { error: teamError } = await client.from("teams").delete().eq("id", teamId);
-
-  if (teamError) {
-    console.log("Error deleting team:", teamError);
-    throw new Error(teamError.message);
+  if (error) {
+    console.error("Error deleting team:", error);
+    throw new Error(error.message);
   }
 };

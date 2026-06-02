@@ -176,46 +176,40 @@ export type Database = {
           created_at: string;
           id: number;
           name: string;
+          user_id: string | null;
         };
         Insert: {
           created_at?: string;
           id?: number;
           name: string;
+          user_id?: string | null;
         };
         Update: {
           created_at?: string;
           id?: number;
           name?: string;
+          user_id?: string | null;
         };
         Relationships: [];
       };
       profiles: {
         Row: {
           created_at: string;
-          email: string | null;
-          first_name: string | null;
-          id: number;
           is_admin: boolean;
-          last_name: string | null;
-          user_id: string | null;
+          updated_at: string;
+          user_id: string;
         };
         Insert: {
           created_at?: string;
-          email?: string | null;
-          first_name?: string | null;
-          id?: number;
           is_admin?: boolean;
-          last_name?: string | null;
-          user_id?: string | null;
+          updated_at?: string;
+          user_id: string;
         };
         Update: {
           created_at?: string;
-          email?: string | null;
-          first_name?: string | null;
-          id?: number;
           is_admin?: boolean;
-          last_name?: string | null;
-          user_id?: string | null;
+          updated_at?: string;
+          user_id?: string;
         };
         Relationships: [];
       };
@@ -286,10 +280,16 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      create_team_with_members: {
+        Args: { p_name: string; p_player_ids: number[] };
+        Returns: number;
+      };
+      current_player_id: { Args: never; Returns: number };
       delete_player_with_linked_team: {
         Args: { target_player_id: number };
         Returns: undefined;
       };
+      delete_team: { Args: { target_team_id: number }; Returns: undefined };
       get_match_score: {
         Args: { p_match_id: number };
         Returns: {
@@ -302,6 +302,7 @@ export type Database = {
         Returns: number;
       };
       is_admin: { Args: never; Returns: boolean };
+      is_match_participant: { Args: { p_match_id: number }; Returns: boolean };
       record_goal_event: {
         Args: {
           p_dedupe_key?: string;

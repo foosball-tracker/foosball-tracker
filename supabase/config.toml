@@ -1,5 +1,13 @@
 # For detailed configuration reference documentation, visit:
 # https://supabase.com/docs/guides/local-development/cli/config
+#
+# LOCAL-FIRST: This config describes the local Supabase development instance.
+# All migration work, type generation, and testing happen locally by default.
+# The project is on Supabase free tier — no database branching. Migrations are
+# applied to production via Supabase GitHub integration when PRs merge to main.
+# Do not leave the CLI linked to production. For temporary prod debugging, use
+# `supabase link --project-ref eucjxbcicejyinubzgwh`, then `supabase unlink` after.
+#
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
 project_id = "foosball-tracker"

@@ -54,6 +54,21 @@ Do not use `local:hosted` for:
 - `pnpm proof:capture`
 - `pnpm proof:publish`
 
+## Identity Model
+
+The project separates identity into three layers:
+
+| Layer    | Table        | Purpose                                                                   |
+| -------- | ------------ | ------------------------------------------------------------------------- |
+| Auth     | `auth.users` | Supabase Auth — source of truth for email, password, sessions             |
+| Account  | `profiles`   | Account metadata — `is_admin` flag                                        |
+| Gameplay | `players`    | Game identity — public display name, linked to `auth.users` via `user_id` |
+
+- Every new `auth.users` row automatically creates a `profiles` row and a `players` row (via `insert_profile_on_user_creation` trigger).
+- `profiles.user_id` is the primary key, referencing `auth.users(id) ON DELETE CASCADE`.
+- `players.user_id` is nullable — `NULL` for guest/anonymous players.
+- Use `SELECT public.current_player_id()` in RLS policies to resolve `auth.uid()` → `players.id`.
+
 ## Local Auth Users
 
 Seed local auth users with:
@@ -94,6 +109,51 @@ There are two separate saved browser sessions:
 
 If you need the hosted flow, `pnpm auth:hosted` behaves the same as `pnpm auth:prod`.
 
+## CLI Link State — Local by Default
+
+The Supabase CLI is **not linked to production** during normal development. All migration work, testing, and type generation happen against the local Supabase instance.
+
+**How migrations reach production:**
+
+We are on the Supabase **free tier**, which does not include database branching. This means:
+
+1. You write and test migrations locally against the local Supabase instance (`pnpm db:reset`, `pnpm db-types`). Your local schema must mirror production so tests are accurate.
+2. You commit the migration files and open a PR.
+3. The Netlify deploy preview runs against the **same production Supabase database** — there is no preview branch database. If your PR introduces a new migration, features depending on it may fail in the preview environment until the migration is applied.
+4. When the PR is merged to `main`, Supabase GitHub integration auto-applies the migrations to the production database. The deploy preview will then work correctly.
+
+You never need to `supabase link` or `supabase db push` for normal migration work. The GitHub integration handles the single deploy automatically on merge.
+
+**Testing migrations in the preview environment (optional):**
+
+If a new feature requires schema changes and you want the Netlify preview to work before merge, you can manually apply the migration to production:
+
+```bash
+supabase link --project-ref eucjxbcicejyinubzgwh
+pnpm db:push:remote
+supabase unlink
+```
+
+Only do this when you are confident the migration is correct and reversible. Prefer local testing (`pnpm db:reset`) as the primary verification step.
+
+**Temporarily connecting to production for debugging:**
+
+```bash
+# Link to production (stored in supabase/.temp/, gitignored)
+supabase link --project-ref eucjxbcicejyinubzgwh
+
+# Run read-only queries against production
+supabase db dump --linked --schema public --data-only > /tmp/prod-dump.sql
+psql "$(supabase status -o env | grep ^SUPABASE_DB_URL | cut -d= -f2 | tr -d '"')" -c "SELECT ..."
+
+# When done, go back to local-only
+supabase unlink
+```
+
+The link state is stored in `supabase/.temp/` which is gitignored, so each developer controls their own link state independently.
+
+Never leave the CLI linked to production as the default. Always `supabase unlink` after debugging.
+
 ## Migration Workflow
 
 1. Ask before any schema change, migration, RLS change, or non-local data mutation.
@@ -115,6 +175,7 @@ If you need the hosted flow, `pnpm auth:hosted` behaves the same as `pnpm auth:p
    ```bash
    pnpm local:dev
    ```
+7. Commit the migration files. The Supabase GitHub integration handles deploying to the PR preview branch and, on merge to main, to production automatically.
 
 ## Database Types
 
@@ -124,15 +185,11 @@ pnpm db-types
 
 This regenerates `src/types/database.ts` from the local schema.
 
-## Remote Pushes
+## Manual Remote Pushes (emergency only)
 
-Do not run this unless the user explicitly asks:
+You should never need `supabase db push`. The Supabase GitHub integration auto-deploys migrations when PRs are merged to `main`.
 
-```bash
-pnpm db:push:remote
-```
-
-Normal PR work should rely on migrations plus the Supabase preview branch workflow.
+Only run `pnpm db:push:remote` if the user explicitly asks and the GitHub integration is broken or unavailable. This requires the CLI to be linked to production first.
 
 ## Security Rules
 
