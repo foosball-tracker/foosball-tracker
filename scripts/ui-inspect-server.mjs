@@ -1,7 +1,7 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { openSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 
 export const INSPECT_PORT = Number(process.env.UI_INSPECT_PORT ?? 4174);
 export const INSPECT_BASE_URL = `http://localhost:${INSPECT_PORT}`;
@@ -67,6 +67,64 @@ async function cleanupMetaFile() {
   await rm(META_PATH, { force: true });
 }
 
+function getListeningPids(port) {
+  try {
+    const output = execFileSync("lsof", ["-tiTCP:" + String(port), "-sTCP:LISTEN"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+
+    return output
+      .split("\n")
+      .map((value) => Number(value.trim()))
+      .filter((value) => Number.isInteger(value) && value > 0);
+  } catch {
+    return [];
+  }
+}
+
+function getProcessCwd(pid) {
+  try {
+    return execFileSync("readlink", ["-f", `/proc/${pid}/cwd`], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    return null;
+  }
+}
+
+function getProcessCommand(pid) {
+  try {
+    return execFileSync("bash", ["-lc", `tr '\\0' ' ' </proc/${pid}/cmdline`], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    return "";
+  }
+}
+
+function isStaleFoosballInspectProcess(pid) {
+  const cwd = getProcessCwd(pid) ?? "";
+  const command = getProcessCommand(pid);
+
+  return (
+    (cwd.includes("(deleted)") || command.includes("(deleted)")) &&
+    (command.includes("scripts/local-ui-server.mjs") || command.includes("/vite/bin/vite.js"))
+  );
+}
+
+function stopPids(pids) {
+  for (const pid of pids) {
+    try {
+      process.kill(pid, "SIGTERM");
+    } catch {
+      // Process may have already exited.
+    }
+  }
+}
+
 function buildEnvSignature(env) {
   const source = {
     VITE_CONTEXT: env.VITE_CONTEXT ?? "",
@@ -108,11 +166,20 @@ export async function ensureInspectServer({ timeoutMs = 20_000, env = process.en
   const envSignature = buildEnvSignature(env);
 
   const status = await getInspectServerStatus();
+  const listeningPids = getListeningPids(INSPECT_PORT);
   if (status.isFoosballApp && status.meta?.envSignature === envSignature) {
     if (!status.pidRunning && status.pid) {
       await cleanupPidFile();
     }
     return status;
+  }
+
+  if (!status.reachable && listeningPids.length > 0) {
+    const stalePids = listeningPids.filter(isStaleFoosballInspectProcess);
+    if (stalePids.length > 0) {
+      stopPids(stalePids);
+      await delay(500);
+    }
   }
 
   if (status.reachable) {
