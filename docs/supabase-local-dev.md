@@ -101,9 +101,12 @@ This writes `src/types/database.ts`. Regenerate types after any schema change.
 - Use `pnpm local:hosted` when you need to reproduce a bug against the hosted Supabase project from a local browser.
 - Use `pnpm test:e2e` and `pnpm test:e2e:auth` against the local stack for automated UI coverage.
 - Use `pnpm auth:local` to create local Playwright browser auth state before authenticated E2E or proof capture.
+- Use `pnpm auth:hosted` when you need a browser auth state for the app running locally against the hosted Supabase project.
 - Use `pnpm proof:capture` and `pnpm proof:publish` to capture and publish screenshots from the local authenticated session.
 
 The local auth state lives in `playwright/.auth/user.json`. Regenerate it whenever the local auth users or local origin change.
+
+`pnpm auth:local` signs in with the seeded local admin account automatically. If you need to debug the hosted Supabase path, run `pnpm local:hosted` first and then `pnpm auth:hosted` with your real account.
 
 ## Supabase Studio
 

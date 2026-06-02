@@ -2,10 +2,44 @@ import { chromium } from "playwright";
 import readline from "node:readline";
 import { mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
+import {
+  DEFAULT_LOCAL_AUTH_EMAIL,
+  DEFAULT_LOCAL_TEST_PASSWORD,
+  createHostedViteEnv,
+  createLocalViteEnv,
+  getLocalSupabaseStatus,
+} from "./lib/utils.mjs";
 import { INSPECT_BASE_URL, ensureInspectServer } from "./ui-inspect-server.mjs";
 
 const AUTH_STATE_PATH = "playwright/.auth/user.json";
-const BASE_URL = INSPECT_BASE_URL;
+
+function parseArgs(argv) {
+  const options = {};
+
+  for (let index = 0; index < argv.length; index += 1) {
+    const value = argv[index];
+    if (!value.startsWith("--")) continue;
+
+    const [flag, inlineValue] = value.split("=", 2);
+    const key = flag.slice(2);
+
+    if (inlineValue !== undefined) {
+      options[key] = inlineValue;
+      continue;
+    }
+
+    const nextValue = argv[index + 1];
+    if (nextValue && !nextValue.startsWith("--")) {
+      options[key] = nextValue;
+      index += 1;
+      continue;
+    }
+
+    options[key] = "true";
+  }
+
+  return options;
+}
 
 function ask(question) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -60,46 +94,75 @@ function askPassword(question) {
   });
 }
 
-async function main() {
-  await ensureInspectServer();
+function normalizeMode(value) {
+  return value === "hosted" ? "hosted" : "local";
+}
 
-  console.log("Supabase Auth — interactive login for Playwright");
-  console.log(`Target: ${BASE_URL}\n`);
+function resolveLocalCredentials(options) {
+  return {
+    email: options.email ?? process.env.LOCAL_TEST_USER_EMAIL ?? DEFAULT_LOCAL_AUTH_EMAIL,
+    password:
+      options.password ?? process.env.LOCAL_TEST_USER_PASSWORD ?? DEFAULT_LOCAL_TEST_PASSWORD,
+  };
+}
 
-  const email = await ask("Email: ");
+async function resolveHostedCredentials(options) {
+  const email = options.email ?? process.env.AUTH_EMAIL ?? (await ask("Email: "));
   if (!email) {
     console.error("Email is required.");
     process.exit(1);
   }
 
-  const password = await askPassword("Password: ");
+  const password =
+    options.password ?? process.env.AUTH_PASSWORD ?? (await askPassword("Password: "));
   if (!password) {
     console.error("Password is required.");
     process.exit(1);
+  }
+
+  return { email, password };
+}
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+  const mode = normalizeMode(args.mode ?? (args.hosted === "true" ? "hosted" : "local"));
+  const credentials =
+    mode === "hosted" ? await resolveHostedCredentials(args) : resolveLocalCredentials(args);
+  const viteEnv =
+    mode === "hosted" ? createHostedViteEnv() : createLocalViteEnv(getLocalSupabaseStatus().status);
+
+  await ensureInspectServer({ env: { ...process.env, ...viteEnv } });
+
+  console.log("Supabase Auth — Playwright login");
+  console.log(`Mode: ${mode}`);
+  console.log(`Target: ${INSPECT_BASE_URL}\n`);
+
+  if (mode === "local") {
+    console.log(`Using local account: ${credentials.email}`);
   }
 
   const hasDisplay = !!(process.env.DISPLAY || process.env.WAYLAND_DISPLAY);
   const forceHeadless = process.argv.includes("--headless");
   const headless = forceHeadless || !hasDisplay;
 
-  console.log(`\nLaunching browser (${headless ? "headless" : "headed"})...`);
+  console.log(`Launching browser (${headless ? "headless" : "headed"})...`);
   const browser = await chromium.launch({ headless });
   const context = await browser.newContext({ colorScheme: "dark" });
   const page = await context.newPage();
 
   try {
-    await page.goto(BASE_URL);
+    await page.goto(INSPECT_BASE_URL);
 
     await page.getByRole("button", { name: "Sign in" }).click();
 
     const modal = page.locator("#login-modal");
-    await modal.waitFor({ state: "visible", timeout: 5000 });
+    await modal.waitFor({ state: "visible", timeout: 5_000 });
 
-    await modal.locator("#email").waitFor({ state: "visible", timeout: 5000 });
+    await modal.locator("#email").waitFor({ state: "visible", timeout: 5_000 });
     await modal.locator("#email").clear();
-    await modal.locator("#email").pressSequentially(email, { delay: 10 });
+    await modal.locator("#email").pressSequentially(credentials.email, { delay: 10 });
     await modal.locator("#password").clear();
-    await modal.locator("#password").pressSequentially(password, { delay: 10 });
+    await modal.locator("#password").pressSequentially(credentials.password, { delay: 10 });
     await modal.getByRole("button", { name: "Sign in" }).click();
 
     await page.getByRole("button", { name: "Logout" }).waitFor({ timeout: 30_000 });
@@ -108,8 +171,9 @@ async function main() {
     await context.storageState({ path: AUTH_STATE_PATH });
 
     console.log(`\nAuth state saved to ${AUTH_STATE_PATH}`);
-  } catch (err) {
-    console.error("\nLogin failed:", err.message);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("\nLogin failed:", message);
     await page.screenshot({ path: "playwright-auth-error.png" });
     console.log("Screenshot saved to playwright-auth-error.png");
     process.exitCode = 1;

@@ -62,6 +62,8 @@ pnpm local:hosted
 
 This path is for manual debugging only. Do not use it for `test:e2e`, `test:e2e:auth`, `auth:local`, `ui:inspect:start`, or proof capture.
 
+If you need a Playwright auth state for that hosted path, use `pnpm auth:hosted` after the local app is running with `pnpm local:hosted`.
+
 ## Required Checks
 
 Every UI change must be checked for:
