@@ -39,7 +39,7 @@ export function MatchSetupPanel(props: Readonly<MatchSetupPanelProps>) {
       .map((team) => {
         const isOwn = ownIds.has(team.id);
         const label = team.type === "player" ? `${team.name} (Player)` : `${team.name} (Team)`;
-        return { value: team.id, label: isOwn ? `${team.name} (You)` : label };
+        return { value: team.id, label: isOwn ? `${team.name} (You)` : label, highlighted: isOwn };
       });
   };
 
