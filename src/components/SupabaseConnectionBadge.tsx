@@ -5,24 +5,16 @@ export function SupabaseConnectionBadge() {
   const connection = createMemo(() => getSupabaseConnectionInfo());
 
   return (
-    <div class="flex min-w-0 items-center gap-2">
-      <span class="badge badge-ghost badge-sm hidden sm:inline-flex">Supabase</span>
+    <div class="flex min-w-0 items-center">
       <Show
         when={hasSupabaseConfig()}
-        fallback={<span class="badge badge-outline badge-sm">Supabase off</span>}
+        fallback={<span class="badge badge-outline badge-sm">Off</span>}
       >
         <span
-          class="badge badge-ghost badge-sm hidden font-mono text-[0.7rem] lg:inline-flex"
-          title={`VITE_CONTEXT=${connection().context}`}
+          class="badge badge-outline badge-sm"
+          title={`${connection().label} · ${connection().host} · VITE_CONTEXT=${connection().context}`}
         >
-          {connection().context}
-        </span>
-        <span class="badge badge-outline badge-sm capitalize">{connection().mode}</span>
-        <span
-          class="badge badge-ghost badge-sm max-w-32 truncate font-mono text-[0.7rem] sm:max-w-44"
-          title={connection().url}
-        >
-          {connection().host}
+          {connection().label}
         </span>
       </Show>
     </div>

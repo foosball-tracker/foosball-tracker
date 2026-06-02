@@ -23,6 +23,7 @@ type MatchEventRow = Tables<"match_events">;
 type MatchRow = Tables<"matches">;
 
 interface ScoreBoardProps {
+  backendReady: boolean;
   currentMatch: MatchRow;
   elapsedTime: number;
   matchEvents: MatchEventRow[];
@@ -60,7 +61,7 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
       ).length
   );
 
-  const scoreboardDisabled = () => props.isPaused || props.isComplete;
+  const scoreboardDisabled = () => props.isPaused || props.isComplete || !props.backendReady;
   const yellowTeamName = () => props.settings.yellowTeam.name ?? "Yellow Team";
   const blackTeamName = () => props.settings.blackTeam.name ?? "Black Team";
   const goalsToWin = () => props.settings.goalsToWin || props.currentMatch.goals_to_win;
@@ -230,6 +231,7 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
               <div class="flex flex-wrap justify-center gap-2">
                 <button
                   class="btn btn-primary btn-sm sm:btn-md rounded-full"
+                  disabled={!props.backendReady}
                   onClick={() => props.onTogglePause()}
                   type="button"
                 >
@@ -238,6 +240,7 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
                 </button>
                 <button
                   class="btn btn-ghost btn-sm sm:btn-md rounded-full"
+                  disabled={!props.backendReady}
                   onClick={() => void props.onResetGame()}
                   type="button"
                 >

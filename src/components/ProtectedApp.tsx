@@ -8,6 +8,7 @@ import { MatchSetupPanel } from "~/components/home/MatchSetupPanel.tsx";
 import type { ISettings } from "../types/Settings.ts";
 import * as matchService from "../service/matchService";
 import { playSound } from "~/service/soundService.ts";
+import { getSupabaseSchemaIssue } from "~/service/supabaseService.ts";
 import { getAllTeams, getTeamsByIds } from "~/service/teamService.ts";
 import type { Tables } from "~/types/database.ts";
 import "../App.css";
@@ -27,6 +28,7 @@ export default function ProtectedApp() {
   const [isPaused, setIsPaused] = createSignal(false);
   const [leaderboardRefreshKey, setLeaderboardRefreshKey] = createSignal(0);
   const { elapsedTime, reset, running, start, stop } = useGameTimer();
+  const hasSchemaIssue = () => getSupabaseSchemaIssue() !== null;
 
   const countValidGoals = (events: MatchEventRow[], teamId: number | undefined) => {
     if (!teamId) return 0;
@@ -66,6 +68,13 @@ export default function ProtectedApp() {
     if (!match) return;
 
     const events = await matchService.fetchMatchEvents(match.id);
+    if (hasSchemaIssue()) {
+      stop();
+      setIsPaused(false);
+      setMatchEvents([]);
+      setCurrentMatch(null);
+      return;
+    }
 
     if (isHydratedMatchComplete(match, events)) {
       await matchService.endGame(match.id);
@@ -108,6 +117,7 @@ export default function ProtectedApp() {
 
   const startGame = async () => {
     const { blackTeam, yellowTeam } = settings;
+    if (hasSchemaIssue()) return;
     if (!blackTeam.id || !yellowTeam.id) {
       alert("Please select both teams before starting the game.");
       return;
@@ -140,7 +150,10 @@ export default function ProtectedApp() {
 
       if (!recordedGoalId) return;
 
-      setMatchEvents(await matchService.fetchMatchEvents(match.id));
+      const events = await matchService.fetchMatchEvents(match.id);
+      if (hasSchemaIssue()) return;
+
+      setMatchEvents(events);
       return;
     }
 
@@ -151,7 +164,10 @@ export default function ProtectedApp() {
     );
     if (!invalidatedGoalId) return;
 
-    setMatchEvents(await matchService.fetchMatchEvents(match.id));
+    const events = await matchService.fetchMatchEvents(match.id);
+    if (hasSchemaIssue()) return;
+
+    setMatchEvents(events);
   };
 
   let finalizing = false;
@@ -295,6 +311,7 @@ export default function ProtectedApp() {
         keyed
         fallback={
           <MatchSetupPanel
+            backendReady={!hasSchemaIssue()}
             onStartGame={startGame}
             settings={settings}
             setSettings={setSettings}
@@ -306,6 +323,7 @@ export default function ProtectedApp() {
           <MatchDashboard
             currentMatch={match}
             elapsedTime={elapsedTime()}
+            backendReady={!hasSchemaIssue()}
             matchEvents={matchEvents()}
             isPaused={isPaused()}
             isComplete={isMatchComplete()}

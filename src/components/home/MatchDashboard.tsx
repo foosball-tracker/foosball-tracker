@@ -8,6 +8,7 @@ type MatchRow = Tables<"matches">;
 type MatchEventRow = Tables<"match_events">;
 
 interface MatchDashboardProps {
+  backendReady: boolean;
   currentMatch: MatchRow;
   elapsedTime: number;
   matchEvents: MatchEventRow[];
@@ -28,6 +29,7 @@ export function MatchDashboard(props: Readonly<MatchDashboardProps>) {
     <div class="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(20rem,1fr)] xl:items-start">
       <div class="grid gap-6">
         <ScoreBoard
+          backendReady={props.backendReady}
           currentMatch={props.currentMatch}
           elapsedTime={props.elapsedTime}
           matchEvents={props.matchEvents}
