@@ -1,4 +1,30 @@
+import { createSignal } from "solid-js";
+
 export type SoundType = "goal" | "no-goal" | "win";
+
+const MUTE_STORAGE_KEY = "foosball-muted";
+
+function loadMuteState(): boolean {
+  try {
+    return localStorage.getItem(MUTE_STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+const [isMuted, setIsMuted] = createSignal(loadMuteState());
+
+export { isMuted };
+
+export function toggleMute() {
+  const next = !isMuted();
+  setIsMuted(next);
+  try {
+    localStorage.setItem(MUTE_STORAGE_KEY, String(next));
+  } catch {
+    // localStorage may be unavailable in some environments
+  }
+}
 
 class SoundService {
   // Keep track of the last 5 picks per sound type (not needed for "win").
@@ -60,6 +86,7 @@ const soundService = new SoundService({
 export default soundService;
 
 export function playSound(type: SoundType) {
+  if (isMuted()) return;
   const soundUrl = soundService.getSoundPath(type);
   console.log("playing sound url", soundUrl);
   const audio = new Audio(soundUrl);
