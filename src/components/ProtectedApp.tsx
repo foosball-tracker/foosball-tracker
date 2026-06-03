@@ -7,7 +7,7 @@ import { HomeShell } from "~/components/home/HomeShell.tsx";
 import { MatchSetupPanel } from "~/components/home/MatchSetupPanel.tsx";
 import type { ISettings } from "../types/Settings.ts";
 import * as matchService from "../service/matchService";
-import { playSound } from "~/service/soundService.ts";
+import { playSound, refreshSoundAssets } from "~/service/soundService.ts";
 import { getSupabaseSchemaIssue } from "~/service/supabaseService.ts";
 import { getAllTeams, getTeamIdsForPlayer, getTeamsByIds } from "~/service/teamService.ts";
 import { getCurrentPlayerId } from "~/service/playerService.ts";
@@ -300,6 +300,7 @@ export default function ProtectedApp() {
   };
 
   onMount(() => {
+    void refreshSoundAssets();
     void hydrateActiveMatch();
     onCleanup(() => stop());
   });

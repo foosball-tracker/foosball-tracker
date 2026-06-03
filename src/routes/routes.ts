@@ -51,4 +51,8 @@ export const routes = [
     path: "/leaderboard",
     component: lazy(() => import("../components/leaderboard/LeaderboardPage.tsx")),
   },
+  {
+    path: "/sounds",
+    component: lazy(() => import("../components/sounds/SoundsPage.tsx")),
+  },
 ];

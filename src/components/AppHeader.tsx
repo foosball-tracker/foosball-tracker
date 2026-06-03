@@ -1,9 +1,11 @@
 import { A, useLocation } from "@solidjs/router";
-import { Medal, Menu, UserRound, UsersRound } from "lucide-solid";
-import { createSignal, For } from "solid-js";
+import { Medal, Menu, UserRound, UsersRound, Volume2 } from "lucide-solid";
+import { createMemo, createResource, createSignal, For } from "solid-js";
 import { Login } from "~/components/auth/Login.tsx";
 import { SupabaseConnectionBadge } from "~/components/SupabaseConnectionBadge.tsx";
 import { ThemeSwitch } from "~/components/ThemeSwitch.tsx";
+import { useAuthSession } from "~/hooks/useAuthSession.ts";
+import { getCurrentProfile } from "~/service/profileService.ts";
 
 const navItems = [
   { href: "/players", label: "Players", icon: UserRound },
@@ -13,10 +15,20 @@ const navItems = [
 
 export function AppHeader() {
   const [isMenuOpen, setIsMenuOpen] = createSignal(false);
+  const { session } = useAuthSession();
+  const [profile] = createResource(
+    () => session()?.user.id ?? null,
+    async (userId) => (userId ? getCurrentProfile() : null)
+  );
   const location = useLocation();
 
   const closeMenu = () => setIsMenuOpen(false);
   const isCurrentPath = (href: string) => location.pathname.startsWith(href);
+  const visibleNavItems = createMemo(() =>
+    profile()?.is_admin
+      ? [...navItems, { href: "/sounds", label: "Sounds", icon: Volume2 }]
+      : navItems
+  );
 
   return (
     <header class="border-base-300/80 bg-base-100/95 sticky top-0 z-30 border-b shadow-sm backdrop-blur">
@@ -34,7 +46,7 @@ export function AppHeader() {
               <Menu class="h-5 w-5" />
             </summary>
             <ul class="menu menu-sm dropdown-content rounded-box border-base-300 bg-base-100 z-40 mt-3 w-56 border p-2 shadow-lg">
-              <For each={navItems}>
+              <For each={visibleNavItems()}>
                 {(item) => (
                   <li>
                     <A
@@ -63,7 +75,7 @@ export function AppHeader() {
 
         <nav class="navbar-center hidden lg:flex" aria-label="Primary navigation">
           <ul class="menu menu-horizontal gap-1 px-1">
-            <For each={navItems}>
+            <For each={visibleNavItems()}>
               {(item) => (
                 <li>
                   <A
