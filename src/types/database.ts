@@ -213,6 +213,57 @@ export type Database = {
         };
         Relationships: [];
       };
+      sound_assets: {
+        Row: {
+          checksum: string | null;
+          content_type: string;
+          created_at: string;
+          duration_ms: number;
+          id: string;
+          is_default: boolean;
+          metadata: Json;
+          name: string;
+          size_bytes: number;
+          status: Database["public"]["Enums"]["sound_status"];
+          storage_bucket: string;
+          storage_path: string;
+          type: Database["public"]["Enums"]["sound_type"];
+          uploaded_by: string | null;
+        };
+        Insert: {
+          checksum?: string | null;
+          content_type?: string;
+          created_at?: string;
+          duration_ms: number;
+          id?: string;
+          is_default?: boolean;
+          metadata?: Json;
+          name: string;
+          size_bytes: number;
+          status?: Database["public"]["Enums"]["sound_status"];
+          storage_bucket?: string;
+          storage_path: string;
+          type: Database["public"]["Enums"]["sound_type"];
+          uploaded_by?: string | null;
+        };
+        Update: {
+          checksum?: string | null;
+          content_type?: string;
+          created_at?: string;
+          duration_ms?: number;
+          id?: string;
+          is_default?: boolean;
+          metadata?: Json;
+          name?: string;
+          size_bytes?: number;
+          status?: Database["public"]["Enums"]["sound_status"];
+          storage_bucket?: string;
+          storage_path?: string;
+          type?: Database["public"]["Enums"]["sound_type"];
+          uploaded_by?: string | null;
+        };
+        Relationships: [];
+      };
       team_members: {
         Row: {
           player_id: number;
@@ -333,6 +384,8 @@ export type Database = {
       match_event_source: "sensor" | "web" | "system";
       match_event_status: "valid" | "invalid" | "removed";
       match_event_type: "goal_detected" | "goal_removed" | "score_reset" | "manual_correction";
+      sound_status: "ready" | "disabled";
+      sound_type: "goal" | "win";
       team_type: "player" | "team";
     };
     CompositeTypes: {
@@ -462,6 +515,8 @@ export const Constants = {
       match_event_source: ["sensor", "web", "system"],
       match_event_status: ["valid", "invalid", "removed"],
       match_event_type: ["goal_detected", "goal_removed", "score_reset", "manual_correction"],
+      sound_status: ["ready", "disabled"],
+      sound_type: ["goal", "win"],
       team_type: ["player", "team"],
     },
   },

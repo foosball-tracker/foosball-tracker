@@ -30,7 +30,9 @@ test.describe("authenticated auth integration", () => {
   test("login page supports configured auth mode switching", async ({ page }) => {
     test.skip(!hasAuth, "No auth state found. Run `pnpm auth:local` first.");
 
-    await page.goto("/login");
+    await page.goto("/");
+    await page.getByRole("button", { name: "Logout" }).click();
+    await page.waitForURL("**/login");
     await exerciseConfiguredModeSwitching(page);
   });
 });
