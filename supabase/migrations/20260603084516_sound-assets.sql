@@ -33,6 +33,7 @@ CREATE INDEX sound_assets_status_default_idx ON public.sound_assets (status, is_
 ALTER TABLE public.sound_assets ENABLE ROW LEVEL SECURITY;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.sound_assets TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.sound_assets TO service_role;
 
 CREATE POLICY "Authenticated users can view ready sounds" ON public.sound_assets
   FOR SELECT TO authenticated

@@ -4,6 +4,7 @@ import { createMemo, createResource, createSignal, For } from "solid-js";
 import { Login } from "~/components/auth/Login.tsx";
 import { SupabaseConnectionBadge } from "~/components/SupabaseConnectionBadge.tsx";
 import { ThemeSwitch } from "~/components/ThemeSwitch.tsx";
+import { useAuthSession } from "~/hooks/useAuthSession.ts";
 import { getCurrentProfile } from "~/service/profileService.ts";
 
 const navItems = [
@@ -14,7 +15,11 @@ const navItems = [
 
 export function AppHeader() {
   const [isMenuOpen, setIsMenuOpen] = createSignal(false);
-  const [profile] = createResource(getCurrentProfile);
+  const { session } = useAuthSession();
+  const [profile] = createResource(
+    () => session()?.user.id ?? null,
+    async (userId) => (userId ? getCurrentProfile() : null)
+  );
   const location = useLocation();
 
   const closeMenu = () => setIsMenuOpen(false);
