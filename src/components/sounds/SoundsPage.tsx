@@ -391,6 +391,14 @@ export default function SoundsPage() {
                       <For each={assets()}>
                         {(asset) => {
                           const isUpdating = () => updatingIds().includes(asset.id);
+                          const toggleStatusLabel = () => {
+                            if (isUpdating()) {
+                              return "Saving...";
+                            }
+
+                            return asset.status === "ready" ? "Disable" : "Enable";
+                          };
+
                           return (
                             <div class="border-base-300 rounded-box grid gap-4 border p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
                               <div class="grid gap-4">
@@ -455,11 +463,7 @@ export default function SoundsPage() {
                                   ) : (
                                     <Volume2 class="h-4 w-4" />
                                   )}
-                                  {isUpdating()
-                                    ? "Saving..."
-                                    : asset.status === "ready"
-                                      ? "Disable"
-                                      : "Enable"}
+                                  {toggleStatusLabel()}
                                 </button>
                               </div>
                             </div>
