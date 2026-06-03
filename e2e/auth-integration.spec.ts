@@ -33,8 +33,8 @@ test.describe("authenticated auth integration", () => {
     await page.goto("/");
     await page.context().clearCookies();
     await page.evaluate(() => {
-      window.localStorage.clear();
-      window.sessionStorage.clear();
+      globalThis.localStorage.clear();
+      globalThis.sessionStorage.clear();
     });
     await page.goto("/login");
 
