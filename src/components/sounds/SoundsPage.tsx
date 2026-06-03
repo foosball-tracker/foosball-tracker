@@ -49,6 +49,7 @@ export default function SoundsPage() {
   const [submitSuccess, setSubmitSuccess] = createSignal<string | null>(null);
   const [isSubmitting, setIsSubmitting] = createSignal(false);
   const [updatingIds, setUpdatingIds] = createSignal<string[]>([]);
+  let fileInput: HTMLInputElement | undefined;
 
   const typeLimitLabel = createMemo(() => (type() === "goal" ? "Max 5s" : "Max 10s"));
   const selectedFileSizeLabel = createMemo(() => {
@@ -130,6 +131,9 @@ export default function SoundsPage() {
     setSubmitError(null);
     setSubmitSuccess(null);
     clearPreview();
+    if (fileInput) {
+      fileInput.value = "";
+    }
   };
 
   const handleUpload = async (event: Event) => {
@@ -257,6 +261,7 @@ export default function SoundsPage() {
                         accept=".mp3,audio/mpeg"
                         class="file-input file-input-bordered w-full"
                         onChange={(event) => void handleFileChange(event)}
+                        ref={fileInput}
                         type="file"
                       />
                     </fieldset>

@@ -9,6 +9,7 @@ type SoundAssetRow = Tables<"sound_assets">;
 
 const MUTE_STORAGE_KEY = "foosball-muted";
 const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024;
+const ACCEPTED_MP3_MIME_TYPES = new Set(["", "audio/mpeg", "audio/mp3", "audio/x-mpeg"]);
 const MAX_DURATION_MS: Record<ManagedSoundType, number> = {
   goal: 5_000,
   win: 10_000,
@@ -264,12 +265,12 @@ export async function refreshSoundAssets() {
 export async function validateSoundUpload(file: File, type: ManagedSoundType) {
   const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
 
-  if (file.type !== "audio/mpeg") {
-    throw new Error("Only MP3 files with MIME type audio/mpeg are supported.");
-  }
-
   if (extension !== "mp3") {
     throw new Error("Only .mp3 files are supported.");
+  }
+
+  if (!ACCEPTED_MP3_MIME_TYPES.has(file.type)) {
+    throw new Error("Only MP3 files are supported.");
   }
 
   if (file.size > MAX_FILE_SIZE_BYTES) {
