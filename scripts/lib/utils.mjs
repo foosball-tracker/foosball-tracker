@@ -208,6 +208,7 @@ function spawnViteDevServer({ port, host, viteEnv }) {
 export {
   DEFAULT_LOCAL_TEST_PASSWORD,
   DEFAULT_LOCAL_AUTH_EMAIL,
+  PNPM_BIN,
   createLocalAuthSeedEnv,
   createLimitedViteEnv,
   createLocalViteEnv,

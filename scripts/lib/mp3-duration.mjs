@@ -50,16 +50,19 @@ function getLayer(layerBits) {
 function getBitrate(version, layer, bitrateIndex) {
   if (bitrateIndex <= 0 || bitrateIndex >= 0b1111) return null;
 
-  const key =
-    version === "V1"
-      ? `${version}${layer}`
-      : layer === "L1"
-        ? "V2L1"
-        : layer === "L2"
-          ? "V2L2"
-          : "V2L3";
+  let key;
 
-  return BITRATE_INDEXES[key][bitrateIndex - 1] * 1000;
+  if (version === "V1") {
+    key = `${version}${layer}`;
+  } else if (layer === "L1") {
+    key = "V2L1";
+  } else if (layer === "L2") {
+    key = "V2L2";
+  } else {
+    key = "V2L3";
+  }
+
+  return BITRATE_INDEXES[key][bitrateIndex] * 1000;
 }
 
 function getSampleRate(version, sampleRateIndex) {
@@ -87,8 +90,13 @@ function getFrameLength(version, layer, bitrate, sampleRate, paddingBit) {
 }
 
 function readFrameCountFromVbrHeader(buffer, frameStart, version, channelMode) {
-  const sideInfoSize =
-    version === "V1" ? (channelMode === 0b11 ? 17 : 32) : channelMode === 0b11 ? 9 : 17;
+  let sideInfoSize;
+
+  if (version === "V1") {
+    sideInfoSize = channelMode === 0b11 ? 17 : 32;
+  } else {
+    sideInfoSize = channelMode === 0b11 ? 9 : 17;
+  }
   const xingOffset = frameStart + 4 + sideInfoSize;
 
   if (xingOffset + 16 <= buffer.length) {

@@ -13,6 +13,7 @@ const MAX_DURATION_MS: Record<ManagedSoundType, number> = {
   goal: 5_000,
   win: 10_000,
 };
+const LOCAL_FALLBACK_GOAL_TOTAL = 23;
 const NO_GOAL_SOUND_TOTAL = 13;
 
 export interface SoundAsset {
@@ -52,6 +53,7 @@ const [loadedSoundAssets, setLoadedSoundAssets] = createSignal<SoundAsset[]>([])
 const [soundAssetsLoaded, setSoundAssetsLoaded] = createSignal(false);
 
 const recentGoalIds: string[] = [];
+const recentLocalGoalIndices: number[] = [];
 const recentNoGoalIndices: number[] = [];
 const preloadedAudio = new Map<string, HTMLAudioElement>();
 
@@ -137,6 +139,33 @@ function getLocalNoGoalPath() {
   }
 
   return `/audio/no-goal/no-goal-${chosenIndex}.mp3`;
+}
+
+function getLocalGoalPath() {
+  let available: number[] = [];
+
+  for (let index = 0; index < LOCAL_FALLBACK_GOAL_TOTAL; index += 1) {
+    if (!recentLocalGoalIndices.includes(index)) {
+      available.push(index);
+    }
+  }
+
+  if (available.length === 0) {
+    available = Array.from({ length: LOCAL_FALLBACK_GOAL_TOTAL }, (_, index) => index);
+  }
+
+  const chosenIndex = available[randomIndex(available.length)];
+  recentLocalGoalIndices.push(chosenIndex);
+
+  if (recentLocalGoalIndices.length > 5) {
+    recentLocalGoalIndices.shift();
+  }
+
+  return `/audio/goal/goal-${chosenIndex}.mp3`;
+}
+
+function getLocalWinPath() {
+  return "/audio/win/win-1.mp3";
 }
 
 function pickGoalSound(pool: SoundAsset[]) {
@@ -355,7 +384,9 @@ export function playSound(type: SoundType) {
   );
 
   if (pool.length === 0) {
-    console.warn(`No ready ${type} sounds are loaded.`);
+    const fallbackUrl = type === "goal" ? getLocalGoalPath() : getLocalWinPath();
+    console.warn(`No ready ${type} sounds are loaded. Falling back to bundled audio.`);
+    playAudioUrl(fallbackUrl);
     return;
   }
 

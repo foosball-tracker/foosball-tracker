@@ -20,6 +20,9 @@ import {
   validateSoundUpload,
 } from "~/service/soundService.ts";
 
+const EMPTY_CAPTIONS_TRACK =
+  "data:text/vtt;charset=utf-8,WEBVTT%0A%0A00:00:00.000%20--%3E%2000:00:00.001%0A%20";
+
 function formatBytes(sizeBytes: number) {
   if (sizeBytes < 1024) return `${sizeBytes} B`;
   if (sizeBytes < 1024 * 1024) return `${(sizeBytes / 1024).toFixed(1)} KB`;
@@ -48,6 +51,18 @@ export default function SoundsPage() {
   const [updatingIds, setUpdatingIds] = createSignal<string[]>([]);
 
   const typeLimitLabel = createMemo(() => (type() === "goal" ? "Max 5s" : "Max 10s"));
+  const selectedFileSizeLabel = createMemo(() => {
+    const file = selectedFile();
+    return file ? formatBytes(file.size) : "n/a";
+  });
+  const previewDurationLabel = createMemo(() => {
+    const durationMs = previewDurationMs();
+    if (durationMs === null) {
+      return "Pending validation";
+    }
+
+    return formatDuration(durationMs);
+  });
 
   const clearPreview = () => {
     const url = previewUrl();
@@ -285,7 +300,15 @@ export default function SoundsPage() {
                     >
                       {(url) => (
                         <div class="rounded-box bg-base-100 flex flex-col gap-4 p-4">
-                          <audio class="w-full" controls preload="metadata" src={url()} />
+                          <audio class="w-full" controls preload="metadata" src={url()}>
+                            <track
+                              default
+                              kind="captions"
+                              label="No captions available"
+                              src={EMPTY_CAPTIONS_TRACK}
+                              srclang="en"
+                            />
+                          </audio>
                           <div class="grid gap-3 sm:grid-cols-3">
                             <div>
                               <div class="text-base-content/60 text-xs font-semibold uppercase">
@@ -297,19 +320,13 @@ export default function SoundsPage() {
                               <div class="text-base-content/60 text-xs font-semibold uppercase">
                                 Size
                               </div>
-                              <div class="text-sm font-medium">
-                                {selectedFile() ? formatBytes(selectedFile()!.size) : "n/a"}
-                              </div>
+                              <div class="text-sm font-medium">{selectedFileSizeLabel()}</div>
                             </div>
                             <div>
                               <div class="text-base-content/60 text-xs font-semibold uppercase">
                                 Duration
                               </div>
-                              <div class="text-sm font-medium">
-                                {previewDurationMs() !== null
-                                  ? formatDuration(previewDurationMs()!)
-                                  : "Pending validation"}
-                              </div>
+                              <div class="text-sm font-medium">{previewDurationLabel()}</div>
                             </div>
                           </div>
                         </div>
@@ -356,7 +373,7 @@ export default function SoundsPage() {
                       but are skipped.
                     </p>
                   </div>
-                  <button class="btn btn-ghost btn-sm" onClick={() => void refetch()} type="button">
+                  <button class="btn btn-ghost btn-sm" onClick={refetch} type="button">
                     Refresh
                   </button>
                 </div>
@@ -415,7 +432,15 @@ export default function SoundsPage() {
                                   </div>
                                 </div>
 
-                                <audio class="w-full" controls preload="metadata" src={asset.url} />
+                                <audio class="w-full" controls preload="metadata" src={asset.url}>
+                                  <track
+                                    default
+                                    kind="captions"
+                                    label="No captions available"
+                                    src={EMPTY_CAPTIONS_TRACK}
+                                    srclang="en"
+                                  />
+                                </audio>
                               </div>
 
                               <div class="flex justify-end">

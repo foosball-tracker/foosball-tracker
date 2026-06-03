@@ -8,6 +8,7 @@ import { getMp3DurationMs } from "./lib/mp3-duration.mjs";
 const supabaseUrl = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SOUND_BUCKET = "sounds";
+const FILE_BIN = "/usr/bin/file";
 
 if (!supabaseUrl?.includes("127.0.0.1") && !supabaseUrl?.includes("localhost")) {
   console.error("Error: Refusing to seed sounds outside local Supabase.");
@@ -43,7 +44,7 @@ function checksumFor(buffer) {
 }
 
 function getDurationFromFileCommand(filePath, sizeBytes) {
-  const result = spawnSync("file", [filePath], {
+  const result = spawnSync(FILE_BIN, [filePath], {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
   });
