@@ -11,11 +11,14 @@ import {
   RefreshCw,
   RotateCcw,
   Timer,
+  Volume2,
+  VolumeX,
 } from "lucide-solid";
 import { createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { GoalHistoryCard } from "~/components/home/GoalHistoryCard.tsx";
 import { TeamScore } from "~/components/TeamScore";
 import { formatTime } from "~/lib/utils.ts";
+import { isMuted, toggleMute } from "~/service/soundService.ts";
 import type { ISettings } from "~/types/Settings";
 import type { Tables } from "~/types/database";
 
@@ -264,6 +267,15 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
                 >
                   <RotateCcw size={18} />
                   Reset
+                </button>
+                <button
+                  aria-label={isMuted() ? "Unmute game sounds" : "Mute game sounds"}
+                  class={actionButtonClasses("subtle")}
+                  onClick={() => toggleMute()}
+                  type="button"
+                >
+                  {isMuted() ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                  {isMuted() ? "Sound off" : "Sound on"}
                 </button>
               </div>
             }
