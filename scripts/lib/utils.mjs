@@ -106,9 +106,29 @@ function readEnvFile(path = ".env") {
 
 function getLocalSupabaseStatus() {
   const statusOutput = run("pnpm", ["supabase:status"]);
+  const parsed = parseStatusEnv(statusOutput);
+
+  let studioUrl = parsed.STUDIO_URL ?? parsed.SUPABASE_STUDIO_URL ?? parsed.SUPABASE_STUDIO;
+
+  if (!studioUrl && parsed.API_URL) {
+    try {
+      const url = new URL(parsed.API_URL);
+      if (url.port === "15421") {
+        url.port = "15423";
+      }
+      studioUrl = url.toString();
+    } catch {
+      // Ignore URL parse errors and leave STUDIO_URL unset.
+    }
+  }
+
+  if (studioUrl) {
+    parsed.STUDIO_URL = studioUrl;
+  }
+
   return {
     statusOutput,
-    status: parseStatusEnv(statusOutput),
+    status: parsed,
   };
 }
 

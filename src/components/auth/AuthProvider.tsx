@@ -11,8 +11,6 @@ import {
 import { clearAuthRedirectState, isRecoveryRedirect } from "~/components/auth/authHelper.ts";
 import { hasSupabaseConfig, supabase } from "~/service/supabaseService";
 
-const SESSION_BOOT_TIMEOUT_MS = 8_000;
-
 interface AuthContextValue {
   loading: Accessor<boolean>;
   recoveryMode: Accessor<boolean>;
@@ -59,14 +57,6 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
       }
     });
 
-    const sessionTimeout = globalThis.setTimeout(() => {
-      if (disposed) return;
-
-      console.warn("Supabase session bootstrap timed out; continuing without a session.");
-      setRecoveryMode(isRecoveryRedirect());
-      setLoading(false);
-    }, SESSION_BOOT_TIMEOUT_MS);
-
     void (async () => {
       try {
         const {
@@ -75,14 +65,12 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
 
         if (disposed) return;
 
-        globalThis.clearTimeout(sessionTimeout);
         setSession(currentSession);
         setRecoveryMode(isRecoveryRedirect());
         setLoading(false);
       } catch (error) {
         if (disposed) return;
 
-        globalThis.clearTimeout(sessionTimeout);
         console.error("Failed to bootstrap Supabase session:", error);
         setRecoveryMode(isRecoveryRedirect());
         setLoading(false);
@@ -91,7 +79,6 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
 
     onCleanup(() => {
       disposed = true;
-      globalThis.clearTimeout(sessionTimeout);
       subscription.unsubscribe();
     });
   });

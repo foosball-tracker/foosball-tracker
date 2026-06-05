@@ -6,7 +6,7 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!supabaseUrl?.includes("127.0.0.1") && !supabaseUrl?.includes("localhost")) {
   console.error("Error: Refusing to seed auth users outside local Supabase.");
   console.error(`  SUPABASE_URL="${supabaseUrl ?? "(not set)"}"`);
-  console.error("  Expected http://127.0.0.1:54321 or http://localhost:54321");
+  console.error("  Expected http://127.0.0.1:15421 or http://localhost:15421");
   process.exit(1);
 }
 

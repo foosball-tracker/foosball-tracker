@@ -45,12 +45,28 @@ await waitForAuthHealth(localStatus.API_URL);
 console.log();
 console.log(`Starting Vite against local Supabase at ${localStatus.API_URL}`);
 console.log(`Log in with admin@example.local / ${password}`);
-console.log(
-  "This now follows Vite's default localhost behavior again. Set LOCAL_UI_HOST=0.0.0.0 only when you want direct LAN access."
-);
+console.log(`Supabase Dashboard: ${localStatus.STUDIO_URL ?? localStatus.API_URL}`);
 
-const vite = spawn("node", ["scripts/local-ui-server.mjs", "--port", "5173"], {
-  // NOSONAR - local dev script only
+// Ensure any previous dev server on the intended port is terminated so restarts succeed.
+const devPort = process.env.PORT ?? "5173";
+try {
+  const pids = run("sh", ["-c", `lsof -i :${devPort} -t || true`]).trim();
+  if (pids) {
+    console.log(`Killing existing process(es) on port ${devPort}: ${pids}`);
+    for (const pid of pids.split(/\s+/)) {
+      try {
+        process.kill(Number(pid), "SIGTERM");
+      } catch {
+        // best-effort; continue
+      }
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+} catch {
+  // don't fail local-dev if port check fails
+}
+
+const vite = spawn("node", ["scripts/local-ui-server.mjs", "--port", devPort], {
   stdio: "inherit",
   env: {
     ...process.env,
