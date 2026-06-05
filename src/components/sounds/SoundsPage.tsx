@@ -233,32 +233,37 @@ export default function SoundsPage() {
               </div>
             </div>
 
-            <div class="grid gap-2 text-sm sm:hidden">
+            <div class="grid gap-2 text-sm lg:hidden">
               <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
                 <span class="text-base-content/70">
                   Duration {formatDuration(asset.durationMs)}
                 </span>
                 <span class="text-base-content/70">Size {formatBytes(asset.sizeBytes)}</span>
               </div>
-              <audio class="w-full" controls preload="metadata" src={asset.url}>
-                <track
-                  default
-                  kind="captions"
-                  label="No captions available"
-                  src={EMPTY_CAPTIONS_TRACK}
-                  srclang="en"
-                />
-              </audio>
-              <button
-                class={`btn btn-xs min-w-28 ${
-                  asset.status === "ready" ? "btn-soft btn-error" : "btn-outline"
-                }`}
-                disabled={isUpdating()}
-                onClick={() => void toggleStatus(asset.id, asset.status)}
-                type="button"
-              >
-                {getAssetToggleLabel(isUpdating(), asset.status)}
-              </button>
+              <div class="text-base-content/70 truncate text-sm">Source {asset.storagePath}</div>
+              <div class="md:hidden">
+                <audio class="w-full" controls preload="metadata" src={asset.url}>
+                  <track
+                    default
+                    kind="captions"
+                    label="No captions available"
+                    src={EMPTY_CAPTIONS_TRACK}
+                    srclang="en"
+                  />
+                </audio>
+              </div>
+              <div class="md:flex md:justify-start">
+                <button
+                  class={`btn btn-xs min-w-28 ${
+                    asset.status === "ready" ? "btn-soft btn-error" : "btn-outline"
+                  } md:btn-sm`}
+                  disabled={isUpdating()}
+                  onClick={() => void toggleStatus(asset.id, asset.status)}
+                  type="button"
+                >
+                  {getAssetToggleLabel(isUpdating(), asset.status)}
+                </button>
+              </div>
             </div>
           </div>
         );
@@ -301,8 +306,8 @@ export default function SoundsPage() {
       id: "preview",
       header: "Preview",
       meta: {
-        headerClass: "hidden md:table-cell",
-        cellClass: "hidden md:table-cell md:min-w-64",
+        headerClass: "hidden lg:table-cell",
+        cellClass: "hidden lg:table-cell lg:min-w-64",
       },
       cell: (info) => {
         const asset = info.row.original;
@@ -324,8 +329,8 @@ export default function SoundsPage() {
       id: "actions",
       header: "Actions",
       meta: {
-        headerClass: "hidden text-right md:table-cell",
-        cellClass: "hidden w-0 text-right md:table-cell",
+        headerClass: "hidden text-right lg:table-cell",
+        cellClass: "hidden w-0 text-right lg:table-cell",
       },
       cell: (info) => {
         const asset = info.row.original;
