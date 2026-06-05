@@ -101,6 +101,9 @@ export function LeaderboardContent(props: Readonly<LeaderboardContentProps>) {
           data={rows() as (TeamLeaderboardRow | PlayerLeaderboardRow)[]}
           emptyTitle="No completed matches yet"
           emptyDescription="Finish a game to populate the current standings."
+          shellClass="min-h-[18rem]"
+          scrollAreaClass="max-h-[22rem] overflow-auto"
+          stickyHeader
         />
       </Show>
     </div>

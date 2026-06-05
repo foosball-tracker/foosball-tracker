@@ -4,11 +4,9 @@ import { cn } from "~/lib/utils";
 export const Table: ParentComponent<ComponentProps<"table">> = (rawProps) => {
   const [local, others] = splitProps(rawProps, ["class", "children"]);
   return (
-    <div class="rounded-box border-base-300 bg-base-100 w-full overflow-x-auto border">
-      <table class={cn("table w-full min-w-full sm:min-w-[40rem]", local.class)} {...others}>
-        {local.children}
-      </table>
-    </div>
+    <table class={cn("table w-full min-w-full sm:min-w-[40rem]", local.class)} {...others}>
+      {local.children}
+    </table>
   );
 };
 

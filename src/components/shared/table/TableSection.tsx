@@ -26,8 +26,8 @@ export const TableSection: ParentComponent<TableSectionProps> = (rawProps) => {
       class={cn("card card-border border-base-300 bg-base-100 shadow-sm", local.class)}
       {...others}
     >
-      <div class="card-body gap-5 p-4 sm:p-6">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div class="card-body gap-5 p-4 sm:gap-6 sm:p-6">
+        <div class="flex flex-col gap-4">
           <div class="space-y-2">
             <Show when={local.eyebrow}>
               <p class="text-base-content/60 text-xs font-semibold tracking-[0.24em] uppercase">
@@ -42,12 +42,22 @@ export const TableSection: ParentComponent<TableSectionProps> = (rawProps) => {
             </div>
           </div>
 
-          <div class="flex flex-col items-stretch gap-3 sm:items-end">
-            <Show when={local.stats}>
-              <div class="flex flex-wrap justify-start gap-2 sm:justify-end">{local.stats}</div>
-            </Show>
-            <Show when={local.actions}>{local.actions}</Show>
-          </div>
+          <Show when={local.stats || local.actions}>
+            <div class="rounded-box border-base-300 bg-base-200/40 border p-2 sm:p-3">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <Show when={local.stats}>
+                  <div class="flex flex-wrap items-center gap-x-4 gap-y-2 px-2 sm:px-1">
+                    {local.stats}
+                  </div>
+                </Show>
+                <Show when={local.actions}>
+                  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+                    {local.actions}
+                  </div>
+                </Show>
+              </div>
+            </div>
+          </Show>
         </div>
 
         {local.children}

@@ -3,7 +3,6 @@ import type { RouteSectionProps } from "@solidjs/router";
 import { hasSupabaseConfig } from "~/service/supabaseService.ts";
 import { createResource, createSignal, Show, For } from "solid-js";
 import { ColumnDef } from "@tanstack/solid-table";
-import { Shield, Users } from "lucide-solid";
 import { DataTable } from "~/components/shared/table/DataTable.tsx";
 import { TableSection } from "~/components/shared/table/TableSection.tsx";
 import ConfirmTeamDelete from "./ConfirmDelete";
@@ -56,7 +55,7 @@ const columns: ColumnDef<TeamWithMembers>[] = [
               <div class="flex flex-wrap gap-1.5">
                 <For each={team.team_members}>
                   {(member) => (
-                    <span class="badge badge-outline badge-sm">
+                    <span class="badge badge-outline px-3 py-2 text-sm font-medium">
                       {member.players?.name ?? "Unknown"}
                     </span>
                   )}
@@ -98,7 +97,7 @@ const columns: ColumnDef<TeamWithMembers>[] = [
           <div class="flex flex-wrap gap-1.5">
             <For each={members}>
               {(member) => (
-                <span class="badge badge-outline badge-sm">
+                <span class="badge badge-outline px-3 py-2 text-sm font-medium">
                   {member.players?.name ?? "Unknown"}
                 </span>
               )}
@@ -147,7 +146,7 @@ export default function Teams(props: RouteSectionProps) {
       }
     >
       <TeamListContext.Provider value={{ refetchTeams: refetch }}>
-        <div class="px-4 py-4 sm:px-6">
+        <div class="mx-auto w-full max-w-3xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
           <Show
             when={data()}
             keyed
@@ -159,27 +158,10 @@ export default function Teams(props: RouteSectionProps) {
           >
             {(resolvedData) => (
               <TableSection
-                eyebrow="Lineups"
                 title="Teams"
-                stats={
-                  <>
-                    <span class="badge badge-outline badge-sm gap-2 px-3 py-3">
-                      <Shield class="h-3.5 w-3.5" />
-                      {resolvedData.length} {resolvedData.length === 1 ? "team" : "teams"}
-                    </span>
-                    <span class="badge badge-outline badge-sm gap-2 px-3 py-3">
-                      <Users class="h-3.5 w-3.5" />
-                      {resolvedData.reduce(
-                        (count, team) => count + (team.team_members?.length ?? 0),
-                        0
-                      )}{" "}
-                      roster slots
-                    </span>
-                  </>
-                }
                 actions={
-                  <A class="btn btn-primary btn-sm sm:btn-md min-w-40" href="/teams/new">
-                    Create New Team
+                  <A class="btn btn-primary btn-sm sm:btn-md w-full sm:min-w-40" href="/teams/new">
+                    Create team
                   </A>
                 }
               >
@@ -188,6 +170,16 @@ export default function Teams(props: RouteSectionProps) {
                   data={resolvedData}
                   emptyTitle="No teams yet"
                   emptyDescription="Create a team to group players for quick match setup."
+                  summaryItems={[
+                    { label: "Teams", value: resolvedData.length },
+                    {
+                      label: "Members",
+                      value: resolvedData.reduce(
+                        (count, team) => count + (team.team_members?.length ?? 0),
+                        0
+                      ),
+                    },
+                  ]}
                 />
               </TableSection>
             )}

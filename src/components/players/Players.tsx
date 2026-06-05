@@ -1,7 +1,6 @@
 import { A } from "@solidjs/router";
 import type { RouteSectionProps } from "@solidjs/router";
 import { ColumnDef } from "@tanstack/solid-table";
-import { Users } from "lucide-solid";
 import { createResource, createSignal, Show } from "solid-js";
 import { hasSupabaseConfig, supabase } from "~/service/supabaseService.ts";
 import { DataTable } from "~/components/shared/table/DataTable.tsx";
@@ -101,7 +100,7 @@ function Players(props: RouteSectionProps) {
       }
     >
       <PlayerListContext.Provider value={{ refetchPlayers: refetch }}>
-        <div class="h-full px-4 py-4 sm:px-6">
+        <div class="mx-auto h-full w-full max-w-3xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
           <Show
             when={data()}
             keyed
@@ -113,17 +112,13 @@ function Players(props: RouteSectionProps) {
           >
             {(resolvedData) => (
               <TableSection
-                eyebrow="Roster"
                 title="Players"
-                stats={
-                  <span class="badge badge-outline badge-sm gap-2 px-3 py-3">
-                    <Users class="h-3.5 w-3.5" />
-                    {resolvedData.length} {resolvedData.length === 1 ? "player" : "players"}
-                  </span>
-                }
                 actions={
-                  <A class="btn btn-primary btn-sm sm:btn-md min-w-40" href="/players/new">
-                    Create New Player
+                  <A
+                    class="btn btn-primary btn-sm sm:btn-md w-full sm:min-w-40"
+                    href="/players/new"
+                  >
+                    Create player
                   </A>
                 }
               >
@@ -132,6 +127,7 @@ function Players(props: RouteSectionProps) {
                   data={resolvedData}
                   emptyTitle="No players yet"
                   emptyDescription="Create a player to start building teams and tracking matches."
+                  summaryItems={[{ label: "Players", value: resolvedData.length }]}
                 />
               </TableSection>
             )}
