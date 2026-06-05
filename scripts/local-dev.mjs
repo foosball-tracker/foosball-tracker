@@ -50,7 +50,7 @@ console.log(`Supabase Dashboard: ${localStatus.STUDIO_URL ?? localStatus.API_URL
 // Ensure any previous dev server on the intended port is terminated so restarts succeed.
 const devPort = process.env.PORT ?? "5173";
 try {
-  const pids = run("sh", ["-c", `lsof -i :${devPort} -t || true`]).trim();
+  const pids = run("sh", ["-c", `lsof -iTCP:${devPort} -sTCP:LISTEN -t || true`]).trim();
   if (pids) {
     console.log(`Killing existing process(es) on port ${devPort}: ${pids}`);
     for (const pid of pids.split(/\s+/)) {
