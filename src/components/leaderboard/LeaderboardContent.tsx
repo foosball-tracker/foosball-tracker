@@ -101,9 +101,13 @@ export function LeaderboardContent(props: Readonly<LeaderboardContentProps>) {
           data={rows() as (TeamLeaderboardRow | PlayerLeaderboardRow)[]}
           emptyTitle="No completed matches yet"
           emptyDescription="Finish a game to populate the current standings."
-          shellClass="min-h-[18rem]"
-          scrollAreaClass="max-h-[22rem] overflow-auto"
+          summaryItems={[
+            { label: activeTab() === "teams" ? "Teams" : "Players", value: rows().length },
+          ]}
+          shellClass="flex min-h-[20rem] flex-col lg:min-h-[30rem]"
+          scrollAreaClass="min-h-0 flex-1 overflow-y-auto overflow-x-hidden"
           stickyHeader
+          tableClass="min-w-0"
         />
       </Show>
     </div>

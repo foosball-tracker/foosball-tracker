@@ -170,16 +170,7 @@ export default function Teams(props: RouteSectionProps) {
                   data={resolvedData}
                   emptyTitle="No teams yet"
                   emptyDescription="Create a team to group players for quick match setup."
-                  summaryItems={[
-                    { label: "Teams", value: resolvedData.length },
-                    {
-                      label: "Members",
-                      value: resolvedData.reduce(
-                        (count, team) => count + (team.team_members?.length ?? 0),
-                        0
-                      ),
-                    },
-                  ]}
+                  summaryItems={[{ label: "Teams", value: resolvedData.length }]}
                 />
               </TableSection>
             )}

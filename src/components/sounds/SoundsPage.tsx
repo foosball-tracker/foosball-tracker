@@ -241,7 +241,7 @@ export default function SoundsPage() {
                 <span class="text-base-content/70">Size {formatBytes(asset.sizeBytes)}</span>
               </div>
               <div class="text-base-content/70 truncate text-sm">Source {asset.storagePath}</div>
-              <div class="md:hidden">
+              <div class="lg:hidden">
                 <audio class="w-full" controls preload="metadata" src={asset.url}>
                   <track
                     default
