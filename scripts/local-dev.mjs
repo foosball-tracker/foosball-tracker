@@ -66,7 +66,7 @@ try {
   // don't fail local-dev if port check fails
 }
 
-const vite = spawn("node", ["scripts/local-ui-server.mjs", "--port", devPort], {
+const vite = spawn(process.execPath, ["scripts/local-ui-server.mjs", "--port", devPort], {
   stdio: "inherit",
   env: {
     ...process.env,
