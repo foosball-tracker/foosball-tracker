@@ -100,7 +100,7 @@ function Players(props: RouteSectionProps) {
       }
     >
       <PlayerListContext.Provider value={{ refetchPlayers: refetch }}>
-        <div class="mx-auto h-full w-full max-w-3xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+        <div class="mx-auto h-full w-full max-w-[min(96vw,1400px)] px-4 py-4 sm:px-5 sm:py-5 lg:px-6">
           <Show
             when={data()}
             keyed
