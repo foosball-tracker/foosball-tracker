@@ -104,10 +104,9 @@ export function LeaderboardContent(props: Readonly<LeaderboardContentProps>) {
           summaryItems={[
             { label: activeTab() === "teams" ? "Teams" : "Players", value: rows().length },
           ]}
-          shellClass="flex min-h-[20rem] flex-col lg:min-h-[30rem]"
-          scrollAreaClass="min-h-0 flex-1 overflow-y-auto overflow-x-hidden"
+          shellClass="flex min-h-[18rem] flex-col lg:min-h-[24rem]"
+          scrollAreaClass="min-h-0 flex-1 overflow-y-auto"
           stickyHeader
-          tableClass="min-w-0"
         />
       </Show>
     </div>

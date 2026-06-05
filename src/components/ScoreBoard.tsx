@@ -186,7 +186,7 @@ export function ScoreBoard(props: Readonly<ScoreBoardProps>) {
         scoreboardElement = element;
       }}
     >
-      <div class="card-body gap-4 p-4 sm:gap-6 sm:p-6 lg:p-8">
+      <div class="card-body gap-4 p-4 sm:gap-5 sm:p-5 lg:p-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-3">
             <div class="bg-base-200 text-base-content [html[data-theme=dim]_&]:bg-base-100/10 [html[data-theme=dim]_&]:text-neutral-content flex h-9 w-9 items-center justify-center rounded-full">

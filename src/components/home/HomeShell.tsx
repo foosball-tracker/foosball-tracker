@@ -7,7 +7,7 @@ interface HomeShellProps {
 export function HomeShell(props: Readonly<HomeShellProps>) {
   return (
     <main class="min-h-full">
-      <div class="mx-auto flex min-h-full w-full max-w-[1600px] flex-col gap-6 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+      <div class="mx-auto flex min-h-full w-full max-w-[min(96vw,2200px)] flex-col gap-4 px-4 py-4 sm:px-5 sm:py-5 lg:px-6 lg:py-6">
         {props.children}
       </div>
     </main>

@@ -4,7 +4,7 @@ import { cn } from "~/lib/utils";
 export const Table: ParentComponent<ComponentProps<"table">> = (rawProps) => {
   const [local, others] = splitProps(rawProps, ["class", "children"]);
   return (
-    <table class={cn("table w-full min-w-full sm:min-w-[40rem]", local.class)} {...others}>
+    <table class={cn("table w-full min-w-0 table-fixed", local.class)} {...others}>
       {local.children}
     </table>
   );

@@ -26,7 +26,7 @@ interface MatchDashboardProps {
 
 export function MatchDashboard(props: Readonly<MatchDashboardProps>) {
   return (
-    <div class="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(20rem,1fr)] xl:items-start">
+    <div class="grid gap-6 xl:grid-cols-[minmax(42rem,1fr)_minmax(24rem,0.45fr)] xl:items-start">
       <div class="grid gap-6">
         <ScoreBoard
           backendReady={props.backendReady}
