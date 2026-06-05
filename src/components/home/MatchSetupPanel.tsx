@@ -95,7 +95,7 @@ export function MatchSetupPanel(props: Readonly<MatchSetupPanelProps>) {
   return (
     <section class="mx-auto w-full max-w-6xl">
       <div class="card border-base-300 bg-base-100 text-base-content [html[data-theme=dim]_&]:bg-neutral [html[data-theme=dim]_&]:text-neutral-content shadow-sm">
-        <div class="card-body gap-5 p-4 sm:p-6 lg:p-8">
+        <div class="card-body gap-5 p-4 sm:p-5 lg:p-6">
           <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p class="text-base-content/60 [html[data-theme=dim]_&]:text-neutral-content/70 text-xs font-semibold tracking-[0.24em] uppercase">

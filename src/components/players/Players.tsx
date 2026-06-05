@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/solid-table";
 import { createResource, createSignal, Show } from "solid-js";
 import { hasSupabaseConfig, supabase } from "~/service/supabaseService.ts";
 import { DataTable } from "~/components/shared/table/DataTable.tsx";
+import { TableSection } from "~/components/shared/table/TableSection.tsx";
 import ConfirmDelete from "./ConfirmDelete";
 import { PlayerListContext } from "./PlayerListContext";
 
@@ -15,28 +16,65 @@ interface Player {
 const [showConfirm, setShowConfirm] = createSignal(false);
 const [playerToDelete, setPlayerToDelete] = createSignal<Player | null>(null);
 
+const openDeleteConfirm = (player: Player) => {
+  setPlayerToDelete(player);
+  setShowConfirm(true);
+};
+
+const getPlayerInitials = (name: string) =>
+  name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+
 const columns: ColumnDef<Player>[] = [
   {
-    header: "Actions",
+    accessorKey: "name",
+    header: "Player",
     cell: (info) => {
       const player = info.row.original;
+
+      return (
+        <div class="flex min-w-0 items-center gap-3">
+          <div class="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold">
+            {getPlayerInitials(player.name)}
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="truncate font-semibold">{player.name}</p>
+          </div>
+          <div class="sm:hidden">
+            <button
+              class="btn btn-soft btn-error btn-xs min-w-18"
+              onClick={() => openDeleteConfirm(player)}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      );
+    },
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    meta: {
+      headerClass: "hidden text-right sm:table-cell",
+      cellClass: "hidden w-0 text-right sm:table-cell",
+    },
+    cell: (info) => {
+      const player = info.row.original;
+
       return (
         <button
-          class="btn btn-soft btn-error btn-sm"
-          onClick={() => {
-            setPlayerToDelete(player);
-            setShowConfirm(true);
-          }}
+          class="btn btn-soft btn-error btn-sm min-w-24"
+          onClick={() => openDeleteConfirm(player)}
         >
           Delete
         </button>
       );
     },
-  },
-  {
-    header: "Name",
-    accessorKey: "name",
-    cell: (info) => info.getValue(),
   },
 ];
 
@@ -62,7 +100,7 @@ function Players(props: RouteSectionProps) {
       }
     >
       <PlayerListContext.Provider value={{ refetchPlayers: refetch }}>
-        <div class="h-full px-4 py-2">
+        <div class="mx-auto h-full w-full max-w-[min(96vw,1400px)] px-4 py-4 sm:px-5 sm:py-5 lg:px-6">
           <Show
             when={data()}
             keyed
@@ -72,13 +110,28 @@ function Players(props: RouteSectionProps) {
               </div>
             }
           >
-            {(resolvedData) => <DataTable columns={columns} data={resolvedData} />}
+            {(resolvedData) => (
+              <TableSection
+                title="Players"
+                actions={
+                  <A
+                    class="btn btn-primary btn-sm sm:btn-md w-full sm:min-w-40"
+                    href="/players/new"
+                  >
+                    Create player
+                  </A>
+                }
+              >
+                <DataTable
+                  columns={columns}
+                  data={resolvedData}
+                  emptyTitle="No players yet"
+                  emptyDescription="Create a player to start building teams and tracking matches."
+                  summaryItems={[{ label: "Players", value: resolvedData.length }]}
+                />
+              </TableSection>
+            )}
           </Show>
-          <div class="mt-4 text-center">
-            <A class="btn btn-primary btn-sm sm:btn-md min-w-40" href="/players/new">
-              Create New Player
-            </A>
-          </div>
         </div>
 
         {props.children}

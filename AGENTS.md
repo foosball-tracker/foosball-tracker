@@ -74,7 +74,7 @@ Impeccable skills are installed at `.agents/skills/impeccable/` (for OpenCode/lo
 - Use `pnpm local:hosted` only when reproducing a hosted Supabase issue from a local browser.
 - `pnpm auth:local` writes `playwright/.auth/user.json`.
 - `pnpm auth:prod` and `pnpm auth:hosted` write `playwright/.auth/user.hosted.json`.
-- Connect to `http://127.0.0.1:54321` with the local anon key from `pnpm supabase:status`.
+- Connect to `http://127.0.0.1:15421` with the local anon key from `pnpm supabase:status`.
 - Never use production service role keys.
 - Test migration changes with `pnpm db:reset`.
 - Regenerate types after schema changes with `pnpm db-types`.

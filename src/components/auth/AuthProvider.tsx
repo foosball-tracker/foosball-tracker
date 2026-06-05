@@ -11,7 +11,7 @@ import {
 import { clearAuthRedirectState, isRecoveryRedirect } from "~/components/auth/authHelper.ts";
 import { hasSupabaseConfig, supabase } from "~/service/supabaseService";
 
-const SESSION_BOOT_TIMEOUT_MS = 8_000;
+const SESSION_BOOTSTRAP_TIMEOUT_MS = 8_000;
 
 interface AuthContextValue {
   loading: Accessor<boolean>;
@@ -30,16 +30,29 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
 
   onMount(() => {
     let disposed = false;
+    let bootstrapFallbackId: number | undefined;
 
     if (!hasSupabaseConfig() || !supabase) {
       setLoading(false);
       return;
     }
 
+    bootstrapFallbackId = globalThis.setTimeout(() => {
+      if (disposed) return;
+
+      setRecoveryMode(isRecoveryRedirect());
+      setLoading(false);
+    }, SESSION_BOOTSTRAP_TIMEOUT_MS);
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, nextSession) => {
       if (disposed) return;
+
+      if (bootstrapFallbackId !== undefined) {
+        globalThis.clearTimeout(bootstrapFallbackId);
+        bootstrapFallbackId = undefined;
+      }
 
       setSession(nextSession);
       setLoading(false);
@@ -59,14 +72,6 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
       }
     });
 
-    const sessionTimeout = globalThis.setTimeout(() => {
-      if (disposed) return;
-
-      console.warn("Supabase session bootstrap timed out; continuing without a session.");
-      setRecoveryMode(isRecoveryRedirect());
-      setLoading(false);
-    }, SESSION_BOOT_TIMEOUT_MS);
-
     void (async () => {
       try {
         const {
@@ -75,14 +80,22 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
 
         if (disposed) return;
 
-        globalThis.clearTimeout(sessionTimeout);
+        if (bootstrapFallbackId !== undefined) {
+          globalThis.clearTimeout(bootstrapFallbackId);
+          bootstrapFallbackId = undefined;
+        }
+
         setSession(currentSession);
         setRecoveryMode(isRecoveryRedirect());
         setLoading(false);
       } catch (error) {
         if (disposed) return;
 
-        globalThis.clearTimeout(sessionTimeout);
+        if (bootstrapFallbackId !== undefined) {
+          globalThis.clearTimeout(bootstrapFallbackId);
+          bootstrapFallbackId = undefined;
+        }
+
         console.error("Failed to bootstrap Supabase session:", error);
         setRecoveryMode(isRecoveryRedirect());
         setLoading(false);
@@ -91,7 +104,9 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
 
     onCleanup(() => {
       disposed = true;
-      globalThis.clearTimeout(sessionTimeout);
+      if (bootstrapFallbackId !== undefined) {
+        globalThis.clearTimeout(bootstrapFallbackId);
+      }
       subscription.unsubscribe();
     });
   });

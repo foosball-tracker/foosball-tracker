@@ -1,13 +1,4 @@
-import {
-  createMemo,
-  createResource,
-  createSignal,
-  For,
-  Match,
-  onCleanup,
-  Show,
-  Switch,
-} from "solid-js";
+import { createMemo, createResource, createSignal, Match, onCleanup, Show, Switch } from "solid-js";
 import { AudioLines, Upload, Volume2, VolumeX } from "lucide-solid";
 import { HomeShell } from "~/components/home/HomeShell.tsx";
 import Spinner from "~/components/shared/Spinner.tsx";
@@ -15,10 +6,14 @@ import { getCurrentProfile } from "~/service/profileService.ts";
 import {
   createSoundAsset,
   listSoundAssets,
+  type SoundAsset,
   type ManagedSoundType,
   updateSoundAssetStatus,
   validateSoundUpload,
 } from "~/service/soundService.ts";
+import { DataTable } from "~/components/shared/table/DataTable.tsx";
+import { TableSection } from "~/components/shared/table/TableSection.tsx";
+import { type ColumnDef } from "@tanstack/solid-table";
 
 const EMPTY_CAPTIONS_TRACK =
   "data:text/vtt;charset=utf-8,WEBVTT%0A%0A00:00:00.000%20--%3E%2000:00:00.001%0A%20";
@@ -31,6 +26,23 @@ function formatBytes(sizeBytes: number) {
 
 function formatDuration(durationMs: number) {
   return `${(durationMs / 1000).toFixed(2)}s`;
+}
+
+function getSoundInitials(name: string) {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+function getAssetToggleLabel(isUpdating: boolean, status: SoundAsset["status"]) {
+  if (isUpdating) {
+    return "Saving...";
+  }
+
+  return status === "ready" ? "Disable" : "Enable";
 }
 
 export default function SoundsPage() {
@@ -183,6 +195,164 @@ export default function SoundsPage() {
     }
   };
 
+  const columns: ColumnDef<SoundAsset>[] = [
+    {
+      accessorKey: "name",
+      header: "Sound",
+      cell: (info) => {
+        const asset = info.row.original;
+        const isUpdating = () => updatingIds().includes(asset.id);
+
+        return (
+          <div class="min-w-0 space-y-3">
+            <div class="flex min-w-0 items-center gap-3">
+              <div class="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold">
+                {getSoundInitials(asset.name)}
+              </div>
+              <div class="min-w-0">
+                <p class="truncate font-semibold">{asset.name}</p>
+                <div class="mt-1 flex flex-wrap gap-1.5">
+                  <span
+                    class={`badge badge-outline badge-sm capitalize ${
+                      asset.type === "goal" ? "badge-primary" : "badge-secondary"
+                    }`}
+                  >
+                    {asset.type}
+                  </span>
+                  <span
+                    class={`badge badge-sm capitalize ${
+                      asset.status === "ready" ? "badge-success" : "badge-warning"
+                    }`}
+                  >
+                    {asset.status}
+                  </span>
+                  <Show when={asset.isDefault}>
+                    <span class="badge badge-outline badge-sm">Default</span>
+                  </Show>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid gap-2 text-sm lg:hidden">
+              <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                <span class="text-base-content/70">
+                  Duration {formatDuration(asset.durationMs)}
+                </span>
+                <span class="text-base-content/70">Size {formatBytes(asset.sizeBytes)}</span>
+              </div>
+              <div class="text-base-content/70 truncate text-sm">Source {asset.storagePath}</div>
+              <div class="lg:hidden">
+                <audio class="w-full" controls preload="metadata" src={asset.url}>
+                  <track
+                    default
+                    kind="captions"
+                    label="No captions available"
+                    src={EMPTY_CAPTIONS_TRACK}
+                    srclang="en"
+                  />
+                </audio>
+              </div>
+              <div class="md:flex md:justify-start">
+                <button
+                  class={`btn btn-xs min-w-28 ${
+                    asset.status === "ready" ? "btn-soft btn-error" : "btn-outline"
+                  } md:btn-sm`}
+                  disabled={isUpdating()}
+                  onClick={() => void toggleStatus(asset.id, asset.status)}
+                  type="button"
+                >
+                  {getAssetToggleLabel(isUpdating(), asset.status)}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      header: "Details",
+      meta: {
+        headerClass: "hidden lg:table-cell",
+        cellClass: "hidden lg:table-cell",
+      },
+      cell: (info) => {
+        const asset = info.row.original;
+
+        return (
+          <div class="text-base-content/70 grid gap-2 text-sm">
+            <div>
+              <div class="text-base-content/60 text-[0.68rem] font-semibold tracking-[0.16em] uppercase">
+                Duration
+              </div>
+              <div>{formatDuration(asset.durationMs)}</div>
+            </div>
+            <div>
+              <div class="text-base-content/60 text-[0.68rem] font-semibold tracking-[0.16em] uppercase">
+                Size
+              </div>
+              <div>{formatBytes(asset.sizeBytes)}</div>
+            </div>
+            <div>
+              <div class="text-base-content/60 text-[0.68rem] font-semibold tracking-[0.16em] uppercase">
+                Source
+              </div>
+              <div class="max-w-52 truncate">{asset.storagePath}</div>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      id: "preview",
+      header: "Preview",
+      meta: {
+        headerClass: "hidden lg:table-cell",
+        cellClass: "hidden lg:table-cell lg:min-w-64",
+      },
+      cell: (info) => {
+        const asset = info.row.original;
+
+        return (
+          <audio class="w-full min-w-52" controls preload="metadata" src={asset.url}>
+            <track
+              default
+              kind="captions"
+              label="No captions available"
+              src={EMPTY_CAPTIONS_TRACK}
+              srclang="en"
+            />
+          </audio>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      meta: {
+        headerClass: "hidden text-right lg:table-cell",
+        cellClass: "hidden w-0 text-right lg:table-cell",
+      },
+      cell: (info) => {
+        const asset = info.row.original;
+        const isUpdating = () => updatingIds().includes(asset.id);
+
+        return (
+          <button
+            class={`btn btn-sm min-w-28 gap-2 ${
+              asset.status === "ready" ? "btn-soft btn-error" : "btn-outline"
+            }`}
+            disabled={isUpdating()}
+            onClick={() => void toggleStatus(asset.id, asset.status)}
+            type="button"
+          >
+            {asset.status === "ready" ? <VolumeX class="h-4 w-4" /> : <Volume2 class="h-4 w-4" />}
+            {getAssetToggleLabel(isUpdating(), asset.status)}
+          </button>
+        );
+      },
+    },
+  ];
+
   return (
     <HomeShell>
       <Switch>
@@ -211,9 +381,6 @@ export default function SoundsPage() {
                       Admin
                     </p>
                     <h1 class="card-title text-2xl">Public sound library</h1>
-                    <p class="text-base-content/70 max-w-2xl text-sm">
-                      Manage the shared goal and win sound pools stored in Supabase Storage.
-                    </p>
                   </div>
                   <div class="text-base-content/70 flex items-center gap-2 text-sm font-medium">
                     <AudioLines class="h-4 w-4" />
@@ -284,12 +451,7 @@ export default function SoundsPage() {
 
                   <div class="rounded-box bg-base-200 flex flex-col gap-4 p-4">
                     <div class="flex items-center justify-between gap-3">
-                      <div>
-                        <h2 class="text-lg font-semibold">Preview</h2>
-                        <p class="text-base-content/70 text-sm">
-                          Validation runs in the browser before anything is uploaded.
-                        </p>
-                      </div>
+                      <h2 class="text-lg font-semibold">Preview</h2>
                       <div class="badge badge-outline">
                         {selectedFile() ? "Ready to review" : "No file selected"}
                       </div>
@@ -368,118 +530,52 @@ export default function SoundsPage() {
               </div>
             </div>
 
-            <div class="card card-border border-base-300 bg-base-100 shadow-sm">
-              <div class="card-body gap-4">
-                <div class="flex items-center justify-between gap-3">
-                  <div>
-                    <h2 class="card-title text-2xl">Existing sounds</h2>
-                    <p class="text-base-content/70 text-sm">
-                      Ready sounds are eligible for playback. Disabled sounds stay in the library
-                      but are skipped.
-                    </p>
-                  </div>
-                  <button class="btn btn-ghost btn-sm" onClick={refetch} type="button">
-                    Refresh
-                  </button>
-                </div>
-
-                <Show
-                  when={soundAssets()}
-                  fallback={
+            <Show
+              when={soundAssets()}
+              fallback={
+                <div class="card card-border border-base-300 bg-base-100 shadow-sm">
+                  <div class="card-body">
                     <div class="flex min-h-32 items-center justify-center">
                       <Spinner />
                     </div>
+                  </div>
+                </div>
+              }
+            >
+              {(assets) => (
+                <TableSection
+                  eyebrow="Library"
+                  title="Existing sounds"
+                  stats={
+                    <>
+                      <span class="badge badge-outline badge-sm gap-2 px-3 py-3">
+                        <AudioLines class="h-3.5 w-3.5" />
+                        {assets().length} assets
+                      </span>
+                      <span class="badge badge-outline badge-sm px-3 py-3">
+                        {assets().filter((asset) => asset.status === "ready").length} ready
+                      </span>
+                    </>
+                  }
+                  actions={
+                    <button
+                      class="btn btn-outline btn-sm sm:btn-md min-w-28"
+                      onClick={refetch}
+                      type="button"
+                    >
+                      Refresh
+                    </button>
                   }
                 >
-                  {(assets) => (
-                    <div class="grid gap-4">
-                      <For each={assets()}>
-                        {(asset) => {
-                          const isUpdating = () => updatingIds().includes(asset.id);
-                          const toggleStatusLabel = () => {
-                            if (isUpdating()) {
-                              return "Saving...";
-                            }
-
-                            return asset.status === "ready" ? "Disable" : "Enable";
-                          };
-
-                          return (
-                            <div class="border-base-300 rounded-box grid gap-4 border p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-                              <div class="grid gap-4">
-                                <div class="flex flex-wrap items-center gap-2">
-                                  <h3 class="text-lg font-semibold">{asset.name}</h3>
-                                  <span
-                                    class={`badge ${asset.type === "goal" ? "badge-primary" : "badge-secondary"} badge-outline capitalize`}
-                                  >
-                                    {asset.type}
-                                  </span>
-                                  <span
-                                    class={`badge ${asset.status === "ready" ? "badge-success" : "badge-warning"} capitalize`}
-                                  >
-                                    {asset.status}
-                                  </span>
-                                  <Show when={asset.isDefault}>
-                                    <span class="badge badge-outline">Default</span>
-                                  </Show>
-                                </div>
-
-                                <div class="text-base-content/70 grid gap-2 text-sm sm:grid-cols-3">
-                                  <div>
-                                    <div class="text-base-content/60 text-xs font-semibold uppercase">
-                                      Duration
-                                    </div>
-                                    <div>{formatDuration(asset.durationMs)}</div>
-                                  </div>
-                                  <div>
-                                    <div class="text-base-content/60 text-xs font-semibold uppercase">
-                                      Size
-                                    </div>
-                                    <div>{formatBytes(asset.sizeBytes)}</div>
-                                  </div>
-                                  <div>
-                                    <div class="text-base-content/60 text-xs font-semibold uppercase">
-                                      Source
-                                    </div>
-                                    <div class="truncate">{asset.storagePath}</div>
-                                  </div>
-                                </div>
-
-                                <audio class="w-full" controls preload="metadata" src={asset.url}>
-                                  <track
-                                    default
-                                    kind="captions"
-                                    label="No captions available"
-                                    src={EMPTY_CAPTIONS_TRACK}
-                                    srclang="en"
-                                  />
-                                </audio>
-                              </div>
-
-                              <div class="flex justify-end">
-                                <button
-                                  class={`btn ${asset.status === "ready" ? "btn-soft btn-error" : "btn-outline"} gap-2`}
-                                  disabled={isUpdating()}
-                                  onClick={() => void toggleStatus(asset.id, asset.status)}
-                                  type="button"
-                                >
-                                  {asset.status === "ready" ? (
-                                    <VolumeX class="h-4 w-4" />
-                                  ) : (
-                                    <Volume2 class="h-4 w-4" />
-                                  )}
-                                  {toggleStatusLabel()}
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        }}
-                      </For>
-                    </div>
-                  )}
-                </Show>
-              </div>
-            </div>
+                  <DataTable
+                    columns={columns}
+                    data={assets()}
+                    emptyTitle="No sounds in the library"
+                    emptyDescription="Upload a goal or win sound to populate the shared library."
+                  />
+                </TableSection>
+              )}
+            </Show>
           </section>
         </Match>
       </Switch>
