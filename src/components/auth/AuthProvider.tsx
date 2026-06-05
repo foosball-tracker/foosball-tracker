@@ -37,7 +37,7 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
       return;
     }
 
-    bootstrapFallbackId = window.setTimeout(() => {
+    bootstrapFallbackId = globalThis.setTimeout(() => {
       if (disposed) return;
 
       setRecoveryMode(isRecoveryRedirect());
@@ -50,7 +50,7 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
       if (disposed) return;
 
       if (bootstrapFallbackId !== undefined) {
-        window.clearTimeout(bootstrapFallbackId);
+        globalThis.clearTimeout(bootstrapFallbackId);
         bootstrapFallbackId = undefined;
       }
 
@@ -81,7 +81,7 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
         if (disposed) return;
 
         if (bootstrapFallbackId !== undefined) {
-          window.clearTimeout(bootstrapFallbackId);
+          globalThis.clearTimeout(bootstrapFallbackId);
           bootstrapFallbackId = undefined;
         }
 
@@ -92,7 +92,7 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
         if (disposed) return;
 
         if (bootstrapFallbackId !== undefined) {
-          window.clearTimeout(bootstrapFallbackId);
+          globalThis.clearTimeout(bootstrapFallbackId);
           bootstrapFallbackId = undefined;
         }
 
@@ -105,7 +105,7 @@ export function AuthProvider(props: Readonly<{ children: JSX.Element }>) {
     onCleanup(() => {
       disposed = true;
       if (bootstrapFallbackId !== undefined) {
-        window.clearTimeout(bootstrapFallbackId);
+        globalThis.clearTimeout(bootstrapFallbackId);
       }
       subscription.unsubscribe();
     });
