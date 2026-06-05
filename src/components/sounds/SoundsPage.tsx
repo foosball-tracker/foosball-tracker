@@ -371,9 +371,6 @@ export default function SoundsPage() {
                       Admin
                     </p>
                     <h1 class="card-title text-2xl">Public sound library</h1>
-                    <p class="text-base-content/70 max-w-2xl text-sm">
-                      Manage the shared goal and win sound pools stored in Supabase Storage.
-                    </p>
                   </div>
                   <div class="text-base-content/70 flex items-center gap-2 text-sm font-medium">
                     <AudioLines class="h-4 w-4" />
@@ -444,12 +441,7 @@ export default function SoundsPage() {
 
                   <div class="rounded-box bg-base-200 flex flex-col gap-4 p-4">
                     <div class="flex items-center justify-between gap-3">
-                      <div>
-                        <h2 class="text-lg font-semibold">Preview</h2>
-                        <p class="text-base-content/70 text-sm">
-                          Validation runs in the browser before anything is uploaded.
-                        </p>
-                      </div>
+                      <h2 class="text-lg font-semibold">Preview</h2>
                       <div class="badge badge-outline">
                         {selectedFile() ? "Ready to review" : "No file selected"}
                       </div>
@@ -544,7 +536,6 @@ export default function SoundsPage() {
                 <TableSection
                   eyebrow="Library"
                   title="Existing sounds"
-                  description="Ready sounds are eligible for playback. Disabled sounds stay in the library but are skipped."
                   stats={
                     <>
                       <span class="badge badge-outline badge-sm gap-2 px-3 py-3">

@@ -42,8 +42,8 @@ const columns: ColumnDef<TeamWithMembers>[] = [
             </div>
             <div class="min-w-0">
               <p class="truncate font-semibold">{team.name}</p>
-              <p class="text-base-content/65 text-sm">
-                {memberCount} {memberCount === 1 ? "member" : "members"} ready for match setup.
+              <p class="text-base-content/65 text-sm sm:hidden">
+                {memberCount} {memberCount === 1 ? "member" : "members"}
               </p>
             </div>
           </div>
@@ -161,7 +161,6 @@ export default function Teams(props: RouteSectionProps) {
               <TableSection
                 eyebrow="Lineups"
                 title="Teams"
-                description="Keep custom pairings organized with a layout that can absorb future stats like record and goals scored without reworking the page."
                 stats={
                   <>
                     <span class="badge badge-outline badge-sm gap-2 px-3 py-3">

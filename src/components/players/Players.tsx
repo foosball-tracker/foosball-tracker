@@ -38,24 +38,16 @@ const columns: ColumnDef<Player>[] = [
       const player = info.row.original;
 
       return (
-        <div class="min-w-0 space-y-3">
-          <div class="flex min-w-0 items-center gap-3">
-            <div class="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold">
-              {getPlayerInitials(player.name)}
-            </div>
-            <div class="min-w-0">
-              <p class="truncate font-semibold">{player.name}</p>
-              <p class="text-base-content/65 text-sm">
-                Available for teams, matches, and standings.
-              </p>
-            </div>
+        <div class="flex min-w-0 items-center gap-3">
+          <div class="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold">
+            {getPlayerInitials(player.name)}
           </div>
-
-          <div class="flex flex-wrap items-center gap-2 sm:hidden">
-            <span class="badge badge-outline badge-sm">Match roster</span>
-            <span class="badge badge-outline badge-sm">Team eligible</span>
+          <div class="min-w-0 flex-1">
+            <p class="truncate font-semibold">{player.name}</p>
+          </div>
+          <div class="sm:hidden">
             <button
-              class="btn btn-soft btn-error btn-xs ml-auto"
+              class="btn btn-soft btn-error btn-xs min-w-18"
               onClick={() => openDeleteConfirm(player)}
             >
               Delete
@@ -64,19 +56,6 @@ const columns: ColumnDef<Player>[] = [
         </div>
       );
     },
-  },
-  {
-    header: "Usage",
-    meta: {
-      headerClass: "hidden sm:table-cell",
-      cellClass: "hidden sm:table-cell",
-    },
-    cell: () => (
-      <div class="flex flex-wrap gap-2">
-        <span class="badge badge-outline badge-sm">Match roster</span>
-        <span class="badge badge-outline badge-sm">Team eligible</span>
-      </div>
-    ),
   },
   {
     id: "actions",
@@ -136,7 +115,6 @@ function Players(props: RouteSectionProps) {
               <TableSection
                 eyebrow="Roster"
                 title="Players"
-                description="Manage the people available for match setup. The table structure leaves room for future stats without changing the surrounding page."
                 stats={
                   <span class="badge badge-outline badge-sm gap-2 px-3 py-3">
                     <Users class="h-3.5 w-3.5" />

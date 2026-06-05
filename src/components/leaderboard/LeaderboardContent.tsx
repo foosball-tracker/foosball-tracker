@@ -1,6 +1,5 @@
 import { createMemo, createResource, createSignal, Show } from "solid-js";
 import { type ColumnDef } from "@tanstack/solid-table";
-import { Shield, Users } from "lucide-solid";
 import {
   getLeaderboardSnapshot,
   type PlayerLeaderboardRow,
@@ -40,27 +39,11 @@ export function LeaderboardContent(props: Readonly<LeaderboardContentProps>) {
       accessorKey: "name",
       header: activeTab() === "teams" ? "Team" : "Player",
       cell: (info) => {
-        const row = info.row.original;
-
         return (
           <div class="min-w-0">
-            <p class="truncate font-semibold">{row.name}</p>
-            <div class="mt-1 flex flex-wrap gap-1.5">
-              <Show when={"type" in row}>
-                <span class="badge badge-outline badge-sm gap-1">
-                  <Shield class="h-3 w-3" />
-                  Team
-                </span>
-              </Show>
-              <Show when={!("type" in row)}>
-                <span class="badge badge-outline badge-sm gap-1">
-                  <Users class="h-3 w-3" />
-                  Player
-                </span>
-              </Show>
-              <span class="badge badge-outline badge-sm sm:hidden">
-                {info.row.original.wins} wins
-              </span>
+            <p class="truncate font-semibold">{info.row.original.name}</p>
+            <div class="mt-1 flex flex-wrap gap-1.5 sm:hidden">
+              <span class="badge badge-outline badge-sm">{info.row.original.wins} wins</span>
             </div>
           </div>
         );

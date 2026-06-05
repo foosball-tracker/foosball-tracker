@@ -5,7 +5,7 @@ import { cn } from "~/lib/utils";
 interface TableSectionProps extends JSX.HTMLAttributes<HTMLElement> {
   eyebrow?: string;
   title: string;
-  description: string;
+  description?: string;
   stats?: JSX.Element;
   actions?: JSX.Element;
 }
@@ -36,7 +36,9 @@ export const TableSection: ParentComponent<TableSectionProps> = (rawProps) => {
             </Show>
             <div class="space-y-1">
               <h1 class="card-title text-2xl">{local.title}</h1>
-              <p class="text-base-content/70 max-w-2xl text-sm">{local.description}</p>
+              <Show when={local.description}>
+                <p class="text-base-content/70 max-w-2xl text-sm">{local.description}</p>
+              </Show>
             </div>
           </div>
 
