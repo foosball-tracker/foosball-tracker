@@ -54,7 +54,7 @@ export const TableRow: ParentComponent<JSX.HTMLAttributes<HTMLTableRowElement>> 
 
 interface TableCellProps extends Omit<JSX.TdHTMLAttributes<HTMLTableCellElement>, "height"> {
   isHeader?: boolean;
-  height?: string | undefined;
+  height?: string;
 }
 
 export const TableCell: ParentComponent<TableCellProps> = (rawProps) => {

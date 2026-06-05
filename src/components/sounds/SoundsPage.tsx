@@ -37,6 +37,14 @@ function getSoundInitials(name: string) {
     .join("");
 }
 
+function getAssetToggleLabel(isUpdating: boolean, status: SoundAsset["status"]) {
+  if (isUpdating) {
+    return "Saving...";
+  }
+
+  return status === "ready" ? "Disable" : "Enable";
+}
+
 export default function SoundsPage() {
   const [profile] = createResource(getCurrentProfile);
   const [soundAssets, { refetch }] = createResource(
@@ -193,6 +201,7 @@ export default function SoundsPage() {
       header: "Sound",
       cell: (info) => {
         const asset = info.row.original;
+        const isUpdating = () => updatingIds().includes(asset.id);
 
         return (
           <div class="min-w-0 space-y-3">
@@ -244,15 +253,11 @@ export default function SoundsPage() {
                 class={`btn btn-xs min-w-28 ${
                   asset.status === "ready" ? "btn-soft btn-error" : "btn-outline"
                 }`}
-                disabled={updatingIds().includes(asset.id)}
+                disabled={isUpdating()}
                 onClick={() => void toggleStatus(asset.id, asset.status)}
                 type="button"
               >
-                {updatingIds().includes(asset.id)
-                  ? "Saving..."
-                  : asset.status === "ready"
-                    ? "Disable"
-                    : "Enable"}
+                {getAssetToggleLabel(isUpdating(), asset.status)}
               </button>
             </div>
           </div>
@@ -336,7 +341,7 @@ export default function SoundsPage() {
             type="button"
           >
             {asset.status === "ready" ? <VolumeX class="h-4 w-4" /> : <Volume2 class="h-4 w-4" />}
-            {isUpdating() ? "Saving..." : asset.status === "ready" ? "Disable" : "Enable"}
+            {getAssetToggleLabel(isUpdating(), asset.status)}
           </button>
         );
       },
